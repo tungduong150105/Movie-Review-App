@@ -73,4 +73,12 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    public void onClick_SignIn_LogIn(View view) {
+        String email = editTextEmail_PhoneNumber_LogIn.getText().toString();
+        String password = editTextPassword_LogIn.getText().toString();
+
+        //ToDo: Xử lý đăng nhập
+
+    }
 }
