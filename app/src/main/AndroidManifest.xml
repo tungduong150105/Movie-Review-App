@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +15,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieReviewApp"
         tools:targetApi="31">
+        <activity
+            android:name=".Activities.SeeAllActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.Changing_Password_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SecurityCode_Entering_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.Password_Assistance_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SignupActivity"
+            android:exported="false" />
         <activity
             android:name=".Activities.SearchActivity"
             android:exported="false" />

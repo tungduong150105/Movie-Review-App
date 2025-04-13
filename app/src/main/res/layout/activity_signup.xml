@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.SignupActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/light_black_huy"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:src="@mipmap/imdb_logo"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/grey_huy"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/robotobold"
+            android:text="Create account"
+            android:textColor="@color/white"
+            android:textSize="28sp" />
+
+        <EditText
+            android:id="@+id/editTextFirstAndLastName_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:paddingStart="8dp"
+            android:hint="First and last name"
+            android:textColorHint="@color/white_signup"
+            android:background="@drawable/edittext_container"
+            android:textColor="@color/white"/>
+
+        <EditText
+            android:id="@+id/editTextEmail_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:paddingStart="8dp"
+            android:hint="Your email address"
+            android:textColorHint="@color/white_signup"
+            android:background="@drawable/edittext_container"
+            android:textColor="@color/white"/>
+
+        <EditText
+            android:id="@+id/editTextPassword_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_container"
+            android:ems="10"
+            android:hint="Create a password"
+            android:inputType="textPassword"
+            android:paddingStart="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white_signup"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/information_mark"
+                android:background="@drawable/circle_background"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Passwords must be at least 8 characters."
+                android:layout_marginStart="10dp"
+                android:textSize="16sp"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/editTextRe_enterPassword_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_container"
+            android:ems="10"
+            android:hint="Re-enter password"
+            android:inputType="textPassword"
+            android:paddingStart="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white_signup"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:layout_marginTop="12dp"
+            android:textSize="16sp"
+            android:id="@+id/checkBoxShowPass_SignUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show password"
+            android:paddingStart="16dp"
+            android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_marginTop="12dp"
+            android:id="@+id/btnCreateAccount_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create your IMDb account"
+            android:background="@drawable/btn_background"
+            android:backgroundTint="@null"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:onClick="onClick_CreateAccount_SignUp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="12dp">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"
+                android:background="#424242" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account?"
+                android:textSize="12sp"
+                android:textColor="@color/white_signup"
+                android:paddingHorizontal="8dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"
+                android:background="#424242"/>
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_marginTop="12dp"
+            android:id="@+id/btnSignIn_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign-In now"
+            android:background="@drawable/signin_btn_background"
+            android:backgroundTint="@null"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:onClick="onClick_SignIn_SignUp"/>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
