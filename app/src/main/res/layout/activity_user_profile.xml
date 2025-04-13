@@ -67,16 +67,19 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/logout"
                     android:focusable="true"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:visibility="gone"/>
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="132dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@color/grey_user_profile">
+                android:background="@color/grey_user_profile"
+                android:minHeight="60dp"
+                android:padding="12dp">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btn_SignIn_SignUp_UserProfile"
@@ -95,19 +98,20 @@
                     android:onClick="onClick_SignIn_SignUp_UserProfile"/>
 
                 <LinearLayout
+                    android:layout_marginStart="8dp"
                     android:id="@+id/linearLayout3"
-                    android:layout_width="120dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
                     android:layout_marginBottom="6dp"
-                    android:layout_weight="1"
                     android:background="@drawable/bg_block"
                     android:gravity="center"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/linearLayout4">
 
-                    <TextView
+
+                <TextView
                         android:id="@+id/tvTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -127,16 +131,18 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="120dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:id="@+id/linearLayout4"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="6dp"
-                    android:layout_weight="1"
                     android:background="@drawable/bg_block"
                     android:gravity="center"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
-                    app:layout_constraintStart_toEndOf="@+id/linearLayout3">
+                    app:layout_constraintStart_toEndOf="@id/linearLayout3"
+                    app:layout_constraintEnd_toEndOf="parent">
 
                     <TextView
                         android:id="@+id/tvTitle2"
@@ -157,37 +163,37 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/linearLayout2"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_block"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/linearLayout2"-->
+<!--                    android:layout_width="120dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginEnd="10dp"-->
+<!--                    android:layout_marginBottom="6dp"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:background="@drawable/bg_block"-->
+<!--                    android:gravity="center"-->
+<!--                    android:orientation="vertical"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent">-->
 
-                    <TextView
-                        android:id="@+id/tvTitle3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="List"
-                        android:textColor="@color/white_signup"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/tvTitle3"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="List"-->
+<!--                        android:textColor="@color/white_signup"-->
+<!--                        android:textSize="14sp"-->
+<!--                        android:textStyle="bold" />-->
 
-                    <TextView
-                        android:id="@+id/textView_List_UserProfile"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/white_signup"
-                        android:textSize="12sp" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/textView_List_UserProfile"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="0"-->
+<!--                        android:textColor="@color/white_signup"-->
+<!--                        android:textSize="12sp" />-->
 
-                </LinearLayout>
+<!--                </LinearLayout>-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -230,7 +236,7 @@
                         android:text="0"
                         android:textColor="@color/white_signup"
                         android:textSize="16sp"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:id="@+id/textView_RecentlyViewed_Number_UserProfile"/>
 
                     <View
@@ -240,7 +246,7 @@
 
                     <TextView
                         android:id="@+id/textView_SeeAll_RecentlyViewed_UserProfile"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
@@ -337,7 +343,7 @@
                         android:text="0"
                         android:textColor="@color/white_signup"
                         android:textSize="16sp"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:id="@+id/textView_Ratings_Number_UserProfile"/>
 
                     <View
@@ -347,7 +353,7 @@
 
                     <TextView
                         android:id="@+id/textView_SeeAll_Ratings_UserProfile"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
@@ -460,7 +466,7 @@
                         android:text="0"
                         android:textColor="@color/white_signup"
                         android:textSize="16sp"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:id="@+id/textView_Watchlist_Number_UserProfile"/>
 
                     <View
@@ -470,7 +476,7 @@
 
                     <TextView
                         android:id="@+id/textView_SeeAll_Watchlist_UserProfile"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
