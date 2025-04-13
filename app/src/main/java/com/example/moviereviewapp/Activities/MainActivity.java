@@ -15,11 +15,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Button toSearchPage = findViewById(R.id.toSearchPage);
-//
-//        toSearchPage.setOnClickListener(v -> {
-//            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-//            startActivity(intent);
-//        });
+        Button toSearchPage = findViewById(R.id.button);
+
+        toSearchPage.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+            startActivity(intent);
+        });
     }
 }
