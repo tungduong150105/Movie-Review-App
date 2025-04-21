@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ButtonBarLayout;
 import androidx.core.graphics.Insets;
@@ -20,6 +22,19 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.moviereviewapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
     TextView textView_PasswordAssistance;
@@ -73,12 +88,42 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
-    public void onClick_SignIn_LogIn(View view) {
-        String email = editTextEmail_PhoneNumber_LogIn.getText().toString();
+    OkHttpClient client = new OkHttpClient();
+    MediaType mediaType = MediaType.parse("application/json");
+    void login(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+    public void onClick_SignIn_LogIn(View view) throws JSONException {
+        String username = editTextEmail_PhoneNumber_LogIn.getText().toString();
         String password = editTextPassword_LogIn.getText().toString();
 
         //ToDo: Xử lý đăng nhập
+        JSONObject body = new JSONObject();
+        body.put("username", username);
+        body.put("password", password);
 
+        login("https://movie-review-app-be.onrender.com/user/login", body.toString(), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("LoginActivity", "Failed to login", e);
+                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Failed to login, please login again", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.code() == 202) {
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 }
