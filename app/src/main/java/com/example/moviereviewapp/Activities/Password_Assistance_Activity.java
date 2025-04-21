@@ -1,6 +1,7 @@
 package com.example.moviereviewapp.Activities;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +25,12 @@ public class Password_Assistance_Activity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        //ToDo: Qua trinh thay doi Password tu Password_Assistance_Activity -> SecurityCode_Entering_Activity -> Changing_Password_Activity
+        editTextEmail_PhoneNumber_PasswordAssistance = findViewById(R.id.editTextEmail_PhoneNumber_PasswordAssistance);
+        btn_Continue_PasswordAssistance = findViewById(R.id.btn_Continue_PasswordAssistance);
+
+    }
+    public void onClick_Continue_PasswordAssistance(View view){
+        String email = editTextEmail_PhoneNumber_PasswordAssistance.getText().toString();
+        //TODO: xử lý sự kiện nhập và xác nhận email
     }
 }
