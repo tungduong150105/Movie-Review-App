@@ -4,18 +4,33 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.moviereviewapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SignupActivity extends AppCompatActivity {
     EditText editTextFirstAndLastName_SignUp, editTextEmail_SignUp, editTextPassword_SignUp, editTextRe_enterPassword_SignUp;
@@ -58,14 +73,66 @@ public class SignupActivity extends AppCompatActivity {
         });
 
         //ToDo: Xử lý đăng ký tài khoản
+        btnCreateAccount_SignUp.setOnClickListener(v -> {
+            try {
+                onClick_CreateAccount_SignUp(v);
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-    public void onClick_CreateAccount_SignUp(View view) {
-        String firstName = editTextFirstAndLastName_SignUp.getText().toString();
+    OkHttpClient client = new OkHttpClient();
+    MediaType mediaType = MediaType.parse("application/json");
+    void signup(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+    public void onClick_CreateAccount_SignUp(View view) throws IOException, JSONException {
+        String username = editTextFirstAndLastName_SignUp.getText().toString();
         String email = editTextEmail_SignUp.getText().toString();
         String password = editTextPassword_SignUp.getText().toString();
-        String reEnterPassword = editTextRe_enterPassword_SignUp.getText().toString();
+        String passwordConfirm = editTextRe_enterPassword_SignUp.getText().toString();
         //ToDo: Xử lý đăng ký tài khoản
+        if (!password.equals(passwordConfirm)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (password.length() < 8) {
+            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        JSONObject body = new JSONObject();
+        body.put("username", username);
+        body.put("email", email);
+        body.put("password", password);
+
+        signup("https://movie-review-app-be.onrender.com/user/signup", body.toString(), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, IOException e) {
+                Log.e("SignupActivity", "Failed to signup", e);
+                runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Failed to signup, please signup again", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.code() == 201) {
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Failed to signup, please signup again", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
     public void onClick_SignIn_SignUp(View view) {
