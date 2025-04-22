@@ -3,14 +3,29 @@ package com.example.moviereviewapp.Activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.moviereviewapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Changing_Password_Activity extends AppCompatActivity {
     EditText editText_EnterNewPassword_ChangePassword, editText_Re_EnterPassword_ChangePassword;
@@ -29,9 +44,51 @@ public class Changing_Password_Activity extends AppCompatActivity {
         editText_Re_EnterPassword_ChangePassword = findViewById(R.id.editText_Re_EnterPassword_ChangePassword);
         btn_SaveChanges_ChangePassword = findViewById(R.id.btn_SaveChanges_ChangePassword);
     }
-    public void onClick_SaveChanges_ChangePassword(View view) {
+    OkHttpClient client = new OkHttpClient();
+    MediaType mediaType = MediaType.parse("application/json");
+    void update_password(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .patch(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+    public void onClick_SaveChanges_ChangePassword(View view) throws JSONException {
         String newPassword = editText_EnterNewPassword_ChangePassword.getText().toString();
         String reEnteredPassword = editText_Re_EnterPassword_ChangePassword.getText().toString();
         //ToDo: Xử lý sự kiện khi người dùng nhấn nút "Save changes"
+        if (newPassword.isEmpty()) {
+            Toast.makeText(this, "Please enter your new password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!newPassword.equals(reEnteredPassword)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (newPassword.length() < 8) {
+            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String token = getIntent().getStringExtra("token");
+        JSONObject body = new JSONObject();
+        body.put("token", token);
+        body.put("password", newPassword);
+        update_password("https://movie-review-app-be.onrender.com/user/update_password", body.toString(), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.code() == 200) {
+                    runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Password changed successfully", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 }
