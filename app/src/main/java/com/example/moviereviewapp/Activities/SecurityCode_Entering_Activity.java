@@ -1,17 +1,33 @@
 package com.example.moviereviewapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.moviereviewapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SecurityCode_Entering_Activity extends AppCompatActivity {
     EditText editText_EnterSecurityCode_Verification;
@@ -36,9 +52,41 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
             //TODO: xử lý sự kiện click vào textView_ResendCode_Verification để gửi lại mã xác nhận
         });
     }
-    public void onClick_Continue_Verification(View view){
+    OkHttpClient client = new OkHttpClient();
+    MediaType mediaType = MediaType.parse("application/json");
+    void check_reset_token(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+    public void onClick_Continue_Verification(View view) throws JSONException {
         String securityCode = editText_EnterSecurityCode_Verification.getText().toString();
         //TODO: xử lý sự kiện nhập và xác nhận mã bảo mật
+
+        JSONObject body = new JSONObject();
+        body.put("token", securityCode);
+
+        check_reset_token("https://movie-review-app-be.onrender.com/user/check_reset_token", body.toString(), new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.code() == 200) {
+                    Intent intent = new Intent(SecurityCode_Entering_Activity.this, Changing_Password_Activity.class);
+                    intent.putExtra("token", securityCode);
+                    startActivity(intent);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Wrong token, please try again", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
 }

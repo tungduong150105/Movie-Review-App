@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         Button toSearchPage = findViewById(R.id.toSearchPage);
 
         toSearchPage.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
             startActivity(intent);
         });
     }
