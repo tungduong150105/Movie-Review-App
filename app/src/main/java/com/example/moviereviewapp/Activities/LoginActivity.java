@@ -121,7 +121,9 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                 } else {
-                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show());
+
+                    Intent intent = new Intent(LoginActivity.this, MainScreen.class);
+                    startActivity(intent);
                 }
             }
         });
