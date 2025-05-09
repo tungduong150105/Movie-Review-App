@@ -71,7 +71,7 @@ public class MainScreen extends AppCompatActivity {
 
     private Call<PersonResoponse> personCall;
     private int lastScrollY=0;
-    private final int MAX_PAGE = 100;
+    private final int MAX_PAGE = 50;
     private int currentPage = 1;
    private static final String TMDB_API_KEY="75d6190f47f7d58c6d0511ca393d2f7d";
 
@@ -646,7 +646,7 @@ private void comingrecyclerview(){
     private void setToolbar() {
         binding.ivHome.setOnClickListener(v -> {
             binding.ivHome.setImageResource(R.drawable.clicked_home_icon);
-            binding.ivSearch.setImageResource(R.drawable.searchicon);
+            binding.ivSearch.setImageResource(R.drawable.search_icon);
             binding.ivPlay.setImageResource(R.drawable.playicon);
             binding.ivProfile.setImageResource(R.drawable.usericon);
         });
@@ -660,14 +660,14 @@ private void comingrecyclerview(){
 
         binding.ivPlay.setOnClickListener(v -> {
             binding.ivHome.setImageResource(R.drawable.homeicon);
-            binding.ivSearch.setImageResource(R.drawable.searchicon);
+            binding.ivSearch.setImageResource(R.drawable.search_icon);
             binding.ivPlay.setImageResource(R.drawable.clicked_play_icon);
             binding.ivProfile.setImageResource(R.drawable.usericon);
         });
 
         binding.ivProfile.setOnClickListener(v -> {
             binding.ivHome.setImageResource(R.drawable.homeicon);
-            binding.ivSearch.setImageResource(R.drawable.searchicon);
+            binding.ivSearch.setImageResource(R.drawable.search_icon);
             binding.ivPlay.setImageResource(R.drawable.playicon);
             binding.ivProfile.setImageResource(R.drawable.clicked_user_icon);
         });
