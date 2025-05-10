@@ -625,8 +625,7 @@
             android:layout_weight="1"
 
             android:contentDescription="Search"
-            android:scaleType="centerInside"
-            android:src="@drawable/searchicon" />
+            android:src="@drawable/search_icon" />
 
         <ImageView
             android:id="@+id/ivPlay"
