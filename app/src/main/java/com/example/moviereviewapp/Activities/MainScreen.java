@@ -110,7 +110,12 @@ public class MainScreen extends AppCompatActivity {
         fetchtopratedtvseries();
 
 
-
+        Bundle extra = getIntent().getExtras();
+        if (extra != null) {
+            String session_id = extra.getString("session_id");
+            assert session_id != null;
+            Log.d("MainScreen", session_id);
+        }
     }
     private void topratedTvseriesRecyclerview(){
         topratedtvseriesAdapter =new tvseriesadapter(toprated);

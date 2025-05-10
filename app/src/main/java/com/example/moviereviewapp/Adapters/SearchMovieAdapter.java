@@ -42,7 +42,6 @@ public class SearchMovieAdapter extends ArrayAdapter<SearchMovieModel> {
             ImageView image = v.findViewById(R.id.imageMovie);
             TextView title = v.findViewById(R.id.textMovieName);
             TextView releaseDate = v.findViewById(R.id.textReleaseDate);
-            TextView actors = v.findViewById(R.id.textActors);
             if (image != null) {
                 Glide.with(mContext).load("https://image.tmdb.org/t/p/w500" + p.getImageUrl()).into(image);
             }
@@ -51,9 +50,6 @@ public class SearchMovieAdapter extends ArrayAdapter<SearchMovieModel> {
             }
             if (releaseDate != null) {
                 releaseDate.setText(p.getReleaseDate());
-            }
-            if (actors != null) {
-                actors.setText(p.getActors());
             }
         }
 

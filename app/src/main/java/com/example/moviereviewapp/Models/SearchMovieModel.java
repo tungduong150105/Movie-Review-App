@@ -1,15 +1,18 @@
 package com.example.moviereviewapp.Models;
 
 public class SearchMovieModel {
+    private final String id;
     private final String imageUrl;
     private final String title;
     private final String releaseDate;
-    private final String actors;
-    public SearchMovieModel(String imageUrl, String title, String releaseDate, String actors) {
+    public SearchMovieModel(String id, String imageUrl, String title, String releaseDate) {
+        this.id = id;
         this.imageUrl = imageUrl;
         this.title = title;
         this.releaseDate = releaseDate;
-        this.actors = actors;
+    }
+    public String getId() {
+        return id;
     }
     public String getImageUrl() {
         return imageUrl;
@@ -19,8 +22,5 @@ public class SearchMovieModel {
     }
     public String getReleaseDate() {
         return releaseDate;
-    }
-    public String getActors() {
-        return actors;
     }
 }

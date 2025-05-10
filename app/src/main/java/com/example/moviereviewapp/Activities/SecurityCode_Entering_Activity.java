@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 
 import org.json.JSONException;
@@ -34,6 +35,7 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
     androidx.appcompat.widget.AppCompatButton btn_Continue_Verification;
     TextView textView_ResendCode_Verification;
     //Todo: Kich hoat su kien onClick cho textView_ResendCode_Verification
+    UserAPI userAPI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,17 +53,7 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
         textView_ResendCode_Verification.setOnClickListener(v -> {
             //TODO: xử lý sự kiện click vào textView_ResendCode_Verification để gửi lại mã xác nhận
         });
-    }
-    OkHttpClient client = new OkHttpClient();
-    MediaType mediaType = MediaType.parse("application/json");
-    void check_reset_token(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(json, mediaType);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
+        userAPI = new UserAPI();
     }
     public void onClick_Continue_Verification(View view) throws JSONException {
         String securityCode = editText_EnterSecurityCode_Verification.getText().toString();
@@ -70,7 +62,7 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
         JSONObject body = new JSONObject();
         body.put("token", securityCode);
 
-        check_reset_token("https://movie-review-app-be.onrender.com/user/check_reset_token", body.toString(), new Callback() {
+        userAPI.call_api(userAPI + "/user/check_reset_token", body.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());

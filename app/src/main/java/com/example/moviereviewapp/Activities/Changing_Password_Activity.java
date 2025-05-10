@@ -1,5 +1,6 @@
 package com.example.moviereviewapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 
 import org.json.JSONException;
@@ -30,6 +32,7 @@ import okhttp3.Response;
 public class Changing_Password_Activity extends AppCompatActivity {
     EditText editText_EnterNewPassword_ChangePassword, editText_Re_EnterPassword_ChangePassword;
     androidx.appcompat.widget.AppCompatButton btn_SaveChanges_ChangePassword;
+    UserAPI userAPI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,17 +46,7 @@ public class Changing_Password_Activity extends AppCompatActivity {
         editText_EnterNewPassword_ChangePassword = findViewById(R.id.editText_EnterNewPassword_ChangePassword);
         editText_Re_EnterPassword_ChangePassword = findViewById(R.id.editText_Re_EnterPassword_ChangePassword);
         btn_SaveChanges_ChangePassword = findViewById(R.id.btn_SaveChanges_ChangePassword);
-    }
-    OkHttpClient client = new OkHttpClient();
-    MediaType mediaType = MediaType.parse("application/json");
-    void update_password(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(json, mediaType);
-        Request request = new Request.Builder()
-                .url(url)
-                .patch(body)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
+        userAPI = new UserAPI();
     }
     public void onClick_SaveChanges_ChangePassword(View view) throws JSONException {
         String newPassword = editText_EnterNewPassword_ChangePassword.getText().toString();
@@ -75,7 +68,7 @@ public class Changing_Password_Activity extends AppCompatActivity {
         JSONObject body = new JSONObject();
         body.put("token", token);
         body.put("password", newPassword);
-        update_password("https://movie-review-app-be.onrender.com/user/update_password", body.toString(), new Callback() {
+        userAPI.call_api(userAPI.get_UserAPI() + "user/update_password", body.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
@@ -84,6 +77,8 @@ public class Changing_Password_Activity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 if (response.code() == 200) {
+                    Intent intent = new Intent(Changing_Password_Activity.this, LoginActivity.class);
+                    startActivity(intent);
                     runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Password changed successfully", Toast.LENGTH_SHORT).show());
                 } else {
                     runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
