@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 
 import org.json.JSONException;
@@ -31,6 +32,7 @@ import okhttp3.Response;
 public class Password_Assistance_Activity extends AppCompatActivity {
     EditText editTextEmail_PhoneNumber_PasswordAssistance;
     androidx.appcompat.widget.AppCompatButton btn_Continue_PasswordAssistance;
+    UserAPI userAPI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,18 +45,7 @@ public class Password_Assistance_Activity extends AppCompatActivity {
         });
         editTextEmail_PhoneNumber_PasswordAssistance = findViewById(R.id.editTextEmail_PhoneNumber_PasswordAssistance);
         btn_Continue_PasswordAssistance = findViewById(R.id.btn_Continue_PasswordAssistance);
-
-    }
-    OkHttpClient client = new OkHttpClient();
-    MediaType mediaType = MediaType.parse("application/json");
-    void request_reset_password(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(json, mediaType);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
+        userAPI = new UserAPI();
     }
     public void onClick_Continue_PasswordAssistance(View view) throws JSONException {
         String email = editTextEmail_PhoneNumber_PasswordAssistance.getText().toString();
@@ -67,7 +58,7 @@ public class Password_Assistance_Activity extends AppCompatActivity {
         JSONObject body = new JSONObject();
         body.put("email", email);
 
-        request_reset_password("https://movie-review-app-be.onrender.com/user/request_reset_password", body.toString(), new Callback() {
+        userAPI.call_api(userAPI.get_UserAPI() + "/user/request_reset_password", body.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> Toast.makeText(Password_Assistance_Activity.this, "Failed to request reset password, please try again", Toast.LENGTH_SHORT).show());

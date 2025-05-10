@@ -30,7 +30,7 @@
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:color="@color/black"
+                android:textColor="@color/white"
                 android:hint="Movie Name" />
 
             <TextView
@@ -39,15 +39,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="15sp"
+                android:textColor="@color/white"
                 android:hint="Release Date" />
-
-            <TextView
-                android:id="@+id/textActors"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="15sp"
-                android:hint="Actors" />
         </LinearLayout>
 
     </LinearLayout>

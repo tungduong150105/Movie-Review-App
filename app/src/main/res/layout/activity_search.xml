@@ -10,11 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
+        android:background="@color/light_black_huy"
         android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/gray_800"
             android:orientation="horizontal">
 
             <EditText
@@ -44,7 +46,46 @@
                 android:clickable="true"
                 android:gravity="center_vertical"
                 android:textSize="18sp"
+                android:textColor="@color/white"
                 android:text="@string/cancel" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/gray_800"
+            android:paddingBottom="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/recent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:text="Recent" />
+
+            <TextView
+                android:id="@+id/comingSoon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:text="Coming soon" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <ListView
