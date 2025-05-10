@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,9 +30,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     private List<movies> moviesList;
     Context context;
 
-    public MovieAdapter(List<movies> moviesList) {
-        this.moviesList = moviesList != null ? moviesList : new ArrayList<>();
+    public interface OnItemClickListener {
+        void onItemClick(movies movie);
     }
+
+    private OnItemClickListener listener;
+
+    public MovieAdapter(List<movies> moviesList, OnItemClickListener listener) {
+        this.moviesList = moviesList != null ? moviesList : new ArrayList<>();
+        this.listener = listener;
+    }
+
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
@@ -41,7 +50,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        context= parent.getContext();
+        context = parent.getContext();
         View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new MovieViewHolder(inflate);
     }
@@ -53,6 +62,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         holder.titletxt.setText(movie.getMoviename());
         holder.liketxt.setText(String.valueOf(movie.getLike()));
         holder.trailerlinetxt.setText(movie.getTrailertext());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(movie);
+                }
+            }
+        });
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;
 
@@ -81,7 +99,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             }
         }, 2000);
 
-        Glide.with(context).load(movie.getPosterurl()) .into(holder.posterurl);
+        Glide.with(context).load(movie.getPosterurl()).into(holder.posterurl);
         Glide.with(context).load(movie.getBackdropurl()).into(holder.backimageurl);
 
     }
@@ -93,7 +111,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView posterurl, backimageurl,bookmark,alphaa;
+        ImageView posterurl, backimageurl, bookmark, alphaa;
         TextView titletxt, liketxt, trailerlinetxt;
 
         FrameLayout frameBookmark;
