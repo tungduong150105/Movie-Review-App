@@ -17,6 +17,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.moviereviewapp.Models.TMDBAPI;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 
 import org.json.JSONException;
@@ -26,17 +28,14 @@ import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class SignupActivity extends AppCompatActivity {
     EditText editTextFirstAndLastName_SignUp, editTextEmail_SignUp, editTextPassword_SignUp, editTextRe_enterPassword_SignUp;
     CheckBox checkBoxShowPass_SignUp;
     androidx.appcompat.widget.AppCompatButton btnCreateAccount_SignUp, btnSignIn_SignUp;
-
+    UserAPI userAPI;
+    TMDBAPI tmdbAPI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +71,6 @@ public class SignupActivity extends AppCompatActivity {
             editTextRe_enterPassword_SignUp.setSelection(editTextRe_enterPassword_SignUp.getText().length());
         });
 
-        //ToDo: Xử lý đăng ký tài khoản
         btnCreateAccount_SignUp.setOnClickListener(v -> {
             try {
                 onClick_CreateAccount_SignUp(v);
@@ -80,24 +78,16 @@ public class SignupActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
         });
-    }
-    OkHttpClient client = new OkHttpClient();
-    MediaType mediaType = MediaType.parse("application/json");
-    void signup(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(json, mediaType);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
+
+        userAPI = new UserAPI();
+        tmdbAPI = new TMDBAPI();
     }
     public void onClick_CreateAccount_SignUp(View view) throws IOException, JSONException {
         String username = editTextFirstAndLastName_SignUp.getText().toString();
         String email = editTextEmail_SignUp.getText().toString();
         String password = editTextPassword_SignUp.getText().toString();
         String passwordConfirm = editTextRe_enterPassword_SignUp.getText().toString();
-        //ToDo: Xử lý đăng ký tài khoản
+
         if (!password.equals(passwordConfirm)) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
@@ -116,9 +106,9 @@ public class SignupActivity extends AppCompatActivity {
         body.put("email", email);
         body.put("password", password);
 
-        signup("https://movie-review-app-be.onrender.com/user/signup", body.toString(), new Callback() {
+        userAPI.call_api(userAPI.get_UserAPI() + "/user/signup", body.toString(), new Callback() {
             @Override
-            public void onFailure(@NonNull Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("SignupActivity", "Failed to signup", e);
                 runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Failed to signup, please signup again", Toast.LENGTH_SHORT).show());
             }
@@ -126,8 +116,34 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 if (response.code() == 201) {
-                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    final String[] session_id = {""};
+                    tmdbAPI.get_api(tmdbAPI.get_url_new_session(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            Log.e("LoginActivity", "Failed to login", e);
+                            runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Have problem when login, try again", Toast.LENGTH_SHORT).show());
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) {
+                            Log.d("LoginActivity", response.code() + "");
+                            if (response.code() == 200) {
+                                try {
+                                    assert response.body() != null;
+                                    JSONObject jsonObject = new JSONObject(response.body().string());
+                                    session_id[0] = jsonObject.getString("guest_session_id");
+                                    Log.d("LoginActivity", session_id[0] + "ff");
+                                    if (!session_id[0].isEmpty()) {
+                                        Intent intent = new Intent(SignupActivity.this, MainScreen.class);
+                                        intent.putExtra("session_id", session_id[0]);
+                                        startActivity(intent);
+                                    }
+                                } catch (JSONException | IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                    });
                 } else {
                     runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Failed to signup, please signup again", Toast.LENGTH_SHORT).show());
                 }
