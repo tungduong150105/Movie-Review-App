@@ -85,8 +85,6 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
             frameBookmark = itemView.findViewById(R.id.frame);
             iconImage = itemView.findViewById(R.id.bookmark);
             alphaa=itemView.findViewById(R.id.alphaa);
-
-
         }
     }
 }

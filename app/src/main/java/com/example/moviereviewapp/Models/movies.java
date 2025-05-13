@@ -2,7 +2,9 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class movies {
+import java.io.Serializable;
+
+public class movies implements Serializable {
     public movies(String moviename, long revenue,String trailertext, String posterurl, String backdropurl, double like, double rating, String releasedate) {
         this.moviename = moviename;
         this.trailertext = trailertext;

@@ -78,6 +78,18 @@
                 app:layout_constraintStart_toEndOf="@+id/imgView_Avatar_SeeAll_Rating_Viewholder"
                 app:layout_constraintTop_toBottomOf="@+id/textView_Title_SeeAll_Rating_Viewholder" />
 
+            <TextView
+                android:id="@+id/textView_Length_SeeAll_Rating_Viewholder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:text="TextView"
+                android:textColor="@color/white_signup"
+                android:textSize="13sp"
+                app:layout_constraintStart_toEndOf="@+id/textView_ReleaseDate_SeeAll_Rating_Viewholder"
+                app:layout_constraintTop_toBottomOf="@+id/textView_Title_SeeAll_Rating_Viewholder" />
+
             <ImageView
                 android:id="@+id/imageView4"
                 android:layout_width="24dp"
@@ -101,26 +113,57 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView_ReleaseDate_SeeAll_Rating_Viewholder" />
 
             <ImageView
-                android:id="@+id/imageView5"
+                android:id="@+id/imageView_UserRating_SeeAll_Rating_Viewholder"
                 android:layout_width="24dp"
                 android:layout_height="20dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="14dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toEndOf="@+id/textView_AverageRating_SeeAll_Rating_Viewholder"
                 app:layout_constraintTop_toBottomOf="@+id/textView_ReleaseDate_SeeAll_Rating_Viewholder"
-                app:srcCompat="@drawable/blue_star" />
+                app:srcCompat="@drawable/blue_star"
+                android:visibility="gone"/>
 
             <TextView
-                android:id="@+id/textView_YourRating_SeeAll_Rating_Viewholder"
+                android:id="@+id/textView_UserRating_SeeAll_Rating_Viewholder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="6dp"
                 android:text="TextView"
-                android:textSize="17sp"
                 android:textColor="@color/white"
-                app:layout_constraintStart_toEndOf="@+id/imageView5"
+                android:textSize="17sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@+id/imageView_UserRating_SeeAll_Rating_Viewholder"
                 app:layout_constraintTop_toBottomOf="@+id/textView_ReleaseDate_SeeAll_Rating_Viewholder" />
+
+            <FrameLayout
+                android:id="@+id/frame_SeeAllRating_Viewholder"
+                android:layout_width="56dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="-10dp"
+                android:layout_marginTop="-12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- Nền mờ -->
+                <ImageView
+                    android:id="@+id/alphaa_SeeAllRating_Viewholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.6"
+                    android:src="@drawable/black_small_bookmark" />
+
+                <!-- Icon rõ nét -->
+                <ImageView
+                    android:id="@+id/bookmark_SeeAllRating_Viewholder"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/fill_plus_icon" />
+
+            </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
