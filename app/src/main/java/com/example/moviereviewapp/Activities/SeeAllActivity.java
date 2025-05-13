@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import com.example.moviereviewapp.Adapters.MovieSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.MovieSeeAllRatingAdapter;
 import com.example.moviereviewapp.Adapters.MovieUserProfileAdapter;
 import com.example.moviereviewapp.Models.Movie_UserProfile;
+import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.R;
 
 import java.util.ArrayList;
@@ -38,25 +40,45 @@ public class SeeAllActivity extends AppCompatActivity {
             return insets;
         });
 
-//        ImageView back = findViewById(R.id.back_SeeAll_Btn);
-//        back.setOnClickListener(v -> {
-//            Intent intent = new Intent(SeeAllActivity.this, UserProfileActivity.class);
-//            startActivity(intent);
-//        });
+        textView_Title_SeeAll = findViewById(R.id.textView_Title_SeeAll);
+
+        ImageView back = findViewById(R.id.back_SeeAll_Btn);
+        back.setOnClickListener(v -> {
+            finish();
+        });
 
         RecyclerView recyclerView = findViewById(R.id.recycleView_Movie_SeeAll);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        List<Movie_UserProfile> movieList = new ArrayList<>();
-        movieList.add(new Movie_UserProfile("", "Kaguya", "2024", 8.5, 8));
-        movieList.add(new Movie_UserProfile("", "Gotoubun", "2022", 4.5, 8));
-        movieList.add(new Movie_UserProfile("", "Kaguya111111111111111111111111111111111111111111111111111111111111111111111111111111", "2024", 8.5, 8));
-        movieList.add(new Movie_UserProfile("", "Gotoubun1", "2022", 4.5, 8));
+
+//        List<Movie_UserProfile> movieList = new ArrayList<>();
+//        movieList.add(new Movie_UserProfile("", "Kaguya", "2024", 8.5, 8));
+//        movieList.add(new Movie_UserProfile("", "Gotoubun", "2022", 4.5, 8));
+//        movieList.add(new Movie_UserProfile("", "Kaguya111111111111111111111111111111111111111111111111111111111111111111111111111111", "2024", 8.5, 8));
+//        movieList.add(new Movie_UserProfile("", "Gotoubun1", "2022", 4.5, 8));
+
+
+        String title = getIntent().getStringExtra("title");
+        List<movies> movieList = (List<movies>) getIntent().getSerializableExtra("movieList");
+
+        if (movieList == null) {
+            movieList = new ArrayList<>();
+            Toast.makeText(SeeAllActivity.this, "No movie list found", Toast.LENGTH_SHORT).show();
+        }
+
+        textView_Title_SeeAll.setText(title);
 
         //ToDo: su dung viewholder_viewall_movie cho recently viewed (tuong ung voi adapter)
         //ToDo: su dung viewholder_viewall_rating_movie cho rating, watchlist (tuong ung voi adapter)
-        MovieSeeAllRatingAdapter adapter = new MovieSeeAllRatingAdapter(this, movieList);
-        recyclerView.setAdapter(adapter);
+        if (title != null) {
+            if (title.equals("Recently Viewed")) {
+                MovieSeeAllAdapter adapter = new MovieSeeAllAdapter(this, movieList);
+                recyclerView.setAdapter(adapter);
+            } else {
+                MovieSeeAllRatingAdapter adapter = new MovieSeeAllRatingAdapter(this, movieList);
+                recyclerView.setAdapter(adapter);
+            }
+        }
     }
 }

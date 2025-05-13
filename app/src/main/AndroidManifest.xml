@@ -16,6 +16,9 @@
         android:theme="@style/Theme.MovieReviewApp"
         tools:targetApi="31">
         <activity
+            android:name=".Activities.SplashScreen"
+            android:exported="false" />
+        <activity
             android:name=".Activities.Rating"
             android:exported="false" />
         <activity

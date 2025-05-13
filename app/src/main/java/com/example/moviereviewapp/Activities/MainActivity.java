@@ -26,5 +26,17 @@ public class MainActivity extends AppCompatActivity {
           Intent intentq=new Intent(MainActivity.this,MainScreen.class);
           startActivity(intentq);
       });
+
+      Button bbb=findViewById(R.id.button3);
+      bbb.setOnClickListener(v->{
+          Intent intentw=new Intent(MainActivity.this,SplashScreen.class);
+          startActivity(intentw);
+      });
+
+      Button ccc=findViewById(R.id.button4);
+      ccc.setOnClickListener(v->{
+          Intent intentw=new Intent(MainActivity.this,UserProfileActivity.class);
+          startActivity(intentw);
+      });
     }
 }
