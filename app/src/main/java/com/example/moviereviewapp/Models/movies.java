@@ -70,6 +70,16 @@ public class movies implements Serializable {
         return "N/A";
     }
 
+    public int getYourRating() {
+        return yourRating;
+    }
+
+    public void setYourRating(int yourRating) {
+        this.yourRating = yourRating;
+    }
+
+    public int yourRating;
+
     public String getTrailertext() {
         return trailertext;
     }
