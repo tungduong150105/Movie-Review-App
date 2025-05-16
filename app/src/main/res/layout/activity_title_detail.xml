@@ -4,108 +4,1095 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.TitleDetailActivity">
+    android:background="@color/light_black_huy">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/posterImageView"
-            android:layout_width="150dp"
-            android:layout_height="225dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_launcher_background" />
-
-        <TextView
-            android:id="@+id/titleTextView"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/posterImageView"
-            app:layout_constraintTop_toTopOf="@id/posterImageView"
-            tools:text="Movie or TV Show Title" />
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
 
-        <TextView
-            android:id="@+id/ratingTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/posterImageView"
-            app:layout_constraintTop_toBottomOf="@id/titleTextView"
-            tools:text="Rating: 7.5" />
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="F1"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                tools:text="F1" />
 
-        <TextView
-            android:id="@+id/runtimeTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/posterImageView"
-            app:layout_constraintTop_toBottomOf="@id/ratingTextView"
-            tools:text="Runtime: 120 minutes" />
+            <TextView
+                android:id="@+id/yearTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="2025"
+                android:textColor="#989898"
+                android:textSize="16sp"
+                tools:text="2025" />
 
-        <TextView
-            android:id="@+id/episodesTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/posterImageView"
-            app:layout_constraintTop_toBottomOf="@id/runtimeTextView"
-            tools:text="Episodes: 10"
-            tools:visibility="visible" />
+            <ImageView
+                android:id="@+id/playTrailerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/playicon"
+                app:tint="#FFFFFF" />
 
-        <TextView
-            android:id="@+id/seasonTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/posterImageView"
-            app:layout_constraintTop_toBottomOf="@id/episodesTextView"
-            tools:text="Season: 1"
-            tools:visibility="visible" />
+            <TextView
+                android:id="@+id/trailerDurationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:text="Play Trailer 2:25"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Play Trailer 2:25" />
 
+            <TextView
+                android:id="@+id/releaseDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="F1 (2025)"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="F1 (2025)" />
 
-        <TextView
-            android:id="@+id/overviewLabel"
-            android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/likeCountTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="226"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="226" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/adobe_express___file__3_"
+                    app:tint="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/dislikeCountTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="108"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="108" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/thumbdown"
+                    app:tint="#FFFFFF" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Overview"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/posterImageView" />
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/overviewTextView"
-            android:layout_width="0dp"
+            <ImageView
+                android:id="@+id/moviePosterImageView"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:layout_marginEnd="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/mission_impossible_7__dead_reckoning_part_2_poster_by_andrewvm_dg3rz84" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/movieDescriptionTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="A Formula One driver comes out of retirement to mentor and team with a younger driver."
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    tools:text="A Formula One driver comes out of retirement to mentor and team with a younger driver." />
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/mainGenresFlowLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:paddingEnd="16dp"
+                    app:alignContent="flex_start"
+                    app:alignItems="flex_start"
+                    app:flexWrap="wrap" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/overviewLabel"
-            tools:text="This is a placeholder for the movie or TV show overview." />
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/comingSoonTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:text="Coming Soon"
+                android:textColor="#F8F8F8"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="Coming Soon" />
+
+            <TextView
+                android:id="@+id/releaseDateDetailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Release Date June 25, 2025 (United Kingdom)"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="Release Date June 25, 2025 (United Kingdom)" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addToWatchlistButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="left"
+                android:paddingVertical="12dp"
+                android:text="Add to Watchlist \n(Added by 67.5K users)"
+                android:textColor="#121212"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="#F5C518"
+                app:cornerRadius="4dp"
+                app:icon="@drawable/fill_plus_icon"
+                app:iconGravity="textStart"
+                app:iconTint="#121212" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSetServices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:paddingVertical="12dp"
+                android:text="SET YOUR PREFERRED SERVICES"
+                android:textColor="#4399E0"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/grey_user_profile"
+                app:cornerRadius="4dp"
+                app:icon="@drawable/white_setting"
+                app:iconGravity="textStart"
+                app:iconTint="#4399E0"
+                app:strokeColor="#4399E0"
+                app:strokeWidth="1dp"
+                tools:text="SET YOUR PREFERRED SERVICES" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/castTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Cast"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Cast" />
+
+                <TextView
+                    android:id="@+id/seeAllCastTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See all"
+                    android:textColor="#4399E0"
+                    android:textSize="14sp"
+                    tools:text="See all" />
+            </LinearLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/topCastRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/actorborntoday" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/directorTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Director"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    tools:text="Director" />
+
+                <TextView
+                    android:id="@+id/directorNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Joseph Kosinski"
+                    android:textColor="#989898"
+                    android:textSize="14sp"
+                    tools:text="Joseph Kosinski" />
+
+                <TextView
+                    android:id="@+id/writersTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Writers"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    tools:text="Writers" />
+
+                <TextView
+                    android:id="@+id/writersNamesTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Joseph Kosinski and Ehren Kruger"
+                    android:textColor="#989898"
+                    android:textSize="14sp"
+                    tools:text="Joseph Kosinski and Ehren Kruger" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/videosTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Videos"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Videos" />
+
+                <TextView
+                    android:id="@+id/tvSeeAllVideos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="See all"
+                    android:textColor="#4399E0"
+                    android:textSize="16sp"
+                    tools:text="See all" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/videosRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_video" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/photosTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Photos"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Photos" />
+
+                <TextView
+                    android:id="@+id/tvSeeAllPhotos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="See all"
+                    android:textColor="#4399E0"
+                    android:textSize="16sp"
+                    tools:text="See all" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/photosRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_photo" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/moreLikeThisTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="More like this"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="More like this" />
+
+                <TextView
+                    android:id="@+id/tvSeeAllMoreLikeThis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="See all"
+                    android:textColor="#4399E0"
+                    android:textSize="16sp"
+                    tools:text="See all" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/typeFilterTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/rounded_button_dark"
+                    android:padding="4dp"
+                    android:text="Type"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Type" />
+
+
+                <TextView
+                    android:id="@+id/genresFilterTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_button_dark"
+                    android:padding="4dp"
+                    android:text="Genres"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Genres" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/youMightAlsoLikeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="YOU MIGHT ALSO LIKE"
+                android:textColor="#F5C518"
+                android:textSize="14sp"
+                tools:text="YOU MIGHT ALSO LIKE" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/moreLikeThisRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_more_like_this" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/relatedInterestsTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Related interests"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Related interests" />
+            </LinearLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/relatedInterestsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_interest" />
+
+            <TextView
+                android:id="@+id/browseAllInterestsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Browse all interests"
+                android:textColor="#4399E0"
+                android:textSize="14sp"
+                tools:text="Browse all interests" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/parentsGuideTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Parents' Guide"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Parents' Guide" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/sexNudityTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sex and nudity: No votes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Sex and nudity: No votes" />
+
+                <TextView
+                    android:id="@+id/violenceGoreTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Violence and gore: No votes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Violence and gore: No votes" />
+
+                <TextView
+                    android:id="@+id/profanityTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Profanity: No votes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Profanity: No votes" />
+
+                <TextView
+                    android:id="@+id/alcoholDrugsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Alcohol, drugs and smoking: No votes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Alcohol, drugs and smoking: No votes" />
+
+                <TextView
+                    android:id="@+id/frighteningScenesTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Frightening and intense scenes: No votes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    tools:text="Frightening and intense scenes: No votes" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/didYouKnowTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Did you know?"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Did you know?" />
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/triviaTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Trivia"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Trivia" />
+
+            <TextView
+                android:id="@+id/triviaDetailsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Filming took place during the weekend of the British Grand Prix in July 2024 at Silverstone, UK. A garage was set up for the fictional Formula 1 team, and this garage was set up between the garages of the Mercedes and Ferrari teams."
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="Filming took place during the weekend of the British Grand Prix in July 2024 at Silverstone, UK. A garage was set up for the fictional Formula 1 team, and this garage was set up between the garages of the Mercedes and Ferrari teams." />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/storylineTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Storyline"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Storyline" />
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/plotSummaryTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Plot Summary"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Plot Summary" />
+
+            <TextView
+                android:id="@+id/plotDetailsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="A Formula One driver comes out of retirement to mentor and team with a younger driver."
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="A Formula One driver comes out of retirement to mentor and team with a younger driver." />
+
+            <TextView
+                android:id="@+id/taglineTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Tagline"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:text="Tagline"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/taglineDetailsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:text="This is where the movie's tagline will appear."
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/storylineGenresTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Genres"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Genres" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/storylineGenresFlowLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:alignContent="flex_start"
+                app:alignItems="flex_start"
+                app:flexWrap="wrap" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/keywordsTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Keywords"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Keywords" />
+            </LinearLayout>
+
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/keywordsFlexboxLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:alignContent="flex_start"
+                app:alignItems="flex_start"
+                app:flexWrap="wrap" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/grey_user_profile"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="24dp"
+                    android:background="#F5C518" />
+
+                <TextView
+                    android:id="@+id/detailsTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Details"
+                    android:textColor="#F8F8F8"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Details" />
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/releaseDateDetail2TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Release Date"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Release Date" />
+
+            <TextView
+                android:id="@+id/releaseDateValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="June 25, 2025"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="June 25, 2025" />
+
+            <TextView
+                android:id="@+id/countryOriginTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Country of Origin"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Country of Origin" />
+
+            <TextView
+                android:id="@+id/countryOriginValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="United States"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="United States" />
+
+            <TextView
+                android:id="@+id/languageSpokenTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Language Spoken"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Language Spoken" />
+
+            <TextView
+                android:id="@+id/languageSpokenValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="English"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="English" />
+
+            <TextView
+                android:id="@+id/productionCompaniesTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Production Companies"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Production Companies" />
+
+            <TextView
+                android:id="@+id/productionCompaniesValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Apple Studios, Plan B Entertainment, Jerry Bruckheimer Films"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="Apple Studios, Plan B Entertainment, Jerry Bruckheimer Films" />
+
+            <TextView
+                android:id="@+id/runtimeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Runtime"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                tools:text="Runtime" />
+
+            <TextView
+                android:id="@+id/runtimeValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="120 minutes"
+                android:textColor="#989898"
+                android:textSize="14sp"
+                tools:text="120 minutes" />
+
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
+    </LinearLayout>
 </ScrollView>
