@@ -2,9 +2,10 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Person {
+public class Person implements Serializable {
 
     public String getName() {
         return name;
@@ -52,8 +53,19 @@ public class Person {
     @SerializedName("id")
     private String personid;
 
+
     @SerializedName("gender")
     private int gender;
+
+    public String getRole(){
+        if(gender==1){
+            return"Actress";
+        }
+        else if(gender==2){
+            return"Actor";
+        }
+        return"";
+    }
 
     public void setDeathday(String deathday) {
         this.deathday = deathday;
@@ -86,7 +98,7 @@ public class Person {
     private boolean isGone;
 
     public String getAgeOrLifespan() {
-        if (birthdate == null || birthdate.isEmpty()) return "N/A";
+        if (birthdate == null || birthdate.isEmpty()) return "";
 
         int birthYear = Integer.parseInt(birthdate.substring(0, 4));
 

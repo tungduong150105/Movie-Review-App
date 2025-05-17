@@ -18,11 +18,16 @@ import com.example.moviereviewapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder> {
+public class  PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder> {
     Context context;
     List<Person> persons;
 
     public PersonAdapter(ArrayList<Person> person) {
+        this.persons=person;
+
+    }
+    public PersonAdapter(Context context,ArrayList<Person> person) {
+        this.context=context;
         this.persons=person;
 
     }

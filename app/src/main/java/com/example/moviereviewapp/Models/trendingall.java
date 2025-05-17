@@ -1,6 +1,9 @@
 package com.example.moviereviewapp.Models;
 import com.google.gson.annotations.SerializedName;
-public class trendingall {
+
+import java.io.Serializable;
+
+public class trendingall implements Serializable {
     public String getName() {
         if(name!=null){
             return name;

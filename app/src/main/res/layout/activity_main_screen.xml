@@ -120,7 +120,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
                 <TextView
-                    android:id="@+id/textView23"
+                    android:id="@+id/seealltoprated"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -272,7 +272,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView25"
+                    android:id="@+id/seaalltrending"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -327,7 +327,7 @@
 
 
                 <TextView
-                    android:id="@+id/textView26"
+                    android:id="@+id/seeallperson"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -345,7 +345,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Born today"
+                    android:text="Popular actors and actresses"
                     android:textColor="#F8F8F8"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView13"
@@ -463,7 +463,7 @@
                 </androidx.recyclerview.widget.RecyclerView>
 
                 <TextView
-                    android:id="@+id/textView21"
+                    android:id="@+id/seeallcomingsoon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -518,7 +518,7 @@
                 </androidx.recyclerview.widget.RecyclerView>
 
                 <TextView
-                    android:id="@+id/textView210"
+                    android:id="@+id/seeallontheair"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -583,7 +583,7 @@
                 </androidx.recyclerview.widget.RecyclerView>
 
                 <TextView
-                    android:id="@+id/textView2100"
+                    android:id="@+id/seealltvseriestoprated"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"

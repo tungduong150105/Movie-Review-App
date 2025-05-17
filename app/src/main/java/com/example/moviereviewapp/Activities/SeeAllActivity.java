@@ -1,5 +1,6 @@
 package com.example.moviereviewapp.Activities;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -17,23 +18,32 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.moviereviewapp.Adapters.MovieSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.MovieSeeAllRatingAdapter;
 import com.example.moviereviewapp.Adapters.MovieUserProfileAdapter;
+import com.example.moviereviewapp.Adapters.PersonAdapter;
+import com.example.moviereviewapp.Adapters.PersonSeeAllAdapter;
+import com.example.moviereviewapp.Adapters.TVSeriesSeeAllAdapter;
+import com.example.moviereviewapp.Adapters.TrendingSeeallAdapter;
+import com.example.moviereviewapp.Adapters.tvseriesadapter;
 import com.example.moviereviewapp.Models.Movie_UserProfile;
 import com.example.moviereviewapp.Models.movies;
+import com.example.moviereviewapp.Models.trendingall;
+import com.example.moviereviewapp.Models.tvseries;
+import com.example.moviereviewapp.Models.Person;
 import com.example.moviereviewapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SeeAllActivity extends AppCompatActivity {
+
     ImageView back_SeeAll_Btn;
-    //ToDo: kich hoat su kien onClick cho back_SeeAll_Btn de nguoi dung tro lai hoat dong truoc
     TextView textView_Title_SeeAll;
-    //ToDo: hien thi ten truong hop muon hien thi
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_see_all);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -41,44 +51,79 @@ public class SeeAllActivity extends AppCompatActivity {
         });
 
         textView_Title_SeeAll = findViewById(R.id.textView_Title_SeeAll);
+        back_SeeAll_Btn = findViewById(R.id.back_SeeAll_Btn);
 
-        ImageView back = findViewById(R.id.back_SeeAll_Btn);
-        back.setOnClickListener(v -> {
-            finish();
-        });
+        // Nút quay lại
+        back_SeeAll_Btn.setOnClickListener(v -> finish());
 
         RecyclerView recyclerView = findViewById(R.id.recycleView_Movie_SeeAll);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-
-//        List<Movie_UserProfile> movieList = new ArrayList<>();
-//        movieList.add(new Movie_UserProfile("", "Kaguya", "2024", 8.5, 8));
-//        movieList.add(new Movie_UserProfile("", "Gotoubun", "2022", 4.5, 8));
-//        movieList.add(new Movie_UserProfile("", "Kaguya111111111111111111111111111111111111111111111111111111111111111111111111111111", "2024", 8.5, 8));
-//        movieList.add(new Movie_UserProfile("", "Gotoubun1", "2022", 4.5, 8));
-
-
+        // Nhận dữ liệu từ Intent
         String title = getIntent().getStringExtra("title");
-        List<movies> movieList = (List<movies>) getIntent().getSerializableExtra("movieList");
-
-        if (movieList == null) {
-            movieList = new ArrayList<>();
-            Toast.makeText(SeeAllActivity.this, "No movie list found", Toast.LENGTH_SHORT).show();
-        }
+        String type = getIntent().getStringExtra("type");
 
         textView_Title_SeeAll.setText(title);
 
-        //ToDo: su dung viewholder_viewall_movie cho recently viewed (tuong ung voi adapter)
-        //ToDo: su dung viewholder_viewall_rating_movie cho rating, watchlist (tuong ung voi adapter)
-        if (title != null) {
-            if (title.equals("Recently Viewed")) {
-                MovieSeeAllAdapter adapter = new MovieSeeAllAdapter(this, movieList);
-                recyclerView.setAdapter(adapter);
-            } else {
-                MovieSeeAllRatingAdapter adapter = new MovieSeeAllRatingAdapter(this, movieList);
-                recyclerView.setAdapter(adapter);
-            }
+        if (type == null) {
+            Toast.makeText(this, "No type specified", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        switch (type) {
+            case "movies":
+                List<movies> movieList = (List<movies>) getIntent().getSerializableExtra("movieList");
+                if (movieList == null) {
+                    movieList = new ArrayList<>();
+                    Toast.makeText(this, "No movies found", Toast.LENGTH_SHORT).show();
+                }
+
+                if (title != null && title.equals("Recently Viewed")) {
+                    MovieSeeAllAdapter movieAdapter = new MovieSeeAllAdapter(this, movieList);
+                    recyclerView.setAdapter(movieAdapter);
+                } else {
+                    MovieSeeAllRatingAdapter ratingAdapter = new MovieSeeAllRatingAdapter(this, movieList);
+                    recyclerView.setAdapter(ratingAdapter);
+                }
+                break;
+
+            case "tvseries":
+                List<tvseries> seriesList = (List<tvseries>) getIntent().getSerializableExtra("tvseriesList");
+                if (seriesList == null) {
+                    seriesList = new ArrayList<>();
+                    Toast.makeText(this, "No TV series found", Toast.LENGTH_SHORT).show();
+                }
+
+                TVSeriesSeeAllAdapter seriesAdapter = new TVSeriesSeeAllAdapter (this,seriesList);
+                recyclerView.setAdapter(seriesAdapter);
+                break;
+
+
+            case "trending":
+                List<trendingall> trendingList = (List<trendingall>) getIntent().getSerializableExtra("trendingList");
+                if (trendingList == null) {
+                    trendingList = new ArrayList<>();
+                    Toast.makeText(this, "No movies found", Toast.LENGTH_SHORT).show();
+                }
+
+                TrendingSeeallAdapter trendingAdapter = new TrendingSeeallAdapter (this,trendingList);
+                recyclerView.setAdapter(trendingAdapter);
+                break;
+
+            case "person":
+                ArrayList<Person> personList = (ArrayList<Person>) getIntent().getSerializableExtra("personList");
+                if (personList == null) {
+                    personList = new ArrayList<>();
+                    Toast.makeText(this, "No persons found", Toast.LENGTH_SHORT).show();
+                }
+
+                PersonSeeAllAdapter personAdapter = new PersonSeeAllAdapter( this, personList);
+                recyclerView.setAdapter(personAdapter);
+                break;
+
+            default:
+                Toast.makeText(this, "Unknown type: " + type, Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 }
