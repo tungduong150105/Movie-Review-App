@@ -40,8 +40,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         holder.photoImageView.setLayoutParams(layoutParams);
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
-                .placeholder(R.drawable.maxresdefault)
-                .error(R.drawable.maxresdefault)
+                .placeholder(R.drawable.rounded_image_background)
+                .error(R.drawable.rounded_image_background)
                 .into(holder.photoImageView);
     }
 

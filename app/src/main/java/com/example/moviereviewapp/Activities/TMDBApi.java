@@ -6,6 +6,7 @@ import com.example.moviereviewapp.Models.MovieKeywordResponse;
 import com.example.moviereviewapp.Models.SimilarItemsResponse;
 import com.example.moviereviewapp.Models.TvShowImages;
 import com.example.moviereviewapp.Models.TvShowKeywordResponse;
+import com.example.moviereviewapp.Models.VideoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -116,5 +117,20 @@ public interface TMDBApi {
             @Query("api_key") String apiKey,
             @Query("language") String language,
             @Query("page") int page
+    );
+
+
+    @GET("movie/{movie_id}/videos")
+    Call<VideoResponse> getMovieVideos(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language
+    );
+
+    @GET("tv/{tv_id}/videos")
+    Call<VideoResponse> getTvShowVideos(
+            @Path("tv_id") int tvId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language
     );
 }
