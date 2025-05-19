@@ -2,7 +2,9 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SimilarItem {
+import java.io.Serializable;
+
+public class SimilarItem implements Serializable {
     @SerializedName("id")
     private int id;
     @SerializedName("poster_path")
@@ -23,7 +25,7 @@ public class SimilarItem {
     }
 
     public String getPosterPath() {
-        return posterPath;
+        return "https://image.tmdb.org/t/p/w500"+ posterPath;
     }
 
     public String getTitle() {
@@ -38,12 +40,34 @@ public class SimilarItem {
         return name;
     }
 
+    public String getLength() {
+        return length;
+    }
+    public void setLengthFromRuntime(int runtimeMinutes) {
+        int hours = runtimeMinutes / 60;
+        int minutes = runtimeMinutes % 60;
+        this.length = hours + "h " + minutes + "m";
+    }
+
+    public void setLength(String length) {
+        this.length = length;
+    }
+
+    public String length;
+
     public double getVoteAverage() {
-        return voteAverage;
+
+            return Math.round(voteAverage * 10.0) / 10.0;
+
+
     }
 
     public String getReleaseDate() {
-        return releaseDate != null ? releaseDate : firstAirDate;
+        String date = releaseDate != null ? releaseDate : firstAirDate;
+        if (date != null && date.length() >= 4) {
+            return date.substring(0, 4); // Lấy 4 ký tự đầu (năm)
+        }
+        return "N/A"; // Trường hợp null hoặc sai định dạng
     }
 
     public String getMovieReleaseDate() {

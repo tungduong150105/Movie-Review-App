@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -61,6 +62,8 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
         TextView titleTextView;
         TextView yearTextView;
         TextView ratingTextView;
+        ImageView  iconImage,alphaa;
+        FrameLayout frameBookmark;
 
         public SimilarViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +75,9 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
             } catch (Exception e) {
                 ratingTextView = null;
             }
+            frameBookmark = itemView.findViewById(R.id.frame);
+            iconImage = itemView.findViewById(R.id.bookmark);
+            alphaa=itemView.findViewById(R.id.alphaa);
         }
 
         void bind(final SimilarItem item, final OnItemClickListener listener) {
@@ -109,6 +115,28 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                     }
                 }
             });
+
+            frameBookmark.setOnClickListener(new View.OnClickListener() {
+                boolean isBookmarked = false;
+
+                @Override
+                public void onClick(View v) {
+                    isBookmarked = !isBookmarked;
+
+                    if (isBookmarked) {
+                        alphaa.setAlpha(1f);
+                        alphaa.setImageResource(R.drawable.yellow_bookmark);
+                        iconImage.setImageResource(R.drawable.black_tick);
+                        //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                    } else {
+                        alphaa.setAlpha(0.6f);
+                        alphaa.setImageResource(R.drawable.black_small_bookmark);
+                        iconImage.setImageResource(R.drawable.fill_plus_icon);
+                        //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                    }
+                }
+            });
+
         }
     }
 }

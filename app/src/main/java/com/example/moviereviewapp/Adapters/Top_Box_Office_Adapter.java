@@ -19,7 +19,7 @@ import com.example.moviereviewapp.R;
 
 import java.util.ArrayList;
 
-public class Top_Box_Office_Adapter extends ArrayAdapter<movies> {
+public class   Top_Box_Office_Adapter extends ArrayAdapter<movies> {
 
     public Top_Box_Office_Adapter(@NonNull Context context, ArrayList<movies> movie) {
         super(context, 0, movie);

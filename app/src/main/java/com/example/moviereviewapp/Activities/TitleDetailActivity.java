@@ -36,12 +36,14 @@ import com.example.moviereviewapp.Models.TvShowKeywordResponse;
 import com.example.moviereviewapp.Activities.tvseriesdetail;
 import com.example.moviereviewapp.Models.VideoResponse;
 import com.example.moviereviewapp.Models.VideoResult;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 import com.example.moviereviewapp.databinding.ActivityTitleDetailBinding;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -99,6 +101,10 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
         fetchItemDetails();
         setupClickListeners();
+        setupSeeAll();
+    }
+    private void setupSeeAll(){
+
     }
 
     private boolean parseIntentExtras() {
@@ -278,7 +284,27 @@ public class TitleDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void fetchPersonDetail(Person basicPerson) {
+        TMDBApi api = RetrofitClient.getApiService();
+        Call<PersonDetail>detail= api.getPersonDetail(basicPerson.getPersonid(), TMDB_API_KEY);
 
+        detail.enqueue(new Callback<PersonDetail>() {
+            @Override
+            public void onResponse(Call<PersonDetail> call, Response<PersonDetail> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PersonDetail detail = response.body();
+                    basicPerson.setBirthdate(detail.getBirthday());
+                    basicPerson.setDeathday(detail.getDeathday());
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PersonDetail> call, Throwable t) {
+                Log.e("API_DETAIL_ERROR", "Lỗi lấy chi tiết: " + t.getMessage(), t);
+            }
+        });
+    }
     private void fetchTvSeriesDetail(int tvShowId) {
         TMDBApi api = RetrofitClient.getApiService();
         Call<tvseriesdetail> call = api.getTvSeriesDetailWithCreditsAndGenres(tvShowId, TMDB_API_KEY, "credits");
@@ -395,7 +421,21 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.titleTextView.setText(movie.getTitle());
         updateOverview(movie.getOverview());
         displayGenres(movie.getGenres());
+        for(Person a: movie.getCast()){
+            fetchPersonDetail(a);
+        };
         updateCast(movie.getCast());
+        binding.seeAllCastTextView.setOnClickListener(V->{
+            Intent intent=new Intent(TitleDetailActivity.this,SeeAllActivity.class);
+
+            intent.putExtra("type","person");
+            intent.putExtra("title","Cast");
+
+            intent.putExtra("personList",(Serializable) movie.getCast());
+            if(movie.getCast()!=null){
+                startActivity(intent);
+            }
+        });
         updatePoster(movie.getPosterPath());
         updateCrew(movie.getCrew());
         updateMovieReleaseDate(movie.getReleaseDate(), movie.getTitle());
@@ -412,7 +452,21 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.titleTextView.setText(tvShow.getName());
         updateOverview(tvShow.getOverview());
         displayGenres(tvShow.getGenres());
+        for(Person a: tvShow.getCast()){
+            fetchPersonDetail(a);
+        };
         updateCast(tvShow.getCast());
+        binding.seeAllCastTextView.setOnClickListener(V->{
+            Intent intent=new Intent(TitleDetailActivity.this,SeeAllActivity.class);
+
+            intent.putExtra("type","person");
+            intent.putExtra("title","Cast");
+
+            intent.putExtra("personList",(Serializable) tvShow.getCast());
+            if(tvShow.getCast()!=null){
+                startActivity(intent);
+            }
+        });
         updatePoster(tvShow.getPosterPath());
         updateCrew(tvShow.getCrew());
         updateTvShowAirDates(tvShow.getFirstAirDate(), tvShow.getLastAirDate(), tvShow.getName());
@@ -777,6 +831,28 @@ public class TitleDetailActivity extends AppCompatActivity {
 
     private void updateSimilarItemsUI(@Nullable List<SimilarItem> items) {
         boolean hasItems = items != null && !items.isEmpty();
+        TMDBApi api = RetrofitClient.getApiService();
+        for (SimilarItem movie : items) {
+            int movieId = movie.getId();
+            Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+            detailCall.enqueue(new Callback<MovieDetail>() {
+                @Override
+                public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        int runtime = response.body().getRuntime();
+                        movie.setLengthFromRuntime(runtime);
+
+
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MovieDetail> call, Throwable t) {
+                    Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+                }
+            });
+        }
         if (hasItems) {
             similarItemsAdapter.updateData(items);
         } else {
@@ -785,6 +861,18 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
         setViewVisibility(binding.moreLikeThisTextView, hasItems);
         setViewVisibility(binding.moreLikeThisRecyclerView, hasItems);
+        binding.tvSeeAllMoreLikeThis.setOnClickListener(V->{
+            Intent intent=new Intent(TitleDetailActivity.this,SeeAllActivity.class);
+
+            intent.putExtra("type","similaritem");
+            intent.putExtra("title","More like this");
+
+            intent.putExtra("movieList",(Serializable) items);
+            if(items!=null){
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void onSimilarItemClicked(SimilarItem item) {

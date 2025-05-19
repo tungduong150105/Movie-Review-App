@@ -1,7 +1,6 @@
 package com.example.moviereviewapp.Activities;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,13 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviereviewapp.Adapters.MovieSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.MovieSeeAllRatingAdapter;
-import com.example.moviereviewapp.Adapters.MovieUserProfileAdapter;
-import com.example.moviereviewapp.Adapters.PersonAdapter;
 import com.example.moviereviewapp.Adapters.PersonSeeAllAdapter;
+import com.example.moviereviewapp.Adapters.SeeAllSimilarItemAdapter;
 import com.example.moviereviewapp.Adapters.TVSeriesSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.TrendingSeeallAdapter;
-import com.example.moviereviewapp.Adapters.tvseriesadapter;
-import com.example.moviereviewapp.Models.Movie_UserProfile;
+import com.example.moviereviewapp.Models.SimilarItem;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.Models.tvseries;
@@ -119,6 +116,18 @@ public class SeeAllActivity extends AppCompatActivity {
 
                 PersonSeeAllAdapter personAdapter = new PersonSeeAllAdapter( this, personList);
                 recyclerView.setAdapter(personAdapter);
+                break;
+
+
+            case "similaritem":
+                ArrayList<SimilarItem> similarList = (ArrayList<SimilarItem>) getIntent().getSerializableExtra("movieList");
+                if (similarList == null) {
+                    similarList = new ArrayList<>();
+                    Toast.makeText(this, "No persons found", Toast.LENGTH_SHORT).show();
+                }
+
+                SeeAllSimilarItemAdapter SeeAllSimilarItemAdapter = new SeeAllSimilarItemAdapter( this, similarList);
+                recyclerView.setAdapter(SeeAllSimilarItemAdapter);
                 break;
 
             default:

@@ -101,6 +101,8 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <!-- Nền mờ -->
+
+                <!-- Icon rõ nét -->
                 <ImageView
                     android:id="@+id/alphaa_SeeAll_Viewholder"
                     android:layout_width="match_parent"
@@ -108,7 +110,6 @@
                     android:alpha="0.6"
                     android:src="@drawable/black_small_bookmark" />
 
-                <!-- Icon rõ nét -->
                 <ImageView
                     android:id="@+id/bookmark_SeeAll_Viewholder"
                     android:layout_width="30dp"
