@@ -4,6 +4,7 @@ import static androidx.core.graphics.RectKt.transform;
 
 import android.content.Context;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 isBookmarked = !isBookmarked;
 
                 if (isBookmarked) {
+                    Log.d("Watchlist", movie.getMovieId() + "");
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.bookmark.setImageResource(R.drawable.black_tick);
