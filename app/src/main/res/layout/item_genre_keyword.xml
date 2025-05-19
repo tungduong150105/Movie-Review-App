@@ -1,0 +1,9 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/rounded_button_dark"
+    android:padding="4dp"
+    android:textColor="#F8F8F8"
+    android:textSize="12sp" />

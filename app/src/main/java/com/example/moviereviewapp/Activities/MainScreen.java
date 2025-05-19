@@ -1,5 +1,6 @@
 package com.example.moviereviewapp.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainScreen extends AppCompatActivity {
+public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItemClickListener {
     private ActivityMainScreenBinding binding;
     private MovieAdapter adapter;
     private MovieItemAdapter itemadapter, topratedadapter;
@@ -530,7 +531,7 @@ public class MainScreen extends AppCompatActivity {
     private void setupRecyclerView() {
 
         try {
-            adapter = new MovieAdapter(moviesList);
+            adapter = new MovieAdapter(moviesList, this);
             binding.toplistmovie.setAdapter(adapter);
             binding.toplistmovie.setOffscreenPageLimit(1);
 
@@ -686,5 +687,15 @@ private void comingrecyclerview(){
             }
             lastScrollY = scrollY;
         });
+    }
+    // Inside your MainScreen class
+
+    @Override
+    public void onItemClick(movies movie) {
+        Log.d("MainScreen", "Clicked on movie: " + movie.getMoviename());
+        Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("itemType", "movie");
+        intent.putExtra("itemId", movie.getMovieId());
+        startActivity(intent);
     }
 }

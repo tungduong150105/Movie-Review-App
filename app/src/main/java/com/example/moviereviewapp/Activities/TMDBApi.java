@@ -1,6 +1,13 @@
 package com.example.moviereviewapp.Activities;
 
 
+import com.example.moviereviewapp.Models.MovieImages;
+import com.example.moviereviewapp.Models.MovieKeywordResponse;
+import com.example.moviereviewapp.Models.SimilarItemsResponse;
+import com.example.moviereviewapp.Models.TvShowImages;
+import com.example.moviereviewapp.Models.TvShowKeywordResponse;
+import com.example.moviereviewapp.Models.VideoResponse;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -9,13 +16,14 @@ import retrofit2.http.Query;
 public interface TMDBApi {
     @GET("movie/popular")
     Call<MovieResponse> getPopularMovies(@Query("api_key") String apiKey);
+
     @GET("movie/upcoming")
     Call<MovieResponse> getUpcomingMovies(@Query("api_key") String apiKey);
+
     @GET("movie/top_rated")
-
     Call<MovieResponse> getTopRatedMovies(@Query("api_key") String apiKey);
-    @GET("trending/movie/day")
 
+    @GET("trending/movie/day")
     Call<MovieResponse> getTrendingMovies(@Query("api_key") String apiKey);
 
 
@@ -24,6 +32,7 @@ public interface TMDBApi {
             , @Query("page") int page
 
     );
+
     @GET("movie/{movie_id}")
     Call<MovieDetail> getMovieDetail(
             @Path("movie_id") int movieId,
@@ -34,6 +43,7 @@ public interface TMDBApi {
     Call<trendingresponse> getTrendingAll(
             @Query("api_key") String apiKey
     );
+
     @GET("person/popular")
     Call<PersonResoponse> getPerson(
             @Query("api_key") String apiKey
@@ -45,11 +55,13 @@ public interface TMDBApi {
             @Query("api_key") String apiKey
             , @Query("page") int page
     );
+
     @GET("tv/top_rated")
     Call<tvseriesresponse> getTvSeriesTopRated(
             @Query("api_key") String apiKey
             , @Query("page") int page
     );
+
     @GET("tv/{series_id}")
     Call<tvseriesdetail> getTvSeriesDetail(
 
@@ -64,7 +76,61 @@ public interface TMDBApi {
             @Query("api_key") String apiKey
     );
 
+    @GET("movie/{movie_id}")
+    Call<MovieDetail> getMovieDetailWithCreditsAndGenres(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey,
+            @Query("append_to_response") String appendToResponse
+    );
+
+    @GET("tv/{tv_id}")
+    Call<tvseriesdetail> getTvSeriesDetailWithCreditsAndGenres(
+            @Path("tv_id") int tvId,
+            @Query("api_key") String apiKey,
+            @Query("append_to_response") String appendToResponse
+    );
+
+    @GET("movie/{movie_id}/images")
+    Call<MovieImages> getMovieImages(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
+
+    @GET("tv/{tv_id}/images")
+    Call<TvShowImages> getTvShowImages(@Path("tv_id") int tvId, @Query("api_key") String apiKey);
+
+    @GET("movie/{movie_id}/keywords")
+    Call<MovieKeywordResponse> getMovieKeywords(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
+
+    @GET("tv/{tv_id}/keywords")
+    Call<TvShowKeywordResponse> getTvShowKeywords(@Path("tv_id") int tvId, @Query("api_key") String apiKey);
 
 
+    @GET("movie/{movie_id}/similar")
+    Call<SimilarItemsResponse> getSimilarMovies(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
+    );
 
+    @GET("tv/{tv_id}/similar")
+    Call<SimilarItemsResponse> getSimilarTvShows(
+            @Path("tv_id") int tvId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
+    );
+
+
+    @GET("movie/{movie_id}/videos")
+    Call<VideoResponse> getMovieVideos(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language
+    );
+
+    @GET("tv/{tv_id}/videos")
+    Call<VideoResponse> getTvShowVideos(
+            @Path("tv_id") int tvId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language
+    );
 }
