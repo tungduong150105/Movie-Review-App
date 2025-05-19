@@ -2,10 +2,15 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 import java.util.Calendar;
 
-public class Person implements Serializable {
+public class Person {
+    @SerializedName("character")
+    private String character;
+
+    public String getCharacter() {
+        return character;
+    }
 
     public String getName() {
         return name;
@@ -14,7 +19,6 @@ public class Person implements Serializable {
     public boolean isGone() {
         return isGone;
     }
-
 
     public boolean isAdult() {
         return adult;
@@ -37,6 +41,7 @@ public class Person implements Serializable {
     public String getBirthdate() {
         return birthdate;
     }
+
     public String getProfileUrl() {
         return "https://image.tmdb.org/t/p/w500" + profile_path;
     }
@@ -48,24 +53,11 @@ public class Person implements Serializable {
     @SerializedName("name")
     private String name;
     private String birthdate;
-
     private String deathday;
     @SerializedName("id")
     private String personid;
-
-
     @SerializedName("gender")
     private int gender;
-
-    public String getRole(){
-        if(gender==1){
-            return"Actress";
-        }
-        else if(gender==2){
-            return"Actor";
-        }
-        return"";
-    }
 
     public void setDeathday(String deathday) {
         this.deathday = deathday;
@@ -73,6 +65,10 @@ public class Person implements Serializable {
 
     public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
     }
 
     public Person(String name, int age, String deathday, boolean isGone, boolean adult, String profile_path, double popularity, int gender, String personid, String birthdate) {
@@ -90,27 +86,21 @@ public class Person implements Serializable {
 
     @SerializedName("popularity")
     private double popularity;
-
-@SerializedName("profile_path")
+    @SerializedName("profile_path")
     private String profile_path;
-@SerializedName("adult")
+    @SerializedName("adult")
     private boolean adult;
     private boolean isGone;
 
     public String getAgeOrLifespan() {
-        if (birthdate == null || birthdate.isEmpty()) return "";
-
+        if (birthdate == null || birthdate.isEmpty()) return "N/A";
         int birthYear = Integer.parseInt(birthdate.substring(0, 4));
-
         if (deathday == null || deathday.isEmpty()) {
-
             int currentYear = Calendar.getInstance().get(Calendar.YEAR);
             return (currentYear - birthYear) + "";
         } else {
-
             int deathYear = Integer.parseInt(deathday.substring(0, 4));
             return birthYear + " - " + deathYear;
         }
     }
-
 }

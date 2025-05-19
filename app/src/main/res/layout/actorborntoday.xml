@@ -8,15 +8,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_height="360dp"
         android:background="#191919">
 
         <ImageView
             android:id="@+id/posterimg"
             android:layout_width="fill_parent"
             android:layout_height="270dp"
-            android:cropToPadding="false"
-
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,29 +23,38 @@
 
         <TextView
             android:id="@+id/titleTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-
-            android:text="Andy Garcia"
+            android:layout_marginEnd="8dp"
+            android:text="Actor Name"
             android:textColor="#F8F8F8"
             android:textSize="17sp"
+            android:maxLines="2"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/posterimg" />
 
         <TextView
             android:id="@+id/yearTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:text="69"
             android:textColor="#989898"
             android:textSize="17sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/titleTxt"
-            app:layout_constraintTop_toBottomOf="@+id/titleTxt" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleTxt"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintVertical_bias="0.0" />
+
         <FrameLayout
             android:id="@+id/frame"
             android:layout_width="40dp"
@@ -56,10 +63,8 @@
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/posterimg"
-
             app:layout_constraintStart_toStartOf="@+id/posterimg">
 
-            <!-- Nền mờ -->
             <ImageView
                 android:id="@+id/alphaa"
                 android:layout_width="match_parent"
@@ -67,7 +72,6 @@
                 android:alpha="0.6"
                 android:src="@drawable/round_black_icon" />
 
-            <!-- Icon rõ nét -->
             <ImageView
                 android:id="@+id/bookmark"
                 android:layout_width="20dp"
@@ -75,8 +79,6 @@
                 android:layout_gravity="center"
                 android:scaleType="fitCenter"
                 android:src="@drawable/white_heart_icon" />
-
         </FrameLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -23,8 +23,7 @@ public class  PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolde
     List<Person> persons;
 
     public PersonAdapter(ArrayList<Person> person) {
-        this.persons=person;
-
+        this.persons = person;
     }
     public PersonAdapter(Context context,ArrayList<Person> person) {
         this.context=context;
@@ -35,7 +34,7 @@ public class  PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolde
     @NonNull
     @Override
     public PersonAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        context=parent.getContext();
+        context = parent.getContext();
         View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.actorborntoday, parent, false);
         return new ViewHolder(inflate);
     }
@@ -45,6 +44,13 @@ public class  PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolde
         Person person = persons.get(position);
         holder.titleTxt.setText(person.getName());
         holder.ageTxt.setText(person.getAgeOrLifespan());
+        if (person.getCharacter() != null && !person.getCharacter().isEmpty()) {
+            holder.ageTxt.setText(person.getCharacter());
+            holder.frame.setVisibility(View.GONE);
+        } else {
+            holder.ageTxt.setText(person.getAgeOrLifespan());
+            holder.frame.setVisibility(View.VISIBLE);
+        }
         Glide.with(context).load(person.getProfileUrl()).into(holder.posterimg);
         holder.frame.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;
@@ -52,38 +58,38 @@ public class  PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolde
             @Override
             public void onClick(View v) {
                 isBookmarked = !isBookmarked;
-
                 if (isBookmarked) {
-
                     holder.favourite.setImageResource(R.drawable.yellow_filled_heart);
                 } else {
-
-
                     holder.favourite.setImageResource(R.drawable.white_heart_icon);
                 }
             }
         });
-
-
     }
 
     @Override
     public int getItemCount() {
         return persons.size();
     }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTxt,ageTxt;
-        ImageView posterimg, background,favourite;
+        TextView titleTxt, ageTxt;
+        ImageView posterimg, background, favourite;
         FrameLayout frame;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTxt=itemView.findViewById(R.id.titleTxt);
-            ageTxt=itemView.findViewById(R.id.yearTxt);
-            posterimg=itemView.findViewById(R.id.posterimg);
-            frame=itemView.findViewById(R.id.frame);
-            favourite=itemView.findViewById(R.id.bookmark);
-            background=itemView.findViewById(R.id.alphaa);
-
+            titleTxt = itemView.findViewById(R.id.titleTxt);
+            ageTxt = itemView.findViewById(R.id.yearTxt);
+            posterimg = itemView.findViewById(R.id.posterimg);
+            frame = itemView.findViewById(R.id.frame);
+            favourite = itemView.findViewById(R.id.bookmark);
+            background = itemView.findViewById(R.id.alphaa);
         }
+    }
+
+    public void setPersonList(List<Person> newPersonList) {
+        this.persons = newPersonList;
+        notifyDataSetChanged();
     }
 }
