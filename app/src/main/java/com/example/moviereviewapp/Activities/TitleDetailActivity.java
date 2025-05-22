@@ -421,12 +421,7 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.titleTextView.setText(movie.getTitle());
         updateOverview(movie.getOverview());
         displayGenres(movie.getGenres());
-<<<<<<< Updated upstream
         for(Person a: movie.getCast()){
-=======
-
-        for(Person a : movie.getCast()){
->>>>>>> Stashed changes
             fetchPersonDetail(a);
         };
         updateCast(movie.getCast());
@@ -452,36 +447,12 @@ public class TitleDetailActivity extends AppCompatActivity {
         updateRuntime(binding.runtimeTextView, binding.runtimeValueTextView, movie.getRuntime() > 0 ? movie.getRuntime() + " minutes" : null);
         updateTagline(movie.getTagline());
     }
-    private void fetchPersonDetail(Person basicPerson) {
-        TMDBApi api = RetrofitClient.getApiService();
-        Call<PersonDetail>detail= api.getPersonDetail(basicPerson.getPersonid(), TMDB_API_KEY);
 
-        detail.enqueue(new Callback<PersonDetail>() {
-            @Override
-            public void onResponse(Call<PersonDetail> call, Response<PersonDetail> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    PersonDetail detail = response.body();
-                    basicPerson.setBirthdate(detail.getBirthday());
-                    basicPerson.setDeathday(detail.getDeathday());
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PersonDetail> call, Throwable t) {
-                Log.e("API_DETAIL_ERROR", "Lỗi lấy chi tiết: " + t.getMessage(), t);
-            }
-        });
-    }
     private void updateUiWithTvShowDetails(tvseriesdetail tvShow) {
         binding.titleTextView.setText(tvShow.getName());
         updateOverview(tvShow.getOverview());
         displayGenres(tvShow.getGenres());
-<<<<<<< Updated upstream
         for(Person a: tvShow.getCast()){
-=======
-        for(Person a : tvShow.getCast()){
->>>>>>> Stashed changes
             fetchPersonDetail(a);
         };
         updateCast(tvShow.getCast());
