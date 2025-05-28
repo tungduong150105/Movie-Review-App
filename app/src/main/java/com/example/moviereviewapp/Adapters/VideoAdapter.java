@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.VideoResult;
 import com.example.moviereviewapp.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
@@ -31,7 +32,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         this.videoList = videoList;
         this.onVideoClickListener = listener;
     }
-
+    public List<VideoResult> getVideoList() {
+        return videoList != null ? videoList : new ArrayList<>();
+    }
     @NonNull
     @Override
     public VideoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

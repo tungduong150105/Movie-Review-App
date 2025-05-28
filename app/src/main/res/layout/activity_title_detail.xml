@@ -1,14 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:background="@color/light_grey_huy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back_TitleDetail_Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/back_arrow" />
+
+        <TextView
+            android:id="@+id/textView_Title_TitleDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Details"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.131"
+            app:layout_constraintStart_toEndOf="@id/back_TitleDetail_Btn"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/light_black_huy">
+        android:layout_height="0dp"
+        android:background="@color/light_black_huy"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,13 +67,69 @@
                     android:textSize="32sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/yearTextView"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <!-- TV Series label - only shown for TV shows -->
+                    <TextView
+                        android:id="@+id/tvSeriesLabelTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TV Series"
+                        android:textColor="#989898"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <!-- Dot separator after TV Series label -->
+                    <TextView
+                        android:id="@+id/dotSeparator1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:text="•"
+                        android:textColor="#989898"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <!-- Year(s) -->
+                    <TextView
+                        android:id="@+id/yearTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#989898"
+                        android:textSize="16sp" />
+
+                    <!-- Dot separator before length -->
+                    <TextView
+                        android:id="@+id/dotSeparator2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:text="•"
+                        android:textColor="#989898"
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+
+                    <!-- Runtime/Length -->
+                    <TextView
+                        android:id="@+id/headerLengthTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#989898"
+                        android:textSize="16sp" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/headerEpisodesTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textColor="#989898"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:visibility="gone"/>
 
                 <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
                     android:id="@+id/mainYouTubePlayerView"
@@ -55,8 +148,8 @@
 
                 <ImageView
                     android:id="@+id/moviePosterImageView"
-                    android:layout_width="150dp"
-                    android:layout_height="225dp"
+                    android:layout_width="130dp"
+                    android:layout_height="195dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/rounded_image_background" />
@@ -72,10 +165,10 @@
                         android:id="@+id/movieDescriptionTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="5"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:maxLines="12"
-                        android:ellipsize="end"/>
+                        android:textSize="16sp" />
 
                     <com.google.android.flexbox.FlexboxLayout
                         android:id="@+id/mainGenresFlowLayout"
@@ -138,7 +231,78 @@
                     app:icon="@drawable/fill_plus_icon"
                     app:iconGravity="textStart"
                     app:iconTint="#121212" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="16dp">
 
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/userRatingStarIcon"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ratingstaricon"
+                            app:tint="#F5C518" />
+
+                        <TextView
+                            android:id="@+id/userRatingValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            tools:text="7.9/10" />
+
+                        <TextView
+                            android:id="@+id/userRatingCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#989898"
+                            android:textSize="12sp"
+                            tools:text="377" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/rateThisSection"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/rateThisStarIcon"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_star_outlined"
+                            app:tint="#4399E0" />
+
+                        <TextView
+                            android:id="@+id/rateThisText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Rate this"
+                            android:textColor="#4399E0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -242,6 +406,142 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/grey_user_profile"
+                android:orientation="vertical"
+                android:paddingBottom="16dp">
+
+                <!-- Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <View
+                        android:layout_width="5dp"
+                        android:layout_height="24dp"
+                        android:background="#F5C518" />
+
+                    <TextView
+                        android:id="@+id/reviewsTitleTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="User reviews"
+                        android:textColor="#F8F8F8"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/addReviewTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Review"
+                        android:textColor="#4399E0"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Rating Summary -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ratingstaricon"
+                                app:tint="#F5C518" />
+
+                            <TextView
+                                android:id="@+id/averageRatingTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="7.5"
+                                android:textColor="#FFFFFF"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/ratingCountTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="58K"
+                            android:textColor="#989898"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Featured Reviews Header -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:text="Featured Reviews"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <!-- Reviews list - now horizontal -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/reviewsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:clipToPadding="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="8dp"
+                    android:orientation="horizontal" />
+
+                <!-- No reviews message -->
+                <TextView
+                    android:id="@+id/noReviewsTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="No reviews available"
+                    android:textColor="#989898"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <!-- See All Reviews Button -->
+                <TextView
+                    android:id="@+id/seeAllReviewsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:text="See all user reviews"
+                    android:textColor="#4399E0"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -717,6 +1017,29 @@
                     android:paddingEnd="16dp"
                     android:textColor="#989898"
                     android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/episodesTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Episodes"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    tools:text="Episodes" />
+
+                <TextView
+                    android:id="@+id/episodesValueTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="#989898"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -731,6 +1054,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
         android:visibility="gone">
 
         <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -752,4 +1077,32 @@
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:tint="@android:color/white" />
     </FrameLayout>
-</FrameLayout>
+    <FrameLayout
+        android:id="@+id/photoOverlayContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/overlayPhotoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:id="@+id/closePhotoOverlayButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close Photo"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@android:color/white" />
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

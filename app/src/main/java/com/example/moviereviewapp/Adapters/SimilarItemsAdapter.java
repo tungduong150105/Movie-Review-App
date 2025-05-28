@@ -23,15 +23,25 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
     private Context context;
     private final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
     private OnItemClickListener listener;
+    private boolean isPersonDetailContext = false;
 
     public interface OnItemClickListener {
         void onItemClick(SimilarItem item);
     }
 
-    public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener) {
+    public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener, boolean isPersonDetailContext) {
         this.context = context;
         this.items = items;
         this.listener = listener;
+        this.isPersonDetailContext = isPersonDetailContext;
+    }
+
+    public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener) {
+        this(context, items, listener, false);
+    }
+
+    public List<SimilarItem> getItems() {
+        return items;
     }
 
     @NonNull
@@ -45,6 +55,18 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
     public void onBindViewHolder(@NonNull SimilarViewHolder holder, int position) {
         SimilarItem item = items.get(position);
         holder.bind(item, listener);
+
+        // In person detail, show character name instead of length
+        if (isPersonDetailContext && item.getCharacter() != null && !item.getCharacter().isEmpty()) {
+            holder.lengthTextView.setText(item.getCharacter());
+            holder.lengthTextView.setVisibility(View.VISIBLE);
+        } else if (item.getLength() != null && !item.getLength().isEmpty()) {
+            holder.lengthTextView.setText(item.getLength());
+            holder.lengthTextView.setVisibility(View.VISIBLE);
+        } else {
+            // If no length available
+            holder.lengthTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -62,7 +84,8 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
         TextView titleTextView;
         TextView yearTextView;
         TextView ratingTextView;
-        ImageView  iconImage,alphaa;
+        TextView lengthTextView;
+        ImageView iconImage, alphaa;
         FrameLayout frameBookmark;
 
         public SimilarViewHolder(@NonNull View itemView) {
@@ -70,6 +93,7 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
             posterImageView = itemView.findViewById(R.id.posterimg);
             titleTextView = itemView.findViewById(R.id.titleTxt);
             yearTextView = itemView.findViewById(R.id.yearTxt);
+            lengthTextView = itemView.findViewById(R.id.lengthTxt);
             try {
                 ratingTextView = itemView.findViewById(R.id.ratingTxt);
             } catch (Exception e) {
@@ -77,7 +101,7 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
             }
             frameBookmark = itemView.findViewById(R.id.frame);
             iconImage = itemView.findViewById(R.id.bookmark);
-            alphaa=itemView.findViewById(R.id.alphaa);
+            alphaa = itemView.findViewById(R.id.alphaa);
         }
 
         void bind(final SimilarItem item, final OnItemClickListener listener) {
@@ -127,12 +151,12 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                         alphaa.setAlpha(1f);
                         alphaa.setImageResource(R.drawable.yellow_bookmark);
                         iconImage.setImageResource(R.drawable.black_tick);
-                        //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                        // ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
                     } else {
                         alphaa.setAlpha(0.6f);
                         alphaa.setImageResource(R.drawable.black_small_bookmark);
                         iconImage.setImageResource(R.drawable.fill_plus_icon);
-                        //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                        // ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
                     }
                 }
             });

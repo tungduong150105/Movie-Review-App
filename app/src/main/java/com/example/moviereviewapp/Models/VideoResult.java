@@ -2,7 +2,9 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class VideoResult {
+import java.io.Serializable;
+
+public class VideoResult implements Serializable {
     @SerializedName("iso_639_1")
     private String iso6391;
 

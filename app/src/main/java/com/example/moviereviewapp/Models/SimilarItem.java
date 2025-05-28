@@ -20,6 +20,22 @@ public class SimilarItem implements Serializable {
     @SerializedName("first_air_date")
     private String firstAirDate;
 
+    // Crew-specific fields
+    @SerializedName("job")
+    private String job;
+    @SerializedName("department")
+    private String department;
+    @SerializedName("character")
+    private String character;
+
+    public String getCharacter() {
+        return character;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
     public int getId() {
         return id;
     }
@@ -76,5 +92,40 @@ public class SimilarItem implements Serializable {
 
     public String getTvFirstAirDate() {
         return firstAirDate;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+
+    public void setVoteAverage(double voteAverage) {
+        this.voteAverage = voteAverage;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public boolean isCrew() {
+        return job != null && !job.isEmpty();
     }
 }

@@ -1,3 +1,4 @@
 <resources>
     <dimen name="item_spacing">10dp</dimen>
+    <dimen name="review_item_spacing">8dp</dimen>
 </resources>
