@@ -75,14 +75,18 @@
 
         <TextView
             android:id="@+id/lengthTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
+            android:layout_marginEnd="8dp"
             android:text="1h 30m"
             android:textColor="#989898"
             android:textSize="13sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="@+id/yearTxt"
             app:layout_constraintStart_toEndOf="@+id/yearTxt"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/yearTxt" />
 
 
@@ -93,6 +97,8 @@
             android:layout_gravity="center"
             android:layout_marginStart="-14dp"
             android:layout_marginTop="-18dp"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 

@@ -8,7 +8,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="206dp"
+        tools:layout_editor_absoluteY="67dp">
 
         <ImageView
             android:id="@+id/imageMovie"
@@ -28,19 +30,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:hint="Movie Name"
                 android:textColor="@color/white"
-                android:hint="Movie Name" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textReleaseDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15sp"
+                android:hint="Release Date"
                 android:textColor="@color/white"
-                android:hint="Release Date" />
+                android:textSize="15sp" />
         </LinearLayout>
 
     </LinearLayout>

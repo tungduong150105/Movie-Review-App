@@ -2,9 +2,10 @@ package com.example.moviereviewapp.Models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Person {
+public class Person implements Serializable {
     @SerializedName("character")
     private String character;
 
@@ -82,6 +83,15 @@ public class Person {
         this.personid = personid;
         this.birthdate = birthdate;
         this.deathday = deathday;
+    }
+    public String getRole(){
+        if(gender==1){
+            return"Actress";
+        }
+        else if(gender==2){
+            return"Actor";
+        }
+        return"";
     }
 
     @SerializedName("popularity")

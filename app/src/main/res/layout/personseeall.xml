@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/light_black_huy">
+
+        <LinearLayout
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="2dp"
+                android:background="#424242" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="2dp"
+                android:background="#424242"/>
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:background="@color/light_black_huy"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
+
+            <ImageView
+                android:id="@+id/imgView_Avatar_SeeAll_Viewholder"
+                android:layout_width="106dp"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/textView_Title_SeeAll_Viewholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="40dp"
+                android:breakStrategy="simple"
+                android:ellipsize="end"
+                android:hyphenationFrequency="none"
+                android:lineSpacingExtra="4dp"
+                android:lineSpacingMultiplier="1.1"
+                android:maxLines="2"
+                android:text="Tom Cruise, "
+                android:textColor="@color/white"
+                android:textSize="19sp"
+                app:layout_constraintStart_toEndOf="@+id/imgView_Avatar_SeeAll_Viewholder"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView_ReleaseDate_SeeAll_Viewholder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text="TextView"
+                android:textColor="@color/white_signup"
+                android:textSize="15sp"
+                app:layout_constraintStart_toEndOf="@+id/imgView_Avatar_SeeAll_Viewholder"
+                app:layout_constraintTop_toBottomOf="@+id/textView_Title_SeeAll_Viewholder" />
+
+            <TextView
+                android:id="@+id/textView_Length_SeeAll_Viewholder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="@color/white"
+                android:textSize="19sp"
+                app:layout_constraintStart_toEndOf="@+id/textView_Title_SeeAll_Viewholder"
+                app:layout_constraintTop_toTopOf="@+id/textView_Title_SeeAll_Viewholder" />
+
+            <FrameLayout
+                android:id="@+id/frame"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+
+
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!-- Nền mờ -->
+                <ImageView
+                    android:id="@+id/alphaa"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.6"
+                    android:src="@drawable/round_black_icon" />
+
+                <!-- Icon rõ nét -->
+                <ImageView
+                    android:id="@+id/bookmark"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/white_heart_icon" />
+
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,8 +1,11 @@
 package com.example.moviereviewapp.Activities;
 
+import com.example.moviereviewapp.Models.Credits;
 import com.example.moviereviewapp.Models.Crew;
 import com.example.moviereviewapp.Models.Genre;
 import com.example.moviereviewapp.Models.Person;
+import com.example.moviereviewapp.Models.ProductionCompany;
+import com.example.moviereviewapp.Models.SpokenLanguage;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -42,7 +45,12 @@ public class tvseriesdetail {
     private List<SpokenLanguage> spokenLanguages;
     @SerializedName("production_companies")
     private List<ProductionCompany> productionCompanies;
+    @SerializedName("vote_count")
+    private int voteCount;
 
+    public int getVoteCount() {
+        return voteCount;
+    }
     public List<String> getOriginCountry() {
         return originCountry;
     }
@@ -115,62 +123,5 @@ public class tvseriesdetail {
 
     public double getRating() {
         return rating;
-    }
-
-    public static class Credits {
-        @SerializedName("cast")
-        private List<Person> cast;
-        @SerializedName("crew")
-        private List<Crew> crew;
-
-        public List<Person> getCast() {
-            return cast;
-        }
-
-        public List<Crew> getCrew() {
-            return crew;
-        }
-    }
-
-    public static class SpokenLanguage {
-        @SerializedName("english_name")
-        private String englishName;
-        @SerializedName("name")
-        private String name;
-
-        public String getEnglishName() {
-            return englishName;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public static class ProductionCompany {
-        @SerializedName("name")
-        private String name;
-        @SerializedName("id")
-        private int id;
-        @SerializedName("logo_path")
-        private String logoPath;
-        @SerializedName("origin_country")
-        private String originCountry;
-
-        public String getName() {
-            return name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getLogoPath() {
-            return logoPath;
-        }
-
-        public String getOriginCountry() {
-            return originCountry;
-        }
     }
 }

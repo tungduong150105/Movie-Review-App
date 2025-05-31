@@ -41,6 +41,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         this.moviesList = moviesList != null ? moviesList : new ArrayList<>();
         this.listener = listener;
     }
+    public List<movies> getMoviesList() {
+        return moviesList;
+    }
+
+    public void setMoviesList(List<movies> movies) {
+        this.moviesList = movies;
+        notifyDataSetChanged();
+    }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {

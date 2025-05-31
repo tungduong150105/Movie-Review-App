@@ -16,11 +16,23 @@ import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private List<PhotoItem> photoList;
+    private OnPhotoClickListener listener;
+
+    public interface OnPhotoClickListener {
+        void onPhotoClick(String photoUrl);
+    }
 
     public PhotoAdapter(List<PhotoItem> photoList) {
         this.photoList = photoList;
     }
 
+    public PhotoAdapter(List<PhotoItem> photoList, OnPhotoClickListener listener) {
+        this.photoList = photoList;
+        this.listener = listener;
+    }
+    public List<PhotoItem> getPhotoList() {
+        return photoList;
+    }
     @NonNull
     @Override
     public PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -43,6 +55,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 .placeholder(R.drawable.rounded_image_background)
                 .error(R.drawable.rounded_image_background)
                 .into(holder.photoImageView);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onPhotoClick(imageUrl);
+            }
+        });
     }
 
     @Override

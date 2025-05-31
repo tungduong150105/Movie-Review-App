@@ -21,9 +21,31 @@ import java.util.List;
 public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder> {
     Context context;
     List<Person> persons;
+    private OnPersonClickListener personClickListener;
+    
+    // Interface for person click events
+    public interface OnPersonClickListener {
+        void onPersonClick(Person person);
+    }
 
     public PersonAdapter(ArrayList<Person> person) {
         this.persons = person;
+    }
+    
+    public PersonAdapter(ArrayList<Person> person, OnPersonClickListener listener) {
+        this.persons = person;
+        this.personClickListener = listener;
+    }
+    
+    public PersonAdapter(Context context, ArrayList<Person> person) {
+        this.context = context;
+        this.persons = person;
+    }
+    
+    public PersonAdapter(Context context, ArrayList<Person> person, OnPersonClickListener listener) {
+        this.context = context;
+        this.persons = person;
+        this.personClickListener = listener;
     }
 
     @NonNull
@@ -58,6 +80,12 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
                 } else {
                     holder.favourite.setImageResource(R.drawable.white_heart_icon);
                 }
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (personClickListener != null) {
+                personClickListener.onPersonClick(person);
             }
         });
     }

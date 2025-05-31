@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,14 +13,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.Movie_UserProfile;
+import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.R;
 
 import java.util.List;
 
 public class MovieSeeAllAdapter extends RecyclerView.Adapter<MovieSeeAllAdapter.MovieViewHolder>{
     private Context context;
-    private List<Movie_UserProfile> movieList;
-    public MovieSeeAllAdapter(Context context, List<Movie_UserProfile> movieList) {
+    private List<movies> movieList;
+    public MovieSeeAllAdapter(Context context, List<movies> movieList) {
         this.context = context;
         this.movieList = movieList;
     }
@@ -33,14 +35,33 @@ public class MovieSeeAllAdapter extends RecyclerView.Adapter<MovieSeeAllAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Movie_UserProfile movie = movieList.get(position);
-        holder.title.setText(movie.getTitle());
-        holder.releaseDate.setText(movie.getReleaseDate());
+        movies movie = movieList.get(position);
+        holder.title.setText(movie.getMoviename());
+        holder.releaseDate.setText(movie.getReleasedate());
+        holder.length.setText(movie.getLength());
 
-        Glide.with(context)
-                .load(movie.getImgURl())
-                .placeholder(R.drawable.placeholder)
-                .into(holder.imgAvatar);
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
+            boolean isBookmarked = false;
+
+            @Override
+            public void onClick(View v) {
+                isBookmarked = !isBookmarked;
+
+                if (isBookmarked) {
+                    holder.alphaa.setAlpha(1f);
+                    holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+                    holder.iconImage.setImageResource(R.drawable.black_tick);
+                    //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                } else {
+                    holder.alphaa.setAlpha(0.6f);
+                    holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+                    holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+                    //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                }
+            }
+        });
+
+        Glide.with(context).load(movie.getPosterurl()).into(holder.imgAvatar);
     }
 
     @Override
@@ -50,14 +71,19 @@ public class MovieSeeAllAdapter extends RecyclerView.Adapter<MovieSeeAllAdapter.
 
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imgAvatar;
-        TextView title, releaseDate;
+        ImageView imgAvatar, iconImage, alphaa;
+        TextView title, releaseDate, length;
+        FrameLayout frameBookmark;
 
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
             imgAvatar = itemView.findViewById(R.id.imgView_Avatar_SeeAll_Viewholder);
             title = itemView.findViewById(R.id.textView_Title_SeeAll_Viewholder);
             releaseDate = itemView.findViewById(R.id.textView_ReleaseDate_SeeAll_Viewholder);
+            length = itemView.findViewById(R.id.textView_Length_SeeAll_Viewholder);
+            frameBookmark = itemView.findViewById(R.id.frame_SeeAll_Viewholder);
+            iconImage = itemView.findViewById(R.id.bookmark_SeeAll_Viewholder);
+            alphaa = itemView.findViewById(R.id.alphaa_SeeAll_Viewholder);
         }
     }
 }

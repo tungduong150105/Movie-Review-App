@@ -1,6 +1,8 @@
 package com.example.moviereviewapp.Models;
 
-public class PhotoItem {
+import java.io.Serializable;
+
+public class PhotoItem implements Serializable {
     private String imageUrl;
     private double aspectRatio;
 

@@ -3,6 +3,8 @@ package com.example.moviereviewapp.Activities;
 
 import com.example.moviereviewapp.Models.MovieImages;
 import com.example.moviereviewapp.Models.MovieKeywordResponse;
+import com.example.moviereviewapp.Models.PersonImagesResponse;
+import com.example.moviereviewapp.Models.ReviewsResponse;
 import com.example.moviereviewapp.Models.SimilarItemsResponse;
 import com.example.moviereviewapp.Models.TvShowImages;
 import com.example.moviereviewapp.Models.TvShowKeywordResponse;
@@ -132,5 +134,34 @@ public interface TMDBApi {
             @Path("tv_id") int tvId,
             @Query("api_key") String apiKey,
             @Query("language") String language
+    );
+
+    @GET("person/{person_id}")
+    Call<PersonDetail> getPersonDetailComplete(
+            @Path("person_id") String personId,
+            @Query("api_key") String apiKey,
+            @Query("append_to_response") String appendToResponse
+    );
+
+    @GET("person/{person_id}/images")
+    Call<PersonImagesResponse> getPersonImages(
+            @Path("person_id") String personId,
+            @Query("api_key") String apiKey
+    );
+
+    @GET("movie/{movie_id}/reviews")
+    Call<ReviewsResponse> getMovieReviews(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
+    );
+
+    @GET("tv/{tv_id}/reviews")
+    Call<ReviewsResponse> getTvShowReviews(
+            @Path("tv_id") int tvId,
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
     );
 }

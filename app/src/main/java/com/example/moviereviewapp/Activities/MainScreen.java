@@ -48,7 +48,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
 
     private PersonAdapter personadapter;
     private tvseriesadapter tvserieontheairsadapter, topratedtvseriesAdapter;
-    private ArrayList<Person> person = new ArrayList<>();
+    private ArrayList<Person> person=new ArrayList<>();
     private ArrayList<trendingall> trendinglist = new ArrayList<>();
     private ArrayList<movies> moviesList = new ArrayList<>();
     private ArrayList<movies> upcominglist = new ArrayList<>();
@@ -63,15 +63,18 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
     private Call<tvseriesresponse> ontheairCall, topratedCall;
 
 
+
+
+
     private Call<MovieResponse> moviesCall, Topoffficecall;
     private Call<trendingresponse> trendingCall;
 
 
     private Call<PersonResoponse> personCall;
-    private int lastScrollY = 0;
+    private int lastScrollY=0;
     private final int MAX_PAGE = 50;
     private int currentPage = 1;
-    private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
+    private static final String TMDB_API_KEY="75d6190f47f7d58c6d0511ca393d2f7d";
 
 
     @Override
@@ -79,6 +82,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         super.onCreate(savedInstanceState);
         binding = ActivityMainScreenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
 
 
         setToolbar();
@@ -106,6 +110,8 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         topratedTvseriesRecyclerview();
         fetchtopratedtvseries();
 
+        initSeeAll();
+
 
         Bundle extra = getIntent().getExtras();
         if (extra != null) {
@@ -113,19 +119,92 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
             assert session_id != null;
             Log.d("MainScreen", session_id);
         }
+
+
+    }
+    private void initSeeAll(){
+
+        binding.seealltvseriestoprated.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","tvseries");
+            intent.putExtra("title","Top rated Tv Series");
+
+            intent.putExtra("tvseriesList",toprated);
+            if(toprated!=null){
+                startActivity(intent);
+            }
+
+        });
+        binding.seeallcomingsoon.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","movies");
+            intent.putExtra("title","Coming soon");
+
+            intent.putExtra("movieList",upcominglist);
+            if(upcominglist!=null){
+                startActivity(intent);
+            }
+        });
+        binding.seealltoprated.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","movies");
+            intent.putExtra("title","Top rated movies just for you!");
+
+            intent.putExtra("movieList",topratedmovieslist);
+            if(topratedmovieslist!=null){
+                startActivity(intent);
+            }
+        });
+        binding.seeallontheair.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","tvseries");
+            intent.putExtra("title","Airing today");
+
+            intent.putExtra("tvseriesList",ontheair);
+            if(ontheair!=null){
+                startActivity(intent);
+            }
+        });
+        binding.seeallperson.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","person");
+            intent.putExtra("title","Born today");
+
+            intent.putExtra("personList",person);
+            if(person!=null){
+                startActivity(intent);
+            }
+        });
+        binding.seaalltrending.setOnClickListener(V->{
+            Intent intent=new Intent(MainScreen.this,SeeAllActivity.class);
+
+            intent.putExtra("type","trending");
+            intent.putExtra("title","Fan Favorites");
+
+            intent.putExtra("trendingList",trendinglist);
+            if(trendinglist!=null){
+                startActivity(intent);
+            }
+        });
+
+
     }
 
-    private void topratedTvseriesRecyclerview() {
-        topratedtvseriesAdapter = new tvseriesadapter(toprated);
-        binding.topratedrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private void topratedTvseriesRecyclerview(){
+        topratedtvseriesAdapter =new tvseriesadapter(toprated);
+        binding.topratedrecyclerview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.topratedrecyclerview.setAdapter(topratedtvseriesAdapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.topratedrecyclerview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
     }
-
-    private void fetchtopratedtvseries() {
+    private void fetchtopratedtvseries(){
         TMDBApi api = RetrofitClient.getApiService();
-        topratedCall = api.getTvSeriesTopRated("75d6190f47f7d58c6d0511ca393d2f7d", 1);
+        topratedCall= api.getTvSeriesTopRated("75d6190f47f7d58c6d0511ca393d2f7d",1);
         topratedCall.enqueue(new Callback<tvseriesresponse>() {
             @Override
             public void onResponse(@NonNull Call<tvseriesresponse> call, @NonNull Response<tvseriesresponse> response) {
@@ -135,9 +214,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
 
                     Log.d("TVSERIES", "Fetched " + results.size() + " series.");
 
-                    toprated.addAll(results);
 
-                    topratedtvseriesAdapter.notifyDataSetChanged();
                     for (tvseries movie : results) {
                         int movieId = movie.getId();
                         Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
@@ -145,8 +222,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                             @Override
                             public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
                                 if (response.isSuccessful() && response.body() != null) {
-                                    int epsnumber = response.body().getnumberofepsidose();
+                                    int epsnumber=response.body().getnumberofepsidose();
                                     movie.setepsnumber(epsnumber);
+                                    toprated.add(movie);
                                     Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
 
                                     topratedtvseriesAdapter.notifyDataSetChanged();
@@ -161,7 +239,8 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     }
 
 
-                } else {
+                }
+                else {
                     showError("Failed to load movies: " + response.message());
 
 
@@ -176,18 +255,17 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
 
     }
 
-    private void tvseriesrecyclerview() {
-        tvserieontheairsadapter = new tvseriesadapter(ontheair);
-        binding.ontheairrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private  void tvseriesrecyclerview(){
+        tvserieontheairsadapter =new tvseriesadapter(ontheair);
+        binding.ontheairrecyclerview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.ontheairrecyclerview.setAdapter(tvserieontheairsadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.ontheairrecyclerview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
 
     }
-
-    private void fetchontheair() {
+    private void fetchontheair(){
         TMDBApi api = RetrofitClient.getApiService();
-        ontheairCall = api.getTvSeriesontheair("75d6190f47f7d58c6d0511ca393d2f7d", 1);
+        ontheairCall = api.getTvSeriesontheair("75d6190f47f7d58c6d0511ca393d2f7d",1);
         ontheairCall.enqueue(new Callback<tvseriesresponse>() {
             @Override
             public void onResponse(@NonNull Call<tvseriesresponse> call, @NonNull Response<tvseriesresponse> response) {
@@ -207,7 +285,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                             @Override
                             public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
                                 if (response.isSuccessful() && response.body() != null) {
-                                    int epsnumber = response.body().getnumberofepsidose();
+                                    int epsnumber=response.body().getnumberofepsidose();
                                     movie.setepsnumber(epsnumber);
                                     Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
 
@@ -223,7 +301,8 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     }
 
 
-                } else {
+                }
+                else {
                     showError("Failed to load movies: " + response.message());
 
 
@@ -290,7 +369,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     movie.setRevenue(revenue);
 
                     Log.d("TopBoxOffice", "Revenue fetched for " + movie.getMoviename() + ": " + revenue);
-                    Collections.sort(topboxofficelist, (m1, m2) -> Long.compare(m2.getRevenue(), m1.getRevenue()));
+                    Collections.sort(topboxofficelist, (m1, m2) -> Long.compare( m2.getRevenue(),  m1.getRevenue()));
 
 
                     topBoxOfficeAdapter.notifyDataSetChanged();
@@ -306,20 +385,25 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
     }
 
 
-    private void topboxofficeadapter() {
-        topBoxOfficeAdapter = new Top_Box_Office_Adapter(this, topboxofficelist);
+
+
+
+
+
+
+    private void topboxofficeadapter(){
+        topBoxOfficeAdapter =new Top_Box_Office_Adapter(this,topboxofficelist);
         binding.topboxofficelistview.setAdapter(topBoxOfficeAdapter);
     }
-
     private void fetchAllPersons() {
-        person.clear();
+
         currentPage = 1;
         fetchPersonPage(currentPage);
     }
 
     private void fetchPersonPage(int page) {
         TMDBApi api = RetrofitClient.getApiService();
-        personCall = api.getPerson(TMDB_API_KEY, page);
+        personCall= api.getPerson(TMDB_API_KEY, page);
         personCall.enqueue(new Callback<PersonResoponse>() {
             @Override
             public void onResponse(Call<PersonResoponse> call, Response<PersonResoponse> response) {
@@ -331,10 +415,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                         fetchPersonDetail(p); // Lấy thêm birthdate, deathday
                     }
 
-                    if (currentPage < MAX_PAGE) {
-                        currentPage++;
-                        fetchPersonPage(currentPage); // Gọi tiếp trang kế
-                    }
+
                 } else {
                     showError("Lỗi tải trang " + page + ": " + response.message());
                 }
@@ -347,18 +428,16 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
             }
         });
     }
-
-    private void personrecyclerview() {
-        personadapter = new PersonAdapter(person);
-        binding.personrecycleview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private void personrecyclerview(){
+        personadapter =new PersonAdapter(person);
+        binding.personrecycleview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.personrecycleview.setAdapter(personadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.personrecycleview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
     }
-
     private void fetchPersonDetail(Person basicPerson) {
         TMDBApi api = RetrofitClient.getApiService();
-        Call<PersonDetail> detail = api.getPersonDetail(basicPerson.getPersonid(), TMDB_API_KEY);
+        Call<PersonDetail>detail= api.getPersonDetail(basicPerson.getPersonid(), TMDB_API_KEY);
 
         detail.enqueue(new Callback<PersonDetail>() {
             @Override
@@ -367,10 +446,10 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     PersonDetail detail = response.body();
                     basicPerson.setBirthdate(detail.getBirthday());
                     basicPerson.setDeathday(detail.getDeathday());
-                    if (isBirthdayToday(detail.getBirthday())) {
+                    if(basicPerson.getAgeOrLifespan()!="") {
                         person.add(basicPerson);
-                        personadapter.notifyItemInserted(person.size() - 1);
                     }
+                    personadapter.notifyItemInserted(person.size() - 1);
                 }
             }
 
@@ -381,29 +460,8 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         });
     }
 
-    private boolean isBirthdayToday(String birthday) {
-        if (birthday == null || birthday.isEmpty()) return false;
 
-
-        try {
-            String[] parts = birthday.split("-");
-            if (parts.length < 3) return false;
-
-            int birthMonth = Integer.parseInt(parts[1]);
-            int birthDay = Integer.parseInt(parts[2]);
-
-            java.util.Calendar today = java.util.Calendar.getInstance();
-            int todayMonth = today.get(java.util.Calendar.MONTH) + 1;
-            int todayDay = today.get(java.util.Calendar.DAY_OF_MONTH);
-
-            return (birthMonth == todayMonth && birthDay == todayDay);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private void fetchtrendingmovies() {
+    private  void fetchtrendingmovies(){
         TMDBApi api = RetrofitClient.getApiService();
         trendingCall = api.getTrendingAll(TMDB_API_KEY);
         trendingCall.enqueue(new Callback<trendingresponse>() {
@@ -416,11 +474,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     Log.d("MOVIES", "Fetched " + results.size() + " movies.");
 
                     trendinglist.addAll(results);
-
                     trendingadapter.notifyDataSetChanged();
-
                     // Gọi chi tiết từng phim để lấy runtime
-                    for (trendingall movie : results) {
+                    for (trendingall movie : trendinglist) {
                         int movieId = movie.getId().hashCode();
                         Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
                         detailCall.enqueue(new Callback<MovieDetail>() {
@@ -429,6 +485,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                                 if (response.isSuccessful() && response.body() != null) {
                                     int runtime = response.body().getRuntime();
                                     movie.setLengthFromRuntime(runtime);
+
 
                                     trendingadapter.notifyDataSetChanged();
                                 }
@@ -454,10 +511,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         });
 
     }
-
-    private void trendingrecyclerview() {
-        trendingadapter = new movietrendingadapter(trendinglist);
-        binding.trendingrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private void trendingrecyclerview(){
+        trendingadapter =new movietrendingadapter(trendinglist);
+        binding.trendingrecyclerview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.trendingrecyclerview.setAdapter(trendingadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.trendingrecyclerview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
@@ -465,7 +521,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
     }
 
 
-    private void fetchtopratedmovies() {
+    private void fetchtopratedmovies(){
         TMDBApi api = RetrofitClient.getApiService();
         moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
         moviesCall.enqueue(new Callback<MovieResponse>() {
@@ -516,15 +572,14 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         });
     }
 
-    private void topratedrecyclerview() {
-        topratedadapter = new MovieItemAdapter(topratedmovieslist);
-        binding.topickrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    private void topratedrecyclerview(){
+        topratedadapter =new MovieItemAdapter(topratedmovieslist);
+        binding.topickrecyclerview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         binding.topickrecyclerview.setAdapter(topratedadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.topickrecyclerview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
     }
-
     private void setupRecyclerView() {
 
         try {
@@ -538,18 +593,21 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         }
 
 
-    }
 
-    private void comingrecyclerview() {
-        itemadapter = new MovieItemAdapter(upcominglist);
-        binding.comingsoonrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+
+
+
+    }
+    private void comingrecyclerview(){
+        itemadapter =new MovieItemAdapter(upcominglist);
+        binding.comingsoonrecyclerview.setLayoutManager (new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         binding.comingsoonrecyclerview.setAdapter(itemadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         binding.comingsoonrecyclerview.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
 
     }
-
     private void fetchMovies() {
         TMDBApi api = RetrofitClient.getApiService();
         moviesCall = api.getTrendingMovies(TMDB_API_KEY);
@@ -577,7 +635,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         });
     }
 
-    private void fetchupcmingmovies() {
+    private void fetchupcmingmovies(){
         TMDBApi api = RetrofitClient.getApiService();
         moviesCall = api.getUpcomingMovies(TMDB_API_KEY);
         moviesCall.enqueue(new Callback<MovieResponse>() {
@@ -640,6 +698,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         }
         super.onDestroy();
     }
+
 
 
     private void setToolbar() {

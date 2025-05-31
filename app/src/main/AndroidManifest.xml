@@ -14,11 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieReviewApp"
-        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".Activities.DiscussionForum"
-            android:windowSoftInputMode="adjustResize"
+            android:name=".Activities.SplashScreen"
             android:exported="false" />
         <activity
             android:name=".Activities.Rating"
@@ -34,6 +32,9 @@
             android:exported="false" />
         <activity
             android:name=".Activities.MainScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.MovieDetail"
             android:exported="false" />
         <activity
             android:name=".Activities.Password_Assistance_Activity"
@@ -61,6 +62,12 @@
         </activity>
         <activity
             android:name=".Activities.TitleDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.PersonDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.ReviewDetailActivity"
             android:exported="false" />
     </application>
 

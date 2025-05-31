@@ -19,7 +19,9 @@ import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Adapters.PersonAdapter;
 import com.example.moviereviewapp.Adapters.PhotoAdapter;
 import com.example.moviereviewapp.Adapters.SimilarItemsAdapter;
+import com.example.moviereviewapp.Adapters.UserReviewAdapter;
 import com.example.moviereviewapp.Adapters.VideoAdapter;
+import com.example.moviereviewapp.Models.AuthorDetails;
 import com.example.moviereviewapp.Models.Crew;
 import com.example.moviereviewapp.Models.Genre;
 import com.example.moviereviewapp.Models.Image;
@@ -29,19 +31,26 @@ import com.example.moviereviewapp.Models.MovieImages;
 import com.example.moviereviewapp.Models.MovieKeywordResponse;
 import com.example.moviereviewapp.Models.Person;
 import com.example.moviereviewapp.Models.PhotoItem;
+import com.example.moviereviewapp.Models.ProductionCompany;
+import com.example.moviereviewapp.Models.ReviewResult;
+import com.example.moviereviewapp.Models.ReviewsResponse;
 import com.example.moviereviewapp.Models.SimilarItem;
 import com.example.moviereviewapp.Models.SimilarItemsResponse;
+import com.example.moviereviewapp.Models.SpokenLanguage;
 import com.example.moviereviewapp.Models.TvShowImages;
 import com.example.moviereviewapp.Models.TvShowKeywordResponse;
 import com.example.moviereviewapp.Activities.tvseriesdetail;
+import com.example.moviereviewapp.Models.UserReview;
 import com.example.moviereviewapp.Models.VideoResponse;
 import com.example.moviereviewapp.Models.VideoResult;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 import com.example.moviereviewapp.databinding.ActivityTitleDetailBinding;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,18 +77,22 @@ public class TitleDetailActivity extends AppCompatActivity {
     private PhotoAdapter photoAdapter;
     private SimilarItemsAdapter similarItemsAdapter;
     private VideoAdapter videoAdapter;
+    private UserReviewAdapter reviewsAdapter;
     private List<Call<?>> apiCalls = new ArrayList<>();
     private YouTubePlayerView youtubePlayerView;
     private YouTubePlayer activeMainPlayer;
     private YouTubePlayer activeOverlayPlayer;
     private String mainTrailerVideoId = null;
     private String currentOverlayVideoId = null;
+    private MovieDetail currentMovieItem;
+    private tvseriesdetail currentTvItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityTitleDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        findViewById(R.id.back_TitleDetail_Btn).setOnClickListener(v -> finish());
         if (binding.mainYouTubePlayerView != null) {
             getLifecycle().addObserver(binding.mainYouTubePlayerView);
             setupMainYouTubePlayerView();
@@ -99,6 +112,11 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
         fetchItemDetails();
         setupClickListeners();
+        setupSeeAll();
+    }
+
+    private void setupSeeAll() {
+
     }
 
     private boolean parseIntentExtras() {
@@ -116,7 +134,11 @@ public class TitleDetailActivity extends AppCompatActivity {
     private void setupRecyclerViews() {
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         if (binding.topCastRecyclerView != null && binding.castTextView != null) {
-            castAdapter = new PersonAdapter(new ArrayList<>());
+            castAdapter = new PersonAdapter(new ArrayList<>(), person -> {
+                Intent intent = new Intent(TitleDetailActivity.this, PersonDetailActivity.class);
+                intent.putExtra("personId", person.getPersonid());
+                startActivity(intent);
+            });
             binding.topCastRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             binding.topCastRecyclerView.setAdapter(castAdapter);
             binding.topCastRecyclerView.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
@@ -124,7 +146,7 @@ public class TitleDetailActivity extends AppCompatActivity {
             Log.w(TAG, "Top Cast RecyclerView or its title TextView is null in binding.");
         }
         if (binding.photosRecyclerView != null && binding.photosTextView != null) {
-            photoAdapter = new PhotoAdapter(new ArrayList<>());
+            photoAdapter = new PhotoAdapter(new ArrayList<>(), this::showPhotoOverlay);
             binding.photosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             binding.photosRecyclerView.setAdapter(photoAdapter);
         } else {
@@ -146,6 +168,28 @@ public class TitleDetailActivity extends AppCompatActivity {
             binding.moreLikeThisRecyclerView.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
         } else {
             Log.w(TAG, "Similar Items RecyclerView or its title TextView is null in binding.");
+        }
+        if (binding.reviewsRecyclerView != null) {
+            reviewsAdapter = new UserReviewAdapter(new ArrayList<>(), review -> {
+                // Launch review detail activity
+                Intent intent = new Intent(this, ReviewDetailActivity.class);
+                intent.putExtra("review", review);
+
+                String title = "";
+                if (currentMovieItem != null) {
+                    title = currentMovieItem.getTitle();
+                } else if (currentTvItem != null) {
+                    title = currentTvItem.getName();
+                }
+                intent.putExtra("movieTitle", title);
+
+                startActivity(intent);
+            });
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            binding.reviewsRecyclerView.setLayoutManager(layoutManager);
+            binding.reviewsRecyclerView.setAdapter(reviewsAdapter);
+        } else {
+            Log.w(TAG, "Reviews RecyclerView is null in binding.");
         }
     }
 
@@ -234,6 +278,30 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void showPhotoOverlay(String photoUrl) {
+        if (TextUtils.isEmpty(photoUrl)) {
+            Toast.makeText(this, "Photo not available for overlay.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Pause video if playing
+        if (activeMainPlayer != null && binding.mainYouTubePlayerView.getVisibility() == View.VISIBLE) {
+            activeMainPlayer.pause();
+        }
+
+        // Make overlay visible
+        binding.photoOverlayContainer.setVisibility(View.VISIBLE);
+
+        // Load the photo into the overlay ImageView
+        Glide.with(this)
+                .load(photoUrl)
+                .into(binding.overlayPhotoView);
+    }
+
+    private void hidePhotoOverlay() {
+        binding.photoOverlayContainer.setVisibility(View.GONE);
+    }
+
     private void fetchItemDetails() {
         if (ITEM_TYPE_MOVIE.equals(itemType)) {
             fetchMovieDetail(itemId);
@@ -262,6 +330,8 @@ public class TitleDetailActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<MovieDetail> call, @NonNull Response<MovieDetail> response) {
                 apiCalls.remove(call);
                 if (response.isSuccessful() && response.body() != null) {
+                    MovieDetail movie = response.body();
+                    currentMovieItem = movie;
                     Log.d(TAG, "Fetched Movie Detail: " + response.body().getTitle());
                     updateUiWithMovieDetails(response.body());
                 } else {
@@ -279,6 +349,28 @@ public class TitleDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchPersonDetail(Person basicPerson) {
+        TMDBApi api = RetrofitClient.getApiService();
+        Call<PersonDetail> detail = api.getPersonDetail(basicPerson.getPersonid(), TMDB_API_KEY);
+
+        detail.enqueue(new Callback<PersonDetail>() {
+            @Override
+            public void onResponse(Call<PersonDetail> call, Response<PersonDetail> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PersonDetail detail = response.body();
+                    basicPerson.setBirthdate(detail.getBirthday());
+                    basicPerson.setDeathday(detail.getDeathday());
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PersonDetail> call, Throwable t) {
+                Log.e("API_DETAIL_ERROR", "Lỗi lấy chi tiết: " + t.getMessage(), t);
+            }
+        });
+    }
+
     private void fetchTvSeriesDetail(int tvShowId) {
         TMDBApi api = RetrofitClient.getApiService();
         Call<tvseriesdetail> call = api.getTvSeriesDetailWithCreditsAndGenres(tvShowId, TMDB_API_KEY, "credits");
@@ -289,6 +381,8 @@ public class TitleDetailActivity extends AppCompatActivity {
                 apiCalls.remove(call);
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Fetched TV Show Detail: " + response.body().getName());
+                    tvseriesdetail tvShow = response.body();
+                    currentTvItem = tvShow;
                     updateUiWithTvShowDetails(response.body());
                 } else {
                     Log.e(TAG, "Failed to fetch TV show detail: " + response.code());
@@ -318,7 +412,7 @@ public class TitleDetailActivity extends AppCompatActivity {
             return;
         }
         apiCalls.add(call);
-        final Call<VideoResponse> finalCall = call;
+
         call.enqueue(new Callback<VideoResponse>() {
             @Override
             public void onResponse(@NonNull Call<VideoResponse> cbCall, @NonNull Response<VideoResponse> response) {
@@ -347,7 +441,7 @@ public class TitleDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<VideoResponse> cbCall, @NonNull Throwable t) {
-                apiCalls.remove(finalCall);
+                apiCalls.remove(cbCall);
                 Log.e(TAG, "Error fetching videos", t);
                 setViewVisibility(binding.mainYouTubePlayerView, false);
                 updateVideosUI(null);
@@ -391,37 +485,154 @@ public class TitleDetailActivity extends AppCompatActivity {
         setViewVisibility(binding.tvSeeAllVideos, hasVideos && videos.size() > 5);
     }
 
+    private void updateRatingUI(double voteAverage, int voteCount) {
+        if (voteAverage > 0) {
+            // Format the rating to one decimal place for header rating
+            String formattedRating = String.format("%.1f/10", voteAverage);
+            binding.userRatingValue.setText(formattedRating);
+
+            // Format the vote count with commas for thousands
+            String formattedCount = String.format("%,d", voteCount);
+            binding.userRatingCount.setText(formattedCount);
+
+            // Make the rating components visible
+            setViewVisibility(binding.userRatingStarIcon, true);
+            setViewVisibility(binding.userRatingValue, true);
+            setViewVisibility(binding.userRatingCount, true);
+
+            // Also update the review section ratings
+            binding.averageRatingTextView.setText(String.format(Locale.US, "%.1f", voteAverage));
+            binding.ratingCountTextView.setText(String.valueOf(voteCount)); // No suffix formatting
+        } else {
+            // Hide rating if no votes available
+            setViewVisibility(binding.userRatingStarIcon, false);
+            setViewVisibility(binding.userRatingValue, false);
+            setViewVisibility(binding.userRatingCount, false);
+
+            // Clear review section ratings
+            binding.averageRatingTextView.setText("0.0");
+            binding.ratingCountTextView.setText("0");
+        }
+    }
+
     private void updateUiWithMovieDetails(MovieDetail movie) {
+        binding.textViewTitleTitleDetail.setText(movie.getTitle());
         binding.titleTextView.setText(movie.getTitle());
+
+        // Hide TV Series label
+        setViewVisibility(binding.tvSeriesLabelTextView, false);
+        setViewVisibility(binding.dotSeparator1, false);
+
+        // Set year and runtime in header
+        updateMovieReleaseDate(movie.getReleaseDate(), movie.getTitle());
+
+        // Set runtime in header if available
+        if (movie.getRuntime() > 0) {
+            binding.headerLengthTextView.setText(formatRuntime(movie.getRuntime()));
+            setViewVisibility(binding.dotSeparator2, true);
+            setViewVisibility(binding.headerLengthTextView, true);
+        } else {
+            setViewVisibility(binding.dotSeparator2, false);
+            setViewVisibility(binding.headerLengthTextView, false);
+        }
         updateOverview(movie.getOverview());
         displayGenres(movie.getGenres());
+        for (Person a : movie.getCast()) {
+            fetchPersonDetail(a);
+        }
+        ;
         updateCast(movie.getCast());
+        binding.seeAllCastTextView.setOnClickListener(V -> {
+            Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+
+            intent.putExtra("type", "person");
+            intent.putExtra("title", "Cast");
+
+            intent.putExtra("personList", (Serializable) movie.getCast());
+            if (movie.getCast() != null) {
+                startActivity(intent);
+            }
+        });
         updatePoster(movie.getPosterPath());
         updateCrew(movie.getCrew());
         updateMovieReleaseDate(movie.getReleaseDate(), movie.getTitle());
         updateTextListDetail(binding.countryOriginTextView, binding.countryOriginValueTextView, movie.getOriginCountry());
-        List<String> languageNames = movie.getSpokenLanguages() != null ? movie.getSpokenLanguages().stream().map(MovieDetail.SpokenLanguage::getName).collect(Collectors.toList()) : null;
+        List<String> languageNames = movie.getSpokenLanguages() != null ? movie.getSpokenLanguages().stream().map(SpokenLanguage::getEnglishName).collect(Collectors.toList()) : null;
         updateTextListDetail(binding.languageSpokenTextView, binding.languageSpokenValueTextView, languageNames);
-        List<String> companyNames = movie.getProductionCompanies() != null ? movie.getProductionCompanies().stream().map(MovieDetail.ProductionCompany::getName).collect(Collectors.toList()) : null;
+        List<String> companyNames = movie.getProductionCompanies() != null ? movie.getProductionCompanies().stream().map(ProductionCompany::getName).collect(Collectors.toList()) : null;
         updateTextListDetail(binding.productionCompaniesTextView, binding.productionCompaniesValueTextView, companyNames);
         updateRuntime(binding.runtimeTextView, binding.runtimeValueTextView, movie.getRuntime() > 0 ? movie.getRuntime() + " minutes" : null);
         updateTagline(movie.getTagline());
+        updateRatingUI(movie.getRating(), movie.getVoteCount());
+        fetchReviews(movie.getId(), ITEM_TYPE_MOVIE);
     }
 
     private void updateUiWithTvShowDetails(tvseriesdetail tvShow) {
+        binding.textViewTitleTitleDetail.setText(tvShow.getName());
         binding.titleTextView.setText(tvShow.getName());
+
+        // Show TV Series label
+        setViewVisibility(binding.tvSeriesLabelTextView, true);
+        setViewVisibility(binding.dotSeparator1, true);
+
+        // Set year range in header
+        updateTvShowAirDates(tvShow.getFirstAirDate(), tvShow.getLastAirDate(), tvShow.getName());
+
+        // Set episode runtime in header if available
+        int[] runtimes = tvShow.getEpisodeRunTime();
+        if (runtimes != null && runtimes.length > 0 && runtimes[0] > 0) {
+            binding.headerLengthTextView.setText(formatRuntime(runtimes[0]) + " per episode");
+            setViewVisibility(binding.dotSeparator2, true);
+            setViewVisibility(binding.headerLengthTextView, true);
+        } else {
+            setViewVisibility(binding.dotSeparator2, false);
+            setViewVisibility(binding.headerLengthTextView, false);
+        }
+        if (tvShow.getnumberofepsidose() > 0) {
+            int seasonCount = tvShow.getSeasonnumber();
+            int episodeCount = tvShow.getnumberofepsidose();
+
+            String episodesText = episodeCount + " episode" + (episodeCount > 1 ? "s" : "");
+            if (seasonCount > 0) {
+                episodesText += " across " + seasonCount + " season" + (seasonCount > 1 ? "s" : "");
+            }
+
+            binding.episodesValueTextView.setText(episodesText);
+            binding.headerEpisodesTextView.setText(episodesText);
+            setViewVisibility(binding.headerEpisodesTextView, true);
+            setViewVisibility(binding.episodesTextView, true);
+            setViewVisibility(binding.episodesValueTextView, true);
+        } else {
+            setViewVisibility(binding.headerEpisodesTextView, false);
+            setViewVisibility(binding.episodesTextView, false);
+            setViewVisibility(binding.episodesValueTextView, false);
+        }
         updateOverview(tvShow.getOverview());
         displayGenres(tvShow.getGenres());
+        for (Person a : tvShow.getCast()) {
+            fetchPersonDetail(a);
+        }
+        ;
         updateCast(tvShow.getCast());
+        binding.seeAllCastTextView.setOnClickListener(V -> {
+            Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+
+            intent.putExtra("type", "person");
+            intent.putExtra("title", "Cast");
+
+            intent.putExtra("personList", (Serializable) tvShow.getCast());
+            if (tvShow.getCast() != null) {
+                startActivity(intent);
+            }
+        });
         updatePoster(tvShow.getPosterPath());
         updateCrew(tvShow.getCrew());
         updateTvShowAirDates(tvShow.getFirstAirDate(), tvShow.getLastAirDate(), tvShow.getName());
         updateTextListDetail(binding.countryOriginTextView, binding.countryOriginValueTextView, tvShow.getOriginCountry());
-        List<String> languageNames = tvShow.getSpokenLanguages() != null ? tvShow.getSpokenLanguages().stream().map(tvseriesdetail.SpokenLanguage::getName).collect(Collectors.toList()) : null;
+        List<String> languageNames = tvShow.getSpokenLanguages() != null ? tvShow.getSpokenLanguages().stream().map(SpokenLanguage::getEnglishName).collect(Collectors.toList()) : null;
         updateTextListDetail(binding.languageSpokenTextView, binding.languageSpokenValueTextView, languageNames);
-        List<String> companyNames = tvShow.getProductionCompanies() != null ? tvShow.getProductionCompanies().stream().map(tvseriesdetail.ProductionCompany::getName).collect(Collectors.toList()) : null;
+        List<String> companyNames = tvShow.getProductionCompanies() != null ? tvShow.getProductionCompanies().stream().map(ProductionCompany::getName).collect(Collectors.toList()) : null;
         updateTextListDetail(binding.productionCompaniesTextView, binding.productionCompaniesValueTextView, companyNames);
-        int[] runtimes = tvShow.getEpisodeRunTime();
         String runtimeStr = null;
         if (runtimes != null && runtimes.length > 0 && runtimes[0] > 0) {
             runtimeStr = runtimes[0] + " minutes (avg)";
@@ -429,6 +640,39 @@ public class TitleDetailActivity extends AppCompatActivity {
         updateRuntime(binding.runtimeTextView, binding.runtimeValueTextView, runtimeStr);
         setViewVisibility(binding.releaseDateDetailTextView, false);
         setViewVisibility(binding.releaseDateValueTextView, false);
+        binding.releaseDateDetailTextView.setText("First Air Date");
+        setViewVisibility(binding.releaseDateDetailTextView, true);
+
+        // Format the air date for the details section
+        if (tvShow.getFirstAirDate() != null && !tvShow.getFirstAirDate().isEmpty()) {
+            try {
+                SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Date date = apiDateFormat.parse(tvShow.getFirstAirDate());
+                if (date != null) {
+                    SimpleDateFormat detailDateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
+                    binding.releaseDateValueTextView.setText(detailDateFormat.format(date));
+                    setViewVisibility(binding.releaseDateValueTextView, true);
+                }
+            } catch (ParseException e) {
+                Log.e(TAG, "Error parsing TV show first air date", e);
+                setViewVisibility(binding.releaseDateValueTextView, false);
+            }
+        } else {
+            setViewVisibility(binding.releaseDateValueTextView, false);
+        }
+        updateRatingUI(tvShow.getRating(), tvShow.getVoteCount());
+        fetchReviews(tvShow.getId(), ITEM_TYPE_MOVIE);
+    }
+
+    private String formatRuntime(int minutes) {
+        int hours = minutes / 60;
+        int mins = minutes % 60;
+
+        if (hours > 0) {
+            return hours + "h " + (mins > 0 ? mins + "m" : "");
+        } else {
+            return mins + "m";
+        }
     }
 
     private void updateOverview(@Nullable String overview) {
@@ -511,27 +755,34 @@ public class TitleDetailActivity extends AppCompatActivity {
             setViewVisibility(binding.comingSoonTextView, false);
             return;
         }
+
         try {
             SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             Date firstDate = apiDateFormat.parse(firstAirDateStr);
             Date currentDate = new Date();
+
             if (firstDate != null) {
                 setViewVisibility(binding.comingSoonTextView, firstDate.after(currentDate));
+
                 SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.US);
                 String firstYear = yearFormat.format(firstDate);
-                binding.yearTextView.setText(firstYear);
-                setViewVisibility(binding.yearTextView, true);
-                String airDatesRange = firstYear + " - ";
+
+                // Format year range for display
+                String yearRange = firstYear;
                 if (!TextUtils.isEmpty(lastAirDateStr)) {
                     Date lastDate = apiDateFormat.parse(lastAirDateStr);
                     if (lastDate != null) {
-                        airDatesRange += yearFormat.format(lastDate);
-                    } else {
-                        airDatesRange += "?";
+                        String lastYear = yearFormat.format(lastDate);
+                        if (!lastYear.equals(firstYear)) {
+                            yearRange += "–" + lastYear;
+                        }
                     }
-                } else {
-                    airDatesRange += "?";
+                } else if (firstDate.before(currentDate)) {
+                    yearRange += "–present";
                 }
+
+                binding.yearTextView.setText(yearRange);
+                setViewVisibility(binding.yearTextView, true);
             }
         } catch (ParseException e) {
             Log.e(TAG, "Error parsing TV show air date: " + firstAirDateStr, e);
@@ -753,7 +1004,7 @@ public class TitleDetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<SimilarItemsResponse>() {
             @Override
             public void onResponse(@NonNull Call<SimilarItemsResponse> cbCall, @NonNull Response<SimilarItemsResponse> response) {
-                apiCalls.remove(finalCall);
+                apiCalls.remove(cbCall);
                 if (response.isSuccessful() && response.body() != null) {
                     updateSimilarItemsUI(response.body().getResults());
                 } else {
@@ -764,7 +1015,7 @@ public class TitleDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<SimilarItemsResponse> cbCall, @NonNull Throwable t) {
-                apiCalls.remove(finalCall);
+                apiCalls.remove(cbCall);
                 if (cbCall.isCanceled()) {
                     Log.d(TAG, "Similar items call was cancelled.");
                 } else {
@@ -777,6 +1028,28 @@ public class TitleDetailActivity extends AppCompatActivity {
 
     private void updateSimilarItemsUI(@Nullable List<SimilarItem> items) {
         boolean hasItems = items != null && !items.isEmpty();
+        TMDBApi api = RetrofitClient.getApiService();
+        if (items != null) {
+            for (SimilarItem movie : items) {
+                int movieId = movie.getId();
+                Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+                detailCall.enqueue(new Callback<MovieDetail>() {
+                    @Override
+                    public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            int runtime = response.body().getRuntime();
+                            movie.setLengthFromRuntime(runtime);
+                            similarItemsAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MovieDetail> call, Throwable t) {
+                        Log.e("DETAIL_ERROR", "Error fetching runtime for movieId: " + movieId, t);
+                    }
+                });
+            }
+        }
         if (hasItems) {
             similarItemsAdapter.updateData(items);
         } else {
@@ -785,6 +1058,18 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
         setViewVisibility(binding.moreLikeThisTextView, hasItems);
         setViewVisibility(binding.moreLikeThisRecyclerView, hasItems);
+        binding.tvSeeAllMoreLikeThis.setOnClickListener(V -> {
+            Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+
+            intent.putExtra("type", "similaritem");
+            intent.putExtra("title", "More like this");
+
+            intent.putExtra("movieList", (Serializable) items);
+            if (items != null) {
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void onSimilarItemClicked(SimilarItem item) {
@@ -793,6 +1078,89 @@ public class TitleDetailActivity extends AppCompatActivity {
         intent.putExtra("itemId", item.getId());
         intent.putExtra("itemType", this.itemType);
         startActivity(intent);
+    }
+
+    private void fetchReviews(int id, String type) {
+        TMDBApi api = RetrofitClient.getApiService();
+        Call<ReviewsResponse> call;
+
+        if (ITEM_TYPE_MOVIE.equals(type)) {
+            call = api.getMovieReviews(id, TMDB_API_KEY, "en-US", 1);
+        } else if (ITEM_TYPE_TV.equals(type)) {
+            call = api.getTvShowReviews(id, TMDB_API_KEY, "en-US", 1);
+        } else {
+            Log.e(TAG, "Unknown type for fetching reviews: " + type);
+            updateReviewsSection(null);
+            return;
+        }
+
+        apiCalls.add(call);
+        call.enqueue(new Callback<ReviewsResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ReviewsResponse> call, @NonNull Response<ReviewsResponse> response) {
+                apiCalls.remove(call);
+                if (response.isSuccessful() && response.body() != null) {
+                    // Extract the review results from the response
+                    ReviewsResponse reviewsResponse = response.body();
+                    List<ReviewResult> reviewResults = reviewsResponse.getResults();
+
+                    List<UserReview> userReviews = new ArrayList<>();
+
+                    for (ReviewResult result : reviewResults) {
+                        if (result.getContent() != null && !result.getContent().isEmpty()) {
+                            // Get rating if available, otherwise use 0
+                            int rating = 0;
+                            if (result.getAuthorDetails() != null && result.getAuthorDetails().getRating() != null) {
+                                rating = Math.round(result.getAuthorDetails().getRating());
+                            }
+
+                            userReviews.add(new UserReview(
+                                    result.getId(),
+                                    result.getAuthor() != null ? result.getAuthor() : "Anonymous",
+                                    rating,
+                                    "", // No title from TMDB
+                                    result.getContent(),
+                                    result.getCreatedAt()
+                            ));
+                        }
+                    }
+
+                    // Update UI with the reviews data
+                    updateReviewsSection(userReviews);
+                } else {
+                    Log.e(TAG, "Failed to fetch reviews: " + response.code());
+                    updateReviewsSection(null);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ReviewsResponse> call, @NonNull Throwable t) {
+                apiCalls.remove(call);
+                Log.e(TAG, "Error fetching reviews", t);
+                updateReviewsSection(null);
+            }
+        });
+    }
+
+    private void updateReviewsSection(List<UserReview> reviews) {
+        if (reviews != null && !reviews.isEmpty()) {
+            reviewsAdapter.updateReviews(reviews);
+            setViewVisibility(binding.reviewsRecyclerView, true);
+            setViewVisibility(binding.noReviewsTextView, false);
+        } else {
+            setViewVisibility(binding.reviewsRecyclerView, false);
+            setViewVisibility(binding.noReviewsTextView, true);
+        }
+    }
+
+    private String formatNumberWithSuffix(int count) {
+        if (count < 1000) {
+            return String.valueOf(count);
+        } else if (count < 1000000) {
+            return String.format(Locale.US, "%.0fK", count / 1000.0);
+        } else {
+            return String.format(Locale.US, "%.1fM", count / 1000000.0);
+        }
     }
 
     private void setViewVisibility(View view, boolean visible) {
@@ -816,6 +1184,53 @@ public class TitleDetailActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        binding.rateThisSection.setOnClickListener(v -> {
+            Toast.makeText(this, "Rating functionality coming soon", Toast.LENGTH_SHORT).show();
+        });
+        binding.closePhotoOverlayButton.setOnClickListener(v -> hidePhotoOverlay());
+        binding.tvSeeAllVideos.setOnClickListener(v -> {
+            if (videoAdapter != null && videoAdapter.getItemCount() > 0) {
+                Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+                intent.putExtra("videoList", (Serializable) videoAdapter.getVideoList());
+                intent.putExtra("title", "Videos");
+                intent.putExtra("type", "videos");
+                startActivity(intent);
+            }
+        });
+        binding.tvSeeAllPhotos.setOnClickListener(v -> {
+            List<PhotoItem> photos = photoAdapter.getPhotoList();
+            if (photos != null && !photos.isEmpty()) {
+                Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+                intent.putExtra("photoList", (Serializable) photos);
+                intent.putExtra("title", "Photos");
+                intent.putExtra("type", "photos");
+                startActivity(intent);
+            }
+        });
+        binding.seeAllReviewsTextView.setOnClickListener(v -> {
+            if (reviewsAdapter != null && reviewsAdapter.getItemCount() > 0) {
+                Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
+
+                intent.putExtra("type", "reviews");
+                intent.putExtra("title", "User reviews");
+
+                String title = "";
+                if (currentMovieItem != null) {
+                    title = currentMovieItem.getTitle();
+                } else if (currentTvItem != null) {
+                    title = currentTvItem.getName();
+                }
+                intent.putExtra("movieTitle", title);
+
+                // Get the list of reviews from the adapter
+                List<UserReview> reviews = reviewsAdapter.getReviews();
+                intent.putExtra("reviewsList", (Serializable) reviews);
+
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No reviews available", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showError(String message) {
