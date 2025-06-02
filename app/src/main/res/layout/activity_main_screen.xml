@@ -113,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Tv shows and movies just for you"
+                    android:text="The Absolute Best – Tailored To Your Taste"
                     android:textColor="#989898"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="@+id/textView5"
@@ -134,7 +134,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/topickrecyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="430dp"
+                    android:layout_height="410dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
@@ -297,7 +297,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/trendingrecyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="430dp"
+                    android:layout_height="410dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
@@ -424,7 +424,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:background="@color/grey_user_profile">
 
@@ -454,7 +454,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/comingsoonrecyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="430dp"
+                    android:layout_height="410dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -479,7 +479,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:background="@color/grey_user_profile">
 
@@ -505,11 +505,22 @@
                     app:layout_constraintBottom_toBottomOf="@+id/view20"
                     app:layout_constraintStart_toEndOf="@+id/view20"
                     app:layout_constraintTop_toTopOf="@+id/view20" />
+                <TextView
+                    android:id="@+id/textView600"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Fresh episodes on today’s lineup"
+                    android:textColor="#989898"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/textView90"
+                    app:layout_constraintTop_toBottomOf="@+id/textView90"
+                    />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/ontheairrecyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="430dp"
+                    android:layout_height="410dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -531,20 +542,10 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:text="Tv series"
-
-
-
-                />
-
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
+                android:layout_height="520dp"
                 android:layout_marginTop="16dp"
                 android:background="@color/grey_user_profile">
 
@@ -564,17 +565,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Top rated"
+                    android:text=" Top rated Tv series"
                     android:textColor="#F8F8F8"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="@+id/view200"
                     app:layout_constraintStart_toEndOf="@+id/view200"
                     app:layout_constraintTop_toTopOf="@+id/view200" />
+                <TextView
+                    android:id="@+id/textView6000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Critically acclaimed series with top ratings"
+                    android:textColor="#989898"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/textView900"
+                    app:layout_constraintTop_toBottomOf="@+id/textView900"
+                    />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/topratedrecyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="430dp"
+                    android:layout_height="410dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"

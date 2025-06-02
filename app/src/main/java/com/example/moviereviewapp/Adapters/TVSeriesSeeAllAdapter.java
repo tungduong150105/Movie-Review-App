@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.movies;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.Models.tvseries;
 import com.example.moviereviewapp.R;
 
@@ -32,6 +33,17 @@ public MovieSeeAllAdapter.MovieViewHolder onCreateViewHolder(@NonNull ViewGroup 
     View view = LayoutInflater.from(context).inflate(R.layout.viewholder_viewall_movie, parent, false);
     return new MovieSeeAllAdapter.MovieViewHolder(view);
 }
+    private TVSeriesSeeAllAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(TVSeriesSeeAllAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(tvseries movie);
+    }
 
 @Override
 public void onBindViewHolder(@NonNull MovieSeeAllAdapter.MovieViewHolder holder, int position) {
@@ -39,6 +51,14 @@ public void onBindViewHolder(@NonNull MovieSeeAllAdapter.MovieViewHolder holder,
     holder.title.setText(movie.getName());
     holder.releaseDate.setText(movie.getDate());
     holder.length.setText(movie.getEps());
+    holder.itemView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (listener != null) {
+                listener.onItemClick(movie);
+            }
+        }
+    });
 
     holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
         boolean isBookmarked = false;

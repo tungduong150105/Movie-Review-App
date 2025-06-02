@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.movies;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -27,6 +29,20 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
     public MovieItemAdapter(List<movies> movie) {
         this.movie = movie;
     }
+    private MovieItemAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(MovieItemAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(movies movie);
+    }
+
+    // Constructor
+
 
 
     @NonNull
@@ -44,6 +60,14 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
         holder.ratingTxt.setText(String.valueOf(move.getRating()));
         holder.yearTxt.setText(move.getReleasedate());
         holder.lengthTxt.setText(move.getLength());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(move);
+                }
+            }
+        });
         Glide.with(context).load(move.getPosterurl()).into(holder.posterimg);
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;

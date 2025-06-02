@@ -1,7 +1,5 @@
 package com.example.moviereviewapp.Adapters;
 
-import static androidx.core.graphics.RectKt.transform;
-
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
@@ -12,14 +10,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.R;
 

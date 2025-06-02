@@ -25,6 +25,18 @@ public class MovieSeeAllAdapter extends RecyclerView.Adapter<MovieSeeAllAdapter.
         this.context = context;
         this.movieList = movieList;
     }
+    private MovieSeeAllAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(MovieSeeAllAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(movies movie);
+    }
+
 
     @NonNull
     @Override
@@ -39,6 +51,14 @@ public class MovieSeeAllAdapter extends RecyclerView.Adapter<MovieSeeAllAdapter.
         holder.title.setText(movie.getMoviename());
         holder.releaseDate.setText(movie.getReleasedate());
         holder.length.setText(movie.getLength());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(movie);
+                }
+            }
+        });
 
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;

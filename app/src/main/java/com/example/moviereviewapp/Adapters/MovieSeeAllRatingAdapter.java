@@ -26,6 +26,18 @@ public class MovieSeeAllRatingAdapter extends RecyclerView.Adapter<MovieSeeAllRa
         this.movieList = movieList;
     }
 
+    private MovieSeeAllRatingAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(MovieSeeAllRatingAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(movies movie);
+    }
+
     @NonNull
     @Override
     public RatingMovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,6 +52,14 @@ public class MovieSeeAllRatingAdapter extends RecyclerView.Adapter<MovieSeeAllRa
         holder.releaseDate.setText(movie.getReleasedate());
         holder.averageRating.setText(String.valueOf(movie.getRating()));
         holder.length.setText(movie.getLength());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(movie);
+                }
+            }
+        });
 
         //ToDo: Xử lý hiển thị đánh giá của user
         //holder.userRating.setText(String.valueOf(movie.getUserrating()));

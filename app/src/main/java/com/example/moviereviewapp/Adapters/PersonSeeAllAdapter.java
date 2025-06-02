@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.Movie_UserProfile;
 import com.example.moviereviewapp.Models.Person;
 import com.example.moviereviewapp.Models.movies;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
 import java.util.List;
@@ -35,6 +36,17 @@ public class PersonSeeAllAdapter extends RecyclerView.Adapter<PersonSeeAllAdapte
         View view = LayoutInflater.from(context).inflate(R.layout.personseeall, parent, false);
         return new MovieViewHolder(view);
     }
+    private PersonSeeAllAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(PersonSeeAllAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(Person person);
+    }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
@@ -42,6 +54,14 @@ public class PersonSeeAllAdapter extends RecyclerView.Adapter<PersonSeeAllAdapte
         holder.title.setText(movie.getName()+", ");
         holder.releaseDate.setText(movie.getRole());
         holder.length.setText(movie.getAgeOrLifespan());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(movie);
+                }
+            }
+        });
 
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;

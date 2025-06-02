@@ -1,6 +1,7 @@
 package com.example.moviereviewapp.Activities;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -48,7 +49,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import java.util.ArrayList;
 import java.util.List;
 
-public class SeeAllActivity extends AppCompatActivity {
+public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdapter.OnItemClickListener,MovieSeeAllRatingAdapter.OnItemClickListener,TVSeriesSeeAllAdapter.OnItemClickListener,TrendingSeeallAdapter.OnItemClickListener,PersonSeeAllAdapter.OnItemClickListener {
 
     ImageView back_SeeAll_Btn;
     TextView textView_Title_SeeAll;
@@ -98,9 +99,11 @@ public class SeeAllActivity extends AppCompatActivity {
 
                 if (title != null && title.equals("Recently Viewed")) {
                     MovieSeeAllAdapter movieAdapter = new MovieSeeAllAdapter(this, movieList);
+                    movieAdapter.setOnItemClickListener(this);
                     recyclerView.setAdapter(movieAdapter);
                 } else {
                     MovieSeeAllRatingAdapter ratingAdapter = new MovieSeeAllRatingAdapter(this, movieList);
+                    ratingAdapter.setOnItemClickListener(this);
                     recyclerView.setAdapter(ratingAdapter);
                 }
                 break;
@@ -113,6 +116,7 @@ public class SeeAllActivity extends AppCompatActivity {
                 }
 
                 TVSeriesSeeAllAdapter seriesAdapter = new TVSeriesSeeAllAdapter(this, seriesList);
+                seriesAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(seriesAdapter);
                 break;
 
@@ -125,6 +129,7 @@ public class SeeAllActivity extends AppCompatActivity {
                 }
 
                 TrendingSeeallAdapter trendingAdapter = new TrendingSeeallAdapter(this, trendingList);
+                trendingAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(trendingAdapter);
                 break;
 
@@ -136,6 +141,7 @@ public class SeeAllActivity extends AppCompatActivity {
                 }
 
                 PersonSeeAllAdapter personAdapter = new PersonSeeAllAdapter(this, personList);
+                personAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(personAdapter);
                 break;
 
@@ -148,6 +154,7 @@ public class SeeAllActivity extends AppCompatActivity {
                 }
 
                 SeeAllSimilarItemAdapter SeeAllSimilarItemAdapter = new SeeAllSimilarItemAdapter(this, similarList);
+
                 recyclerView.setAdapter(SeeAllSimilarItemAdapter);
                 break;
 
@@ -214,6 +221,14 @@ public class SeeAllActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onItemClick(movies movie){
+        Log.d("See more ", "Clicked on movie: " + movie.getMoviename());
+        Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("itemType", "movie");
+        intent.putExtra("itemId", movie.getMovieId());
+        startActivity(intent);
+    }
     private void setupVideoOverlay() {
         try {
             videoOverlayContainer = findViewById(R.id.videoOverlayContainer);
@@ -336,5 +351,30 @@ public class SeeAllActivity extends AppCompatActivity {
         if (youtubePlayerView != null) {
             youtubePlayerView.release();
         }
+    }
+    @Override
+    public void onItemClick(trendingall movi) {
+        Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
+        Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("itemType", "movie");
+        intent.putExtra("itemId", movi.getId());
+        startActivity(intent);
+    }
+    @Override
+    public void onItemClick(Person person){
+
+
+        Intent intent = new Intent(this, PersonDetailActivity.class);
+
+        intent.putExtra("personId", person.getPersonid());
+        startActivity(intent);
+    }
+    @Override
+    public void onItemClick(tvseries movi) {
+        Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
+        Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("itemType", "tv");
+        intent.putExtra("itemId", movi.getId());
+        startActivity(intent);
     }
 }

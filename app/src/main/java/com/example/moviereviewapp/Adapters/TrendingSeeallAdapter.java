@@ -32,6 +32,17 @@ public class TrendingSeeallAdapter extends RecyclerView.Adapter<TrendingSeeallAd
         View view = LayoutInflater.from(context).inflate(R.layout.viewholder_viewall_movie, parent, false);
         return new MovieViewHolder(view);
     }
+    private TrendingSeeallAdapter.OnItemClickListener listener;
+
+    // Setter cho listener
+    public void setOnItemClickListener(TrendingSeeallAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface để xử lý click
+    public interface OnItemClickListener {
+        void onItemClick(trendingall movie);
+    }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
@@ -39,6 +50,14 @@ public class TrendingSeeallAdapter extends RecyclerView.Adapter<TrendingSeeallAd
         holder.title.setText(movie.getName());
         holder.releaseDate.setText(movie.getDate());
         holder.length.setText(movie.getLength());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(movie);
+                }
+            }
+        });
 
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;
