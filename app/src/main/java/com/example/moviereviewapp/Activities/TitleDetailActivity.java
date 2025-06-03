@@ -86,6 +86,9 @@ public class TitleDetailActivity extends AppCompatActivity {
     private String currentOverlayVideoId = null;
     private MovieDetail currentMovieItem;
     private tvseriesdetail currentTvItem;
+    String username;
+    String token;
+    String session_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +119,6 @@ public class TitleDetailActivity extends AppCompatActivity {
     }
 
     private void setupSeeAll() {
-
     }
 
     private boolean parseIntentExtras() {
@@ -124,6 +126,13 @@ public class TitleDetailActivity extends AppCompatActivity {
         if (extras != null) {
             itemId = extras.getInt("itemId", -1);
             itemType = extras.getString("itemType");
+            username = extras.getString("username");
+            token = extras.getString("token");
+            session_id = extras.getString("session_id");
+            Log.d("Detail", username + " " + token + " " + session_id);
+            assert username != null;
+            assert token != null;
+            assert session_id != null;
             Log.d(TAG, "Received Item ID: " + itemId + ", Type: " + itemType);
             return itemId != -1 && itemType != null;
         }
@@ -360,7 +369,6 @@ public class TitleDetailActivity extends AppCompatActivity {
                     PersonDetail detail = response.body();
                     basicPerson.setBirthdate(detail.getBirthday());
                     basicPerson.setDeathday(detail.getDeathday());
-
                 }
             }
 
@@ -1069,7 +1077,6 @@ public class TitleDetailActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     private void onSimilarItemClicked(SimilarItem item) {
@@ -1103,7 +1110,6 @@ public class TitleDetailActivity extends AppCompatActivity {
                     // Extract the review results from the response
                     ReviewsResponse reviewsResponse = response.body();
                     List<ReviewResult> reviewResults = reviewsResponse.getResults();
-
                     List<UserReview> userReviews = new ArrayList<>();
 
                     for (ReviewResult result : reviewResults) {
@@ -1185,7 +1191,14 @@ public class TitleDetailActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         binding.rateThisSection.setOnClickListener(v -> {
-            Toast.makeText(this, "Rating functionality coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(TitleDetailActivity.this, Rating.class);
+            intent.putExtra("itemId", itemId);
+            intent.putExtra("itemType", itemType);
+            intent.putExtra("username", username);
+            intent.putExtra("token", token);
+            intent.putExtra("session_id", session_id);
+            startActivity(intent);
+//            Toast.makeText(this, "Rating functionality coming soon", Toast.LENGTH_SHORT).show();
         });
         binding.closePhotoOverlayButton.setOnClickListener(v -> hidePhotoOverlay());
         binding.tvSeeAllVideos.setOnClickListener(v -> {

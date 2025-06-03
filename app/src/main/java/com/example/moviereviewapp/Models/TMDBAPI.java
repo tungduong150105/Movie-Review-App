@@ -8,8 +8,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class TMDBAPI {
-    public String get_url_add_rating(String movie_id, String session_id) {
-        return "https://api.themoviedb.org/3/movie/" + movie_id + "/rating?guest_session_id=" + session_id + "1&api_key=fed0e4b63e1ef5ed6a678cd279a00884";
+    public String get_url_add_rating(String itemType, String movie_id, String session_id) {
+        if (itemType.equals("movie")) {
+            return "https://api.themoviedb.org/3/movie/" + movie_id + "/rating?guest_session_id=" + session_id + "1&api_key=fed0e4b63e1ef5ed6a678cd279a00884";
+        }
+        return null;
     }
     public String get_url_new_session() {
         return "https://api.themoviedb.org/3/authentication/guest_session/new";

@@ -3,7 +3,6 @@ package com.example.moviereviewapp.Activities;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -24,10 +23,8 @@ import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Rating extends AppCompatActivity {
@@ -42,24 +39,21 @@ public class Rating extends AppCompatActivity {
         setContentView(R.layout.activity_rating);
 
         api = new TMDBAPI();
-
         title = findViewById(R.id.title);
         img = findViewById(R.id.img);
-
         TextView textBack = findViewById(R.id.textBack);
         textBack.setOnClickListener(v -> finish());
-
         ratingBar = findViewById(R.id.ratingBar);
-
         TextView ratingTxt = findViewById(R.id.ratingTxt);
         ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> ratingTxt.setText("Rating: " + rating));
-
         Button rateButton = findViewById(R.id.rateButton);
 
+        String itemType;
         String movie_id;
         String session_id;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            itemType = extras.getString("itemType");
             movie_id = extras.getString("movie_id");
             session_id = extras.getString("session_id");
             assert movie_id != null;
@@ -72,6 +66,7 @@ public class Rating extends AppCompatActivity {
                 }
             }).start();
         } else {
+            itemType = "";
             movie_id = "";
             session_id = "";
         }
@@ -82,14 +77,14 @@ public class Rating extends AppCompatActivity {
             try {
                 body.put("value", rating);
                 Log.d("Rating", body.toString());
-                api.post_api(api.get_url_add_rating(movie_id, session_id), body.toString(), new Callback() {
+                api.post_api(api.get_url_add_rating(itemType, movie_id, session_id), body.toString(), new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
                        runOnUiThread(() -> Toast.makeText(Rating.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
                     }
 
                     @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
                         Log.d("Rating", response.toString());
                         if (response.code() == 201) {
                             runOnUiThread(() -> Toast.makeText(Rating.this, "Rating successful", Toast.LENGTH_SHORT).show());

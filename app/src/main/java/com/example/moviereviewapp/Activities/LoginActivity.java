@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             editTextPassword_LogIn.setTypeface(currentTypeface);
-
             editTextPassword_LogIn.setSelection(editTextPassword_LogIn.getText().length());
         });
 
