@@ -1,9 +1,10 @@
 package com.example.moviereviewapp.Activities;
 
+import static java.lang.Long.parseLong;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,17 +21,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviereviewapp.Adapters.MovieItemAdapter;
+import com.example.moviereviewapp.Models.TMDBAPI;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
-import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class UserProfileActivity extends AppCompatActivity {
     TextView textView_Username_UserProfile;
@@ -47,7 +60,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     //Recently viewed
     TextView textView_RecentlyViewed_Number_UserProfile,
-        textView_SeeAll_RecentlyViewed_UserProfile;
+            textView_SeeAll_RecentlyViewed_UserProfile;
     //textView_RecentlyViewed_Number_UserProfile hien thi so luong phim recently viewed, mac dinh bang 0 neu chua dang nhap
     //kich hoat su kien onClick cho textView_SeeAll_RecentlyViewed_UserProfile de nguoi dung chuyen sang SeeAllActivity ung voi Recenctly viewed
 
@@ -81,7 +94,10 @@ public class UserProfileActivity extends AppCompatActivity {
     List<movies> recentlyViewedMovieList, ratingMovieList, watchListMovieList;
     //Adapter phim theo muc dich
     MovieItemAdapter recentlyViewedAdapter, ratingAdapter, watchListAdapter;
-
+    String username;
+    String token;
+    UserAPI userAPI;
+    TMDBAPI tmdbAPI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +108,16 @@ public class UserProfileActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        userAPI = new UserAPI();
+        tmdbAPI = new TMDBAPI();
+
+        username = getIntent().getStringExtra("username");
+        token = getIntent().getStringExtra("token");
 
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String userId = sharedPreferences.getString("userId", null);
-        fetchtopratedmovies();
-        fetchMovies();
+        String userId = sharedPreferences.getString("userId", "aa");
+//        fetchtopratedmovies();
+//        fetchMovies();
 
         //Khoi tao thuoc tinh
         linearLayout3 = findViewById(R.id.linearLayout3);
@@ -132,14 +153,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
         //ToDo: Xử lý kiểm tra tình trạng đăng nhập
         if (userId == null) {
-            // Nếu chưa đăng nhập, chuyển về LoginActivity
-//            Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
-//            startActivity(intent);
-//            finish(); // Đóng màn hình hiện tại
         } else {
             // Nếu đã đăng nhập, tiếp tục với các thao tác khác
             imageView_Logout_UserProfile.setVisibility(View.VISIBLE);
-            textView_Username_UserProfile.setText(userId);
+            textView_Username_UserProfile.setText(username);
             btn_SignIn_SignUp_UserProfile.setVisibility(View.GONE);//Ẩn nút đăng nhập
 
             linearLayout3.setVisibility(View.VISIBLE);//Hiển thị ô chứa số lượng phim trong Ratings
@@ -151,6 +168,8 @@ public class UserProfileActivity extends AppCompatActivity {
 
         //Su kien dang xuat cho nut log out
         imageView_Logout_UserProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
+            startActivity(intent);
             //ToDo: Xử lý logout
         });
 
@@ -159,6 +178,10 @@ public class UserProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
             startActivity(intent);
         });
+
+        getRatingList();
+        getWatchList();
+        getRecentList();
 
         //ToDo: Cách hiển thị danh sách phim theo từng đề mục ở dưới
 //        recentlyViewedMovieList.add(new movies("ggggg1", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
@@ -178,83 +201,178 @@ public class UserProfileActivity extends AppCompatActivity {
 //
 //        //ToDo: XỬ LÝ CÁC DANH SÁCH PHIM TỪ ĐÂY
 //        //ToDo: Su dung viewholder_movie cho cac muc hien thi phim trong user profile (tuong ung voi adapter)
-//        recentlyViewedAdapter = new MovieItemAdapter(recentlyViewedMovieList);
-//        ratingAdapter = new MovieItemAdapter(ratingMovieList);
-//        watchListAdapter = new MovieItemAdapter(watchListMovieList);
-//
-//        recycleView_Ratings_UserProfile.setAdapter(ratingAdapter);
-//        recycleView_RecentlyViewed_UserProfile.setAdapter(recentlyViewedAdapter);
-//        recycleView_Watchlist_UserProfile.setAdapter(watchListAdapter);
-//
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-//        LinearLayoutManager layoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-//        LinearLayoutManager layoutManager3 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-//
-//        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
-//
-//        recycleView_Ratings_UserProfile.setLayoutManager(layoutManager);
-//        recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
-//        recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
+        recentlyViewedAdapter = new MovieItemAdapter(recentlyViewedMovieList);
+        ratingAdapter = new MovieItemAdapter(ratingMovieList);
+        watchListAdapter = new MovieItemAdapter(watchListMovieList);
+
+        recycleView_Ratings_UserProfile.setAdapter(ratingAdapter);
+        recycleView_RecentlyViewed_UserProfile.setAdapter(recentlyViewedAdapter);
+        recycleView_Watchlist_UserProfile.setAdapter(watchListAdapter);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager layoutManager3 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+
+        recycleView_Ratings_UserProfile.setLayoutManager(layoutManager);
+        recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
+        recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
 //
 //        //ToDo: Xử lý khi Recently Viewed Movie có dữ liệu
-//        textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
-//        textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
-//        recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-//        textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
-//        textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-//        recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//        textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
-//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                intent.putExtra("movieList",  (Serializable) recentlyViewedMovieList);
-//                intent.putExtra("title", "Recently Viewed");
-//                startActivity(intent);
-//            }
-//        });
-//        textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+        textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
+        textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
+        recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+        textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
+        textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+        recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+        textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
+                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
+                intent.putExtra("title", "Recently Viewed");
+                startActivity(intent);
+            }
+        });
+        textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
 //
 //        //ToDo: Xử lý khi Rating Movie có dữ liệu
-//        btn_Ratings_UserProfile.setVisibility(View.GONE);
-//        imgView_Ratings_UserProfile.setVisibility(View.GONE);
-//        textView_NoRatings_UserProfile.setVisibility(View.GONE);
-//        recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
-//        textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
-//        textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
-//        recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//        textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //ToDo: chuyển sang SeeAllActivity cho Rating
-//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                intent.putExtra("movieList",  (Serializable)ratingMovieList);
-//                intent.putExtra("title", "Rating");
-//                startActivity(intent);
-//            }
-//        });
-//        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+        btn_Ratings_UserProfile.setVisibility(View.GONE);
+        imgView_Ratings_UserProfile.setVisibility(View.GONE);
+        textView_NoRatings_UserProfile.setVisibility(View.GONE);
+        recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
+        textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
+        textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
+        recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+        textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ToDo: chuyển sang SeeAllActivity cho Rating
+                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("movieList", (Serializable) ratingMovieList);
+                intent.putExtra("title", "Rating");
+                startActivity(intent);
+            }
+        });
+        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
 //
 //        //ToDo: Xử lý khi Watchlist Movie có dữ liệu
-//        textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
-//        btn_Watchlist_UserProfile.setVisibility(View.GONE);
-//        imgView_Watchlist_UserProfile.setVisibility(View.GONE);
-//        textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
-//        recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-//        textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
-//        textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-//        recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//        textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //ToDo: chuyển sang SeeAllActivity cho Watchlist
-//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                intent.putExtra("movieList",  (Serializable)watchListMovieList);
-//                intent.putExtra("title", "Watchlist");
-//                startActivity(intent);
-//            }
-//        });
-//        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+        textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
+        btn_Watchlist_UserProfile.setVisibility(View.GONE);
+        imgView_Watchlist_UserProfile.setVisibility(View.GONE);
+        textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
+        recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+        textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
+        textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+        recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+        textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ToDo: chuyển sang SeeAllActivity cho Watchlist
+                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("movieList", (Serializable) watchListMovieList);
+                intent.putExtra("title", "Watchlist");
+                startActivity(intent);
+            }
+        });
+        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+    }
+
+    public void getRatingList() {
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/rating/list", token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray jsonArray = json.getJSONArray("rating");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String type_name = item.getString("type_name");
+                            String _id = item.getString("_id");
+                            ratingMovieList.add(getData(type_name, _id));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    runOnUiThread(() -> {
+                        ratingAdapter.notifyDataSetChanged();
+                        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                        textView_Ratings_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                    });
+                }
+            }
+        });
+    }
+
+    public void getWatchList() {
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray jsonArray = json.getJSONArray("watchlist");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String type_name = item.getString("type_name");
+                            String _id = item.getString("_id");
+                            watchListMovieList.add(getData(type_name, _id));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    runOnUiThread(() -> {
+                        watchListAdapter.notifyDataSetChanged();
+                        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+                        textView_Wishlist_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+                    });
+                }
+            }
+        });
+    }
+
+    public void getRecentList() {
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/recent/list", token, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray jsonArray = json.getJSONArray("recent");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String type_name = item.getString("type_name");
+                            String _id = item.getString("_id");
+                            recentlyViewedMovieList.add(getData(type_name, _id));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    runOnUiThread(() -> {
+                        recentlyViewedAdapter.notifyDataSetChanged();
+                        textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+                    });
+                }
+            }
+        });
     }
 
     public void onClick_SignIn_SignUp_UserProfile(View view) {
@@ -265,7 +383,7 @@ public class UserProfileActivity extends AppCompatActivity {
     public void onClick_Ratings_UserProfile(View view) {
         //ToDo: Xử lý nút trong Ratings khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-        intent.putExtra("movieList",  (Serializable)moviesListInRatingList);
+        intent.putExtra("movieList", (Serializable) moviesListInRatingList);
         intent.putExtra("title", "Fan favorites");
         startActivity(intent);
     }
@@ -273,12 +391,58 @@ public class UserProfileActivity extends AppCompatActivity {
     public void onClick_Watchlist_UserProfile(View view) {
         //ToDo: Xử lý nút trong Wishlist khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-        intent.putExtra("movieList",  (Serializable)topratedmovieslist);
+        intent.putExtra("movieList", (Serializable) topratedmovieslist);
         intent.putExtra("title", "Top rated movies");
         startActivity(intent);
     }
 
-//    private void setupMovieSection(
+    private movies getData(String type_name, String _id) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Request request = new Request.Builder()
+                .url("https://api.themoviedb.org/3/" + (type_name.equals("movie") ? "movie" : "tv") + "/" + _id + "?api_key=fed0e4b63e1ef5ed6a678cd279a00884")
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWQwZTRiNjNlMWVmNWVkNmE2NzhjZDI3OWEwMDg4NCIsIm5iZiI6MTc0MzA0MjA2MC45NTcsInN1YiI6IjY3ZTRiNjBjNDIxZWI4YzMzMWJhMmQ1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JsgAgcRx5Sib0D4SvfmnuwUEMWPV6hPv2winrt86vk0")
+                .build();
+
+        AtomicReference<movies> movie = new AtomicReference<>(new movies());
+        Response response = client.newCall(request).execute();
+        if (response.code() == 200) {
+            assert response.body() != null;
+            String jsonString = response.body().string();
+            try {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                String Title;
+                String Url_img;
+                long Revenue;
+                String Backdrop_path;
+                double Like;
+                double Rating;
+                String Release_date;
+                if (type_name.equals("movie")) {
+                    Title = jsonObject.getString("original_title");
+                } else {
+                    Title = jsonObject.getString("original_name");
+                }
+                Url_img = jsonObject.getString("poster_path");
+                Revenue = jsonObject.getLong("revenue");
+                Backdrop_path = jsonObject.getString("backdrop_path");
+                Rating = jsonObject.getDouble("vote_average");
+                Release_date = jsonObject.getString("release_date");
+                movie.set(new movies(Title, Revenue, "", Url_img, Backdrop_path, 0.0, Rating, Release_date));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return movie.get();
+    }
+
+    //    private void setupMovieSection(
 //            List<movies> movieList,
 //            RecyclerView recyclerView,
 //            TextView textViewNumber,
@@ -394,86 +558,86 @@ public class UserProfileActivity extends AppCompatActivity {
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
     private List<movies> topratedmovieslist = new ArrayList<movies>();
     private List<movies> moviesListInRatingList = new ArrayList<movies>();
-    private Call<MovieResponse> moviesCall;
+//    private Call<MovieResponse> moviesCall;
+//
+//    private void fetchtopratedmovies(){
+//        TMDBApi api = RetrofitClient.getApiService();
+//        moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
+//        moviesCall.enqueue(new Callback<MovieResponse>() {
+//            @Override
+//            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    topratedmovieslist.clear();
+//                    List<movies> results = response.body().getResults();
+//
+//                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
+//
+//                    topratedmovieslist.addAll(results);
+//
+////                    topratedadapter.notifyDataSetChanged();
+//
+//                    // Gọi chi tiết từng phim để lấy runtime
+//                    for (movies movie : results) {
+//                        int movieId = movie.getMovieId();
+//                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+//                        detailCall.enqueue(new Callback<MovieDetail>() {
+//                            @Override
+//                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+//                                if (response.isSuccessful() && response.body() != null) {
+//                                    int runtime = response.body().getRuntime();
+//                                    movie.setLengthFromRuntime(runtime);
+//
+////                                    topratedadapter.notifyDataSetChanged();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<MovieDetail> call, Throwable t) {
+//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                            }
+//                        });
+//                    }
+//
+//                } else {
+//                    showError("Failed to load movies: " + response.message());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<MovieResponse> call, Throwable t) {
+//                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
+//                showError("Lỗi: " + t.getMessage());
+//            }
+//        });
+//    }
+//
+//    private void fetchMovies() {
+//        TMDBApi api = RetrofitClient.getApiService();
+//        moviesCall = api.getTrendingMovies(TMDB_API_KEY);
+//
+//        moviesCall.enqueue(new Callback<MovieResponse>() {
+//            @Override
+//            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    moviesListInRatingList.clear();
+//                    List<movies> results = response.body().getResults();
+//                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
+//                    moviesListInRatingList.addAll(results);
 
-    private void fetchtopratedmovies(){
-        TMDBApi api = RetrofitClient.getApiService();
-        moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
-        moviesCall.enqueue(new Callback<MovieResponse>() {
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    topratedmovieslist.clear();
-                    List<movies> results = response.body().getResults();
-
-                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
-
-                    topratedmovieslist.addAll(results);
-
-//                    topratedadapter.notifyDataSetChanged();
-
-                    // Gọi chi tiết từng phim để lấy runtime
-                    for (movies movie : results) {
-                        int movieId = movie.getMovieId();
-                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
-                        detailCall.enqueue(new Callback<MovieDetail>() {
-                            @Override
-                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    int runtime = response.body().getRuntime();
-                                    movie.setLengthFromRuntime(runtime);
-
-//                                    topratedadapter.notifyDataSetChanged();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<MovieDetail> call, Throwable t) {
-                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                            }
-                        });
-                    }
-
-                } else {
-                    showError("Failed to load movies: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
-                showError("Lỗi: " + t.getMessage());
-            }
-        });
-    }
-
-    private void fetchMovies() {
-        TMDBApi api = RetrofitClient.getApiService();
-        moviesCall = api.getTrendingMovies(TMDB_API_KEY);
-
-        moviesCall.enqueue(new Callback<MovieResponse>() {
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    moviesListInRatingList.clear();
-                    List<movies> results = response.body().getResults();
-                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
-                    moviesListInRatingList.addAll(results);
-//                    adapter.notifyDataSetChanged();
-                } else {
-                    showError("Failed to load movies: " + response.message());
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
-                showError("Lỗi: " + t.getMessage());
-            }
-        });
-    }
-
+    /// /                    adapter.notifyDataSetChanged();
+//                } else {
+//                    showError("Failed to load movies: " + response.message());
+//                }
+//            }
+//
+//
+//            @Override
+//            public void onFailure(Call<MovieResponse> call, Throwable t) {
+//                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
+//                showError("Lỗi: " + t.getMessage());
+//            }
+//        });
+//    }
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

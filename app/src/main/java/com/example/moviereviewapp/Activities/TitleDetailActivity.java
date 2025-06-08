@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ import com.example.moviereviewapp.Models.SpokenLanguage;
 import com.example.moviereviewapp.Models.TvShowImages;
 import com.example.moviereviewapp.Models.TvShowKeywordResponse;
 import com.example.moviereviewapp.Activities.tvseriesdetail;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.UserReview;
 import com.example.moviereviewapp.Models.VideoResponse;
 import com.example.moviereviewapp.Models.VideoResult;
@@ -50,6 +52,10 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -89,6 +95,7 @@ public class TitleDetailActivity extends AppCompatActivity {
     String username;
     String token;
     String session_id;
+    UserAPI userAPi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +123,26 @@ public class TitleDetailActivity extends AppCompatActivity {
         fetchItemDetails();
         setupClickListeners();
         setupSeeAll();
+
+        ImageView forumButton = findViewById(R.id.forumButton);
+        forumButton.setOnClickListener(v -> {
+            Intent intent = new Intent(TitleDetailActivity.this, DiscussionForum.class);
+            intent.putExtra("movie_id", itemId);
+            intent.putExtra("movie_name", itemType);
+            intent.putExtra("username", username);
+            intent.putExtra("token", token);
+            startActivity(intent);
+        });
+
+        userAPi = new UserAPI();
+
+       Bundle extras = getIntent().getExtras();
+       if (extras != null) {
+           itemId = extras.getInt("itemId", -1);
+           itemType = extras.getString("itemType");
+           token = extras.getString("token");
+           addRecent(itemType, String.valueOf(itemId), token);
+       }
     }
 
     private void setupSeeAll() {
@@ -138,6 +165,25 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
         Log.e(TAG, "No extras found in Intent");
         return false;
+    }
+
+    private void addRecent(String type_name, String _id, String Token) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("type_name", type_name);
+            jsonObject.put("_id", _id);
+            userAPi.call_api_auth(userAPi.get_UserAPI() + "/recent/add", Token, jsonObject.toString(), new okhttp3.Callback() {
+                @Override
+                public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                }
+
+                @Override
+                public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupRecyclerViews() {

@@ -96,8 +96,7 @@
                 android:background="@drawable/btn_background"
                 android:backgroundTint="@null"
                 android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:onClick="onClick_Continue_Verification"/>
+                android:textAllCaps="false"/>
 
             <TextView
                 android:id="@+id/textView_ResendCode_Verification"

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,35 +46,16 @@ public class SearchActivity extends AppCompatActivity {
 
         EditText inputSearch = findViewById(R.id.inputSearch);
 
-        inputSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (timer != null) {
-                    timer.cancel();
+        TextView search = findViewById(R.id.textView);
+        search.setOnClickListener(v -> {
+            String query = inputSearch.getText().toString();
+            new Thread(() -> {
+                try {
+                    handleSearch(query);
+                } catch (IOException | JSONException e) {
+                    throw new RuntimeException(e);
                 }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    if (s.isEmpty()) return;
-                }
-                timer = new Timer();
-                timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            try {
-                                handleSearch(s.toString());
-                            } catch (JSONException | IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }, 1000);
-            }
+            }).start();
         });
 
         ListView listView = findViewById(R.id.searchResults);
@@ -83,8 +65,12 @@ public class SearchActivity extends AppCompatActivity {
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
             SearchMovieModel movie = searchResults.get(position);
-            Intent intent = new Intent(SearchActivity.this, Rating.class);
-            intent.putExtra("movie_id", movie.getId());
+            Intent intent = new Intent(SearchActivity.this, TitleDetailActivity.class);
+            intent.putExtra("itemId", Integer.parseInt(movie.getId()));
+            intent.putExtra("itemType", "movie");
+            intent.putExtra("username", getIntent().getStringExtra("username"));
+            intent.putExtra("token", getIntent().getStringExtra("token"));
+            intent.putExtra("session_id", getIntent().getStringExtra("session_id"));
             startActivity(intent);
         });
 
@@ -115,7 +101,12 @@ public class SearchActivity extends AppCompatActivity {
     private void Recent() throws IOException, JSONException {
     }
     private void ComingSoon() throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
+
 
         Request request = new Request.Builder()
                 .url("https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1")
@@ -161,7 +152,11 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void handleSearch(String query) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
 
         Log.d("SearchActivity", "Query: " + query);
 
@@ -204,9 +199,5 @@ public class SearchActivity extends AppCompatActivity {
                 });
             }).start();
         }
-    }
-
-    public void backToMain(View view) {
-        finish();
     }
 }

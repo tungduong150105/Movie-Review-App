@@ -38,6 +38,8 @@ public class DiscussAdapter extends RecyclerView.Adapter<MessageHolder> {
         if (getItemViewType(position) == 0) {
             TextView sentMessage = holder.itemView.findViewById(R.id.sentMessage);
             sentMessage.setText(chatMessageList.get(position).getMessage());
+            TextView userName = holder.itemView.findViewById(R.id.userName);
+            userName.setText(chatMessageList.get(position).getName());
         } else {
             TextView receivedMessage = holder.itemView.findViewById(R.id.receivedMessage);
             receivedMessage.setText(chatMessageList.get(position).getMessage());

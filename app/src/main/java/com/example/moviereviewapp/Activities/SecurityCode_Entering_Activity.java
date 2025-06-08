@@ -36,6 +36,7 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
     TextView textView_ResendCode_Verification;
     //Todo: Kich hoat su kien onClick cho textView_ResendCode_Verification
     UserAPI userAPI;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +49,36 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
         });
         editText_EnterSecurityCode_Verification = findViewById(R.id.editText_EnterSecurityCode_Verification);
         btn_Continue_Verification = findViewById(R.id.btn_Continue_Verification);
+        btn_Continue_Verification.setOnClickListener(v -> {
+            String securityCode = "";
+            securityCode = editText_EnterSecurityCode_Verification.getText().toString();
+
+            JSONObject body = new JSONObject();
+            try {
+                body.put("token", securityCode);
+                String finalSecurityCode = securityCode;
+                userAPI.call_api(userAPI.get_UserAPI() + "/user/check_reset_token", body.toString(), new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        if (response.code() == 200) {
+                            Intent intent = new Intent(SecurityCode_Entering_Activity.this, Changing_Password_Activity.class);
+                            intent.putExtra("token", finalSecurityCode);
+                            startActivity(intent);
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Wrong token, please try again", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                });
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         textView_ResendCode_Verification = findViewById(R.id.textView_ResendCode_Verification);
 
         textView_ResendCode_Verification.setOnClickListener(v -> {
@@ -55,30 +86,4 @@ public class SecurityCode_Entering_Activity extends AppCompatActivity {
         });
         userAPI = new UserAPI();
     }
-    public void onClick_Continue_Verification(View view) throws JSONException {
-        String securityCode = editText_EnterSecurityCode_Verification.getText().toString();
-        //TODO: xử lý sự kiện nhập và xác nhận mã bảo mật
-
-        JSONObject body = new JSONObject();
-        body.put("token", securityCode);
-
-        userAPI.call_api(userAPI + "/user/check_reset_token", body.toString(), new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                if (response.code() == 200) {
-                    Intent intent = new Intent(SecurityCode_Entering_Activity.this, Changing_Password_Activity.class);
-                    intent.putExtra("token", securityCode);
-                    startActivity(intent);
-                } else {
-                    runOnUiThread(() -> Toast.makeText(SecurityCode_Entering_Activity.this, "Wrong token, please try again", Toast.LENGTH_SHORT).show());
-                }
-            }
-        });
-    }
-
 }

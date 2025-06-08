@@ -24,7 +24,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/sent_message_ui"
             android:padding="12dp"
-            android:maxLength="30"
+            android:singleLine="false"
+            android:maxEms="15"
             android:textColor="@color/white" />
     </LinearLayout>
 

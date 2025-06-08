@@ -48,22 +48,24 @@ public class DiscussionForum extends AppCompatActivity {
     private OkHttpClient client;
     private String token;
     RecyclerView recyclerView;
+    WebSocket webSocket;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_discussion_forum);
-        String movie_id;
+        int movie_id;
         String movie_name;
         String username = "";
         token = "";
         Bundle extra = getIntent().getExtras();
         if (extra != null) {
-            movie_id = extra.getString("movie_id");
+            movie_id = extra.getInt("movie_id", -1);
             movie_name = extra.getString("movie_name");
             username = extra.getString("username");
             token = extra.getString("token");
         } else {
-            movie_id = "";
+            movie_id = 0;
             movie_name = "";
         }
 
@@ -71,6 +73,7 @@ public class DiscussionForum extends AppCompatActivity {
 
         ImageView back = findViewById(R.id.back);
         back.setOnClickListener(v -> {
+            disconnect();
             finish();
         });
 
@@ -85,17 +88,19 @@ public class DiscussionForum extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (bottom < oldBottom) {
-                    recyclerView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            recyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
-                        }
-                    }, 100);
-                }
-            }
+                                                   @Override
+                                                   public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                                                       if (bottom < oldBottom) {
+                                                           recyclerView.postDelayed(new Runnable() {
+                                                               @Override
+                                                               public void run() {
+                                                                   if (chatMessageList.size() > 0) {
+                                                                       recyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
+                                                                   }
+                                                               }
+                                                           }, 100);
+                                                       }
+                                                   }
                                                }
         );
 
@@ -107,7 +112,7 @@ public class DiscussionForum extends AppCompatActivity {
             if (message.isEmpty()) {
                 return;
             }
-            sendMessage("559", message);
+            sendMessage(String.valueOf(movie_id), message);
             inputMessage.setText("");
             inputMessage.clearFocus();
             adapter.setData(chatMessageList);
@@ -115,13 +120,13 @@ public class DiscussionForum extends AppCompatActivity {
 
         client = new OkHttpClient();
 
-        getMessages("559");
+        getMessages(String.valueOf(movie_id));
     }
 
     private void getMessages(String movie_id) {
         JSONObject getMessagesBody = new JSONObject();
         try {
-            getMessagesBody.put("movie_id", "559");
+            getMessagesBody.put("movie_id", String.valueOf(movie_id));
             userAPI.call_api_auth(userAPI.get_UserAPI() + "/message/find", token, getMessagesBody.toString(), new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -236,12 +241,17 @@ public class DiscussionForum extends AppCompatActivity {
 
     private void connect() {
         Request request = new Request.Builder()
-                .url("https://6eb1-14-169-36-254.ngrok-free.app/cable")
+                .url("https://9c3c-113-161-73-175.ngrok-free.app/cable")
+//                .url("ws://10.0.2.2:3000/cable")
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
         WebSocketClient listener = new WebSocketClient();
-        WebSocket webSocket = client.newWebSocket(request, listener);
+        webSocket = client.newWebSocket(request, listener);
 
-//        client.dispatcher().executorService().shutdown();
+    }
+
+    private void disconnect() {
+        webSocket.close(1000, null);
+        client.dispatcher().executorService().shutdown();
     }
 }
