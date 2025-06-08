@@ -33,6 +33,7 @@ public class Changing_Password_Activity extends AppCompatActivity {
     EditText editText_EnterNewPassword_ChangePassword, editText_Re_EnterPassword_ChangePassword;
     androidx.appcompat.widget.AppCompatButton btn_SaveChanges_ChangePassword;
     UserAPI userAPI;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,44 +47,48 @@ public class Changing_Password_Activity extends AppCompatActivity {
         editText_EnterNewPassword_ChangePassword = findViewById(R.id.editText_EnterNewPassword_ChangePassword);
         editText_Re_EnterPassword_ChangePassword = findViewById(R.id.editText_Re_EnterPassword_ChangePassword);
         btn_SaveChanges_ChangePassword = findViewById(R.id.btn_SaveChanges_ChangePassword);
-        userAPI = new UserAPI();
-    }
-    public void onClick_SaveChanges_ChangePassword(View view) throws JSONException {
-        String newPassword = editText_EnterNewPassword_ChangePassword.getText().toString();
-        String reEnteredPassword = editText_Re_EnterPassword_ChangePassword.getText().toString();
-        //ToDo: Xử lý sự kiện khi người dùng nhấn nút "Save changes"
-        if (newPassword.isEmpty()) {
-            Toast.makeText(this, "Please enter your new password", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!newPassword.equals(reEnteredPassword)) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (newPassword.length() < 8) {
-            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String token = getIntent().getStringExtra("token");
-        JSONObject body = new JSONObject();
-        body.put("token", token);
-        body.put("password", newPassword);
-        userAPI.call_api(userAPI.get_UserAPI() + "user/update_password", body.toString(), new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+        btn_SaveChanges_ChangePassword.setOnClickListener((v) -> {
+            String newPassword = editText_EnterNewPassword_ChangePassword.getText().toString();
+            String reEnteredPassword = editText_Re_EnterPassword_ChangePassword.getText().toString();
+            //ToDo: Xử lý sự kiện khi người dùng nhấn nút "Save changes"
+            if (newPassword.isEmpty()) {
+                Toast.makeText(this, "Please enter your new password", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (!newPassword.equals(reEnteredPassword)) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (newPassword.length() < 8) {
+                Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String token = getIntent().getStringExtra("token");
+            JSONObject body = new JSONObject();
+            try {
+                body.put("token", token);
+                body.put("password", newPassword);
+                userAPI.call_api(userAPI.get_UserAPI() + "user/update_password", body.toString(), new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+                    }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                if (response.code() == 200) {
-                    Intent intent = new Intent(Changing_Password_Activity.this, LoginActivity.class);
-                    startActivity(intent);
-                    runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Password changed successfully", Toast.LENGTH_SHORT).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
-                }
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        if (response.code() == 200) {
+                            Intent intent = new Intent(Changing_Password_Activity.this, LoginActivity.class);
+                            startActivity(intent);
+                            runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Password changed successfully", Toast.LENGTH_SHORT).show());
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                });
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
         });
+        userAPI = new UserAPI();
     }
 }

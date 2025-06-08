@@ -104,36 +104,15 @@ public class LoginActivity extends AppCompatActivity {
                     try {
                         assert response.body() != null;
                         JSONObject loginJson = new JSONObject(response.body().string());
-                        final String[] session_id = {""};
-                        tmdbAPI.get_api(tmdbAPI.get_url_new_session(), new Callback() {
-                            @Override
-                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                                Log.e("LoginActivity", "Failed to login", e);
-                                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Have problem when login, try again", Toast.LENGTH_SHORT).show());
-                            }
-
-                            @Override
-                            public void onResponse(@NonNull Call call, @NonNull Response response2) {
-                                Log.d("LoginActivity", response2.code() + "");
-                                if (response2.code() == 200) {
-                                    try {
-                                        assert response2.body() != null;
-                                        JSONObject jsonObject = new JSONObject(response2.body().string());
-                                        session_id[0] = jsonObject.getString("guest_session_id");
-                                        Log.d("LoginActivity", session_id[0] + "ff");
-                                        if (!session_id[0].isEmpty()) {
-                                            Intent intent = new Intent(LoginActivity.this, MainScreen.class);
-                                            intent.putExtra("username", username);
-                                            intent.putExtra("token", loginJson.getString("token"));
-                                            intent.putExtra("session_id", session_id[0]);
-                                            startActivity(intent);
-                                        }
-                                    } catch (JSONException | IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            }
-                        });
+                        final String[] session_id = {"ad7f515e2f5abce04aa825d07044467b"};
+                        if (!session_id[0].isEmpty()) {
+//                            Intent intent = new Intent(LoginActivity.this, MainScreen.class);
+                            Intent intent = new Intent(LoginActivity.this, MainScreen.class);
+                            intent.putExtra("username", username);
+                            intent.putExtra("token", loginJson.getString("token"));
+                            intent.putExtra("session_id", session_id[0]);
+                            startActivity(intent);
+                        }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }

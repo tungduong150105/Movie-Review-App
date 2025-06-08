@@ -3,6 +3,7 @@ package com.example.moviereviewapp.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -67,14 +68,16 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         setContentView(binding.getRoot());
 
         setToolbar();
-        setupRecyclerView();
 
+        setupRecyclerView();
         fetchMovies();
-        fetchupcmingmovies();
-        fetchtopratedmovies();
 
         comingrecyclerview();
+        fetchupcmingmovies();
+
         topratedrecyclerview();
+        fetchtopratedmovies();
+
         trendingrecyclerview();
         fetchtrendingmovies();
 
@@ -97,10 +100,20 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
             username = extra.getString("username");
             token = extra.getString("token");
             session_id = extra.getString("session_id");
+            Log.d("MainScreen", username + " " + token + " " + session_id);
             assert session_id != null;
             assert token != null;
             assert username != null;
         }
+
+        EditText search = findViewById(R.id.searchTxt);
+        search.setOnClickListener(v -> {
+            Intent intent = new Intent(MainScreen.this, SearchActivity.class);
+            intent.putExtra("username", username);
+            intent.putExtra("token", token);
+            intent.putExtra("session_id", session_id);
+            startActivity(intent);
+        });
     }
 
     private void initSeeAll() {
@@ -394,9 +407,11 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
                     basicPerson.setBirthdate(detail.getBirthday());
                     basicPerson.setDeathday(detail.getDeathday());
                     if (basicPerson.getAgeOrLifespan() != "" && isEnglishTitle(basicPerson.getName()) == true) {
-                        person.add(basicPerson);
+                        runOnUiThread(() -> {
+                            person.add(basicPerson);
+                            personadapter.notifyDataSetChanged();
+                        });
                     }
-                    personadapter.notifyItemInserted(person.size() - 1);
                 }
             }
 

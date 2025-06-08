@@ -14,6 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MovieReviewApp"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".Activities.SplashScreen"
@@ -34,7 +35,7 @@
             android:name=".Activities.MainScreen"
             android:exported="false" />
         <activity
-            android:name=".Activities.MovieDetail"
+            android:name=".Activities.DiscussionForum"
             android:exported="false" />
         <activity
             android:name=".Activities.Password_Assistance_Activity"
@@ -42,9 +43,9 @@
         <activity
             android:name=".Activities.UserProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".Activities.LoginActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".Activities.LoginActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".Activities.SignupActivity"
             android:exported="false" />
@@ -52,7 +53,7 @@
             android:name=".Activities.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".Activities.MainActivity"
+            android:name=".Activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

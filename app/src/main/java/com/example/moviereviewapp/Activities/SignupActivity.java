@@ -134,7 +134,7 @@ public class SignupActivity extends AppCompatActivity {
                                     session_id[0] = jsonObject.getString("guest_session_id");
                                     Log.d("LoginActivity", session_id[0] + "ff");
                                     if (!session_id[0].isEmpty()) {
-                                        Intent intent = new Intent(SignupActivity.this, MainScreen.class);
+                                        Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
                                         intent.putExtra("session_id", session_id[0]);
                                         startActivity(intent);
                                     }
