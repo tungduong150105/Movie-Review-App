@@ -33,6 +33,17 @@ public class movies implements Serializable {
 
     public movies() {}
 
+    //Biến kiểm tra phim đã thêm vào watchlist chưa
+    private boolean isInWacthlist = false;
+
+    public boolean isInWacthlist() {
+        return isInWacthlist;
+    }
+
+    public void setInWacthlist(boolean inWacthlist) {
+        isInWacthlist = inWacthlist;
+    }
+
     @SerializedName("id")
     private int movieId;
 

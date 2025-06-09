@@ -69,6 +69,18 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
             }
         });
         Glide.with(context).load(move.getPosterurl()).into(holder.posterimg);
+
+        //Xử lý hiển thị phim đã thêm vào watchlist hay chưa
+        if (move.isInWacthlist()) {
+            holder.alphaa.setAlpha(1f);
+            holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+            holder.iconImage.setImageResource(R.drawable.black_tick);
+        } else {
+            holder.alphaa.setAlpha(0.6f);
+            holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+            holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+        }
+
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             boolean isBookmarked = false;
 
@@ -77,10 +89,14 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
                 isBookmarked = !isBookmarked;
 
                 if (isBookmarked) {
+                    //ToDo: Xử lý xóa phim khỏi watchlist
+                    move.setInWacthlist(true);
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.iconImage.setImageResource(R.drawable.black_tick);
                 } else {
+                    //ToDo: Xử lý thêm phim vào watchlist
+                    move.setInWacthlist(false);
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
