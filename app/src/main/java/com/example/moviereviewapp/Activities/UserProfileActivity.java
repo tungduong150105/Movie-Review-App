@@ -5,6 +5,7 @@ import static java.lang.Long.parseLong;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,7 +45,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class UserProfileActivity extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity implements MovieItemAdapter.OnItemClickListener {
     TextView textView_Username_UserProfile;
     //textView_Username_UserProfile se hien thi ten nguoi dung, neu khong thi hien thi "Sign In"
     ImageView imageView_Logout_UserProfile;
@@ -98,6 +99,7 @@ public class UserProfileActivity extends AppCompatActivity {
     String token;
     UserAPI userAPI;
     TMDBAPI tmdbAPI;
+    String session_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +115,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
         username = getIntent().getStringExtra("username");
         token = getIntent().getStringExtra("token");
+
+        Bundle extra = getIntent().getExtras();
+        if (extra != null) {
+            session_id = extra.getString("session_id");
+            Log.d("MainScreen", username + " " + token + " " + session_id);
+            assert session_id != null;
+        }
 
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String userId = sharedPreferences.getString("userId", "aa");
@@ -204,6 +213,9 @@ public class UserProfileActivity extends AppCompatActivity {
         recentlyViewedAdapter = new MovieItemAdapter(recentlyViewedMovieList);
         ratingAdapter = new MovieItemAdapter(ratingMovieList);
         watchListAdapter = new MovieItemAdapter(watchListMovieList);
+        recentlyViewedAdapter.setOnItemClickListener(this);
+        ratingAdapter.setOnItemClickListener(this);
+        watchListAdapter.setOnItemClickListener(this);
 
         recycleView_Ratings_UserProfile.setAdapter(ratingAdapter);
         recycleView_RecentlyViewed_UserProfile.setAdapter(recentlyViewedAdapter);
@@ -218,7 +230,50 @@ public class UserProfileActivity extends AppCompatActivity {
         recycleView_Ratings_UserProfile.setLayoutManager(layoutManager);
         recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
         recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
+
+        //Kich hoat su kien on click cho tung list phim
+//        recentlyViewedAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(movies movie) {
+//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
+//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
+//                intent.putExtra("itemType", "movie");
+//                intent.putExtra("itemId", movie.getMovieId());
+//                intent.putExtra("username", username);
+//                intent.putExtra("token", token);
+//                intent.putExtra("session_id", session_id);
+//                startActivity(intent);
+//            }
+//        });
 //
+//        ratingAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(movies movie) {
+//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
+//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
+//                intent.putExtra("itemType", "movie");
+//                intent.putExtra("itemId", movie.getMovieId());
+//                intent.putExtra("username", username);
+//                intent.putExtra("token", token);
+//                intent.putExtra("session_id", session_id);
+//                startActivity(intent);
+//            }
+//        });
+//
+//        watchListAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(movies movie) {
+//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
+//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
+//                intent.putExtra("itemType", "movie");
+//                intent.putExtra("itemId", movie.getMovieId());
+//                intent.putExtra("username", username);
+//                intent.putExtra("token", token);
+//                intent.putExtra("session_id", session_id);
+//                startActivity(intent);
+//            }
+//        });
+
 //        //ToDo: Xử lý khi Recently Viewed Movie có dữ liệu
         textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
         textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
@@ -231,6 +286,7 @@ public class UserProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
                 Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("type", "movies");
                 intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
                 intent.putExtra("title", "Recently Viewed");
                 startActivity(intent);
@@ -251,6 +307,7 @@ public class UserProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //ToDo: chuyển sang SeeAllActivity cho Rating
                 Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("type", "movies");
                 intent.putExtra("movieList", (Serializable) ratingMovieList);
                 intent.putExtra("title", "Rating");
                 startActivity(intent);
@@ -272,6 +329,7 @@ public class UserProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //ToDo: chuyển sang SeeAllActivity cho Watchlist
                 Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                intent.putExtra("type", "movies");
                 intent.putExtra("movieList", (Serializable) watchListMovieList);
                 intent.putExtra("title", "Watchlist");
                 startActivity(intent);
@@ -383,6 +441,7 @@ public class UserProfileActivity extends AppCompatActivity {
     public void onClick_Ratings_UserProfile(View view) {
         //ToDo: Xử lý nút trong Ratings khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+        intent.putExtra("type", "movies");
         intent.putExtra("movieList", (Serializable) moviesListInRatingList);
         intent.putExtra("title", "Fan favorites");
         startActivity(intent);
@@ -391,6 +450,7 @@ public class UserProfileActivity extends AppCompatActivity {
     public void onClick_Watchlist_UserProfile(View view) {
         //ToDo: Xử lý nút trong Wishlist khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+        intent.putExtra("type", "movies");
         intent.putExtra("movieList", (Serializable) topratedmovieslist);
         intent.putExtra("title", "Top rated movies");
         startActivity(intent);
@@ -417,6 +477,7 @@ public class UserProfileActivity extends AppCompatActivity {
             String jsonString = response.body().string();
             try {
                 JSONObject jsonObject = new JSONObject(jsonString);
+                int id;
                 String Title;
                 String Url_img;
                 long Revenue;
@@ -429,12 +490,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 } else {
                     Title = jsonObject.getString("original_name");
                 }
+                id = jsonObject.getInt("id");
                 Url_img = jsonObject.getString("poster_path");
-                Revenue = jsonObject.getLong("revenue");
-                Backdrop_path = jsonObject.getString("backdrop_path");
+                Revenue = jsonObject.optLong("revenue", 0);
+                Backdrop_path = jsonObject.optString("backdrop_path", "");
                 Rating = jsonObject.getDouble("vote_average");
-                Release_date = jsonObject.getString("release_date");
-                movie.set(new movies(Title, Revenue, "", Url_img, Backdrop_path, 0.0, Rating, Release_date));
+                Release_date = jsonObject.optString("release_date", "");
+                movie.set(new movies(id, Title, Revenue, "", Url_img, Backdrop_path, 0.0, Rating, Release_date));
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -640,5 +702,17 @@ public class UserProfileActivity extends AppCompatActivity {
 //    }
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemClick(movies movie) {
+        Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
+        Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("itemType", "movie");
+        intent.putExtra("itemId", movie.getMovieId());
+        intent.putExtra("username", username);
+        intent.putExtra("token", token);
+        intent.putExtra("session_id", session_id);
+        startActivity(intent);
     }
 }

@@ -87,8 +87,6 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
                 }
             }
         });
-
-
     }
 
     @Override

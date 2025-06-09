@@ -16,6 +16,21 @@ public class movies implements Serializable {
         this.releasedate = releasedate;
     }
 
+    public movies(int movieId, String moviename, long revenue, String trailertext, String posterurl,
+                  String backdropurl, double like, double rating, String releasedate) {
+        this.movieId = movieId;
+        this.moviename = moviename;
+        this.trailertext = trailertext;
+        this.posterurl = posterurl;
+        this.revenue = revenue;
+        this.backdropurl = backdropurl;
+        this.like = like;
+        this.rating = rating;
+        this.releasedate = releasedate;
+    }
+
+
+
     public movies() {}
 
     @SerializedName("id")
@@ -39,7 +54,7 @@ public class movies implements Serializable {
 
     private double like;
     private long revenue;
-    movies(String moviename,long revenue){
+    public movies(String moviename,long revenue){
         this.moviename=moviename;
         this.revenue=revenue;
     }
