@@ -177,7 +177,7 @@ public class TitleDetailActivity extends AppCompatActivity {
             username = extras.getString("username");
             token = extras.getString("token");
             session_id = extras.getString("session_id");
-            Log.d("Detail", username + " " + token + " " + session_id);
+            Log.d("Detail", itemId + " " + itemType + " " + username + " " + token + " " + session_id);
         } else {
             showErrorAndFinish("Missing intent data");
             return;

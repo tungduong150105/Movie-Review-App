@@ -561,17 +561,114 @@
                         android:onClick="onClick_Watchlist_UserProfile"/>
 
                 </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:minHeight="200dp"
+                android:background="@color/grey_user_profile">
+
+
+                <LinearLayout
+                    android:id="@+id/linearLayout_actor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <View
+                        android:layout_width="5dp"
+                        android:layout_height="24dp"
+                        android:background="#F5C518" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:text="Favorite actors"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="0"
+                        android:textColor="@color/white_signup"
+                        android:textSize="16sp"
+                        android:visibility="gone"
+                        android:id="@+id/textView_FavoriteActors_Number_UserProfile"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/textView_SeeAll_FavoriteActors_UserProfile"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:text="See all"
+                        android:textSize="16sp"
+                        android:textColor="#4399E0"
+                        android:focusable="true"
+                        android:clickable="true"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/linearLayout_actor">
+
+                    <TextView
+                        android:id="@+id/textView_NoFavoriteActors_UserProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No favorite actors yet"
+                        android:textSize="20sp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:visibility="visible"
+                        android:padding="20dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycleView_FavoriteActors_UserProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="@android:color/darker_gray"
+                        android:dividerHeight="1dp"
+                        android:visibility="gone"
+                        app:layout_constraintHorizontal_bias="0.0"/>
+
+                </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
     </ScrollView>
     <LinearLayout
         android:id="@+id/bottomLayoutUserProfile"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:padding="12dp"
         android:background="@color/black_control"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/scrollView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
