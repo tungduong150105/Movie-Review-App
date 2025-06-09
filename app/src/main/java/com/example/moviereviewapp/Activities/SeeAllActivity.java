@@ -240,6 +240,9 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         intent.putExtra("session_id", session_id);
         intent.putExtra("itemType", "movie");
         intent.putExtra("itemId", movie.getMovieId());
+        Log.d("MovieClick", "User '" + username + "' clicked on movie: " + movie.getMoviename() +
+                " (ID: " + movie.getMovieId() + "), session_id: " + session_id);
+
         startActivity(intent);
     }
     private void setupVideoOverlay() {

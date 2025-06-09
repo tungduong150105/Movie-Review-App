@@ -183,10 +183,7 @@ public class TitleDetailActivity extends AppCompatActivity {
             return;
         }
 
-        if (itemId == -1 || itemType == null || username == null || token == null || session_id == null) {
-            showErrorAndFinish("Could not load details. Essential information missing.");
-            return;
-        }
+
 
         Log.d(TAG, "Received Item ID: " + itemId + ", Type: " + itemType);
 
