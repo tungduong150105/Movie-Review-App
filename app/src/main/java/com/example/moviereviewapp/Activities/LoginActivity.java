@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                         final String[] session_id = {"ad7f515e2f5abce04aa825d07044467b"};
                         if (!session_id[0].isEmpty()) {
 //                            Intent intent = new Intent(LoginActivity.this, MainScreen.class);
-                            Intent intent = new Intent(LoginActivity.this, UserProfileActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, MainScreen.class);
                             intent.putExtra("username", username);
                             intent.putExtra("token", loginJson.getString("token"));
                             intent.putExtra("session_id", session_id[0]);

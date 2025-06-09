@@ -170,10 +170,18 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
 
             linearLayout3.setVisibility(View.VISIBLE);//Hiển thị ô chứa số lượng phim trong Ratings
             textView_Ratings_UserProfile.setText(String.valueOf(ratingMovieList.size()));//Hiển thị số lượng phim trong Ratings
+            Log.d("MainScreen1", String.valueOf(ratingMovieList.size()));
 
             linearLayout40.setVisibility(View.VISIBLE);//Hiển thị ô chứa số lượng phim trong Wishlist
             textView_Wishlist_UserProfile.setText(String.valueOf(watchListMovieList.size()));//Hiển thị số lượng phim trong Wishlist
+            Log.d("MainScreen1", String.valueOf(watchListMovieList.size()));
+
+            getRatingList();
+            getWatchList();
+            getRecentList();
         }
+
+
 
         //Su kien dang xuat cho nut log out
         imageView_Logout_UserProfile.setOnClickListener(v -> {
@@ -188,26 +196,13 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
             startActivity(intent);
         });
 
-        getRatingList();
-        getWatchList();
-        getRecentList();
+
+        Log.d("MainScreen", String.valueOf(recentlyViewedMovieList.size()));
+        Log.d("MainScreen", String.valueOf(ratingMovieList.size()));
+        Log.d("MainScreen", String.valueOf(watchListMovieList.size()));
 
         //ToDo: Cách hiển thị danh sách phim theo từng đề mục ở dưới
-//        recentlyViewedMovieList.add(new movies("ggggg1", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        recentlyViewedMovieList.add(new movies("ggggg2", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        recentlyViewedMovieList.add(new movies("ggggg3", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        recentlyViewedMovieList.add(new movies("ggggg4", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//
-//        ratingMovieList.add(new movies("ggggg1", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        ratingMovieList.add(new movies("ggggg2", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        ratingMovieList.add(new movies("ggggg3", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        ratingMovieList.add(new movies("ggggg4", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//
-//        watchListMovieList.add(new movies("ggggg1", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        watchListMovieList.add(new movies("ggggg2", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        watchListMovieList.add(new movies("ggggg3", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//        watchListMovieList.add(new movies("ggggg4", 999, "gghg", "ghggh", "khkhk", 8.5, 8, "4/4/4"));
-//
+
 //        //ToDo: XỬ LÝ CÁC DANH SÁCH PHIM TỪ ĐÂY
 //        //ToDo: Su dung viewholder_movie cho cac muc hien thi phim trong user profile (tuong ung voi adapter)
         recentlyViewedAdapter = new MovieItemAdapter(recentlyViewedMovieList);
@@ -231,111 +226,74 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
         recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
         recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
 
-        //Kich hoat su kien on click cho tung list phim
-//        recentlyViewedAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(movies movie) {
-//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
-//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
-//                intent.putExtra("itemType", "movie");
-//                intent.putExtra("itemId", movie.getMovieId());
-//                intent.putExtra("username", username);
-//                intent.putExtra("token", token);
-//                intent.putExtra("session_id", session_id);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        ratingAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(movies movie) {
-//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
-//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
-//                intent.putExtra("itemType", "movie");
-//                intent.putExtra("itemId", movie.getMovieId());
-//                intent.putExtra("username", username);
-//                intent.putExtra("token", token);
-//                intent.putExtra("session_id", session_id);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        watchListAdapter.setOnItemClickListener(new MovieItemAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(movies movie) {
-//                Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
-//                Intent intent = new Intent(UserProfileActivity.this, TitleDetailActivity.class);
-//                intent.putExtra("itemType", "movie");
-//                intent.putExtra("itemId", movie.getMovieId());
-//                intent.putExtra("username", username);
-//                intent.putExtra("token", token);
-//                intent.putExtra("session_id", session_id);
-//                startActivity(intent);
-//            }
-//        });
-
 //        //ToDo: Xử lý khi Recently Viewed Movie có dữ liệu
-        textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
-        textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
-        recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-        textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
-        textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-        recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-        textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
-                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-                intent.putExtra("type", "movies");
-                intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
-                intent.putExtra("title", "Recently Viewed");
-                startActivity(intent);
-            }
-        });
-        textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+//        if (!recentlyViewedMovieList.isEmpty()) {
+//            textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
+//            textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
+//            recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+//            textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
+//            textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+//            recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+//            textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
+//                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+//                    intent.putExtra("type", "movies");
+//                    intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
+//                    intent.putExtra("title", "Recently Viewed");
+//                    startActivity(intent);
+//                }
+//            });
+//            textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+//        }
 //
 //        //ToDo: Xử lý khi Rating Movie có dữ liệu
-        btn_Ratings_UserProfile.setVisibility(View.GONE);
-        imgView_Ratings_UserProfile.setVisibility(View.GONE);
-        textView_NoRatings_UserProfile.setVisibility(View.GONE);
-        recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
-        textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
-        textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
-        recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-        textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ToDo: chuyển sang SeeAllActivity cho Rating
-                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-                intent.putExtra("type", "movies");
-                intent.putExtra("movieList", (Serializable) ratingMovieList);
-                intent.putExtra("title", "Rating");
-                startActivity(intent);
-            }
-        });
-        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+//        if (!ratingMovieList.isEmpty()) {
+//        btn_Ratings_UserProfile.setVisibility(View.GONE);
+//        imgView_Ratings_UserProfile.setVisibility(View.GONE);
+//        textView_NoRatings_UserProfile.setVisibility(View.GONE);
+//        recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
+//        textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
+//        textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
+//        recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+//        textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //ToDo: chuyển sang SeeAllActivity cho Rating
+//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+//                intent.putExtra("type", "movies");
+//                intent.putExtra("movieList", (Serializable) ratingMovieList);
+//                intent.putExtra("title", "Rating");
+//                startActivity(intent);
+//            }
+//        });
+//        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+//        }
 //
 //        //ToDo: Xử lý khi Watchlist Movie có dữ liệu
-        textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
-        btn_Watchlist_UserProfile.setVisibility(View.GONE);
-        imgView_Watchlist_UserProfile.setVisibility(View.GONE);
-        textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
-        recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-        textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
-        textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-        recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-        textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ToDo: chuyển sang SeeAllActivity cho Watchlist
-                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-                intent.putExtra("type", "movies");
-                intent.putExtra("movieList", (Serializable) watchListMovieList);
-                intent.putExtra("title", "Watchlist");
-                startActivity(intent);
-            }
-        });
-        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+//        if (!watchListMovieList.isEmpty()) {
+//        textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
+//        btn_Watchlist_UserProfile.setVisibility(View.GONE);
+//        imgView_Watchlist_UserProfile.setVisibility(View.GONE);
+//        textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
+//        recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+//        textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
+//        textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+//        recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
+//        textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //ToDo: chuyển sang SeeAllActivity cho Watchlist
+//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+//                intent.putExtra("type", "movies");
+//                intent.putExtra("movieList", (Serializable) watchListMovieList);
+//                intent.putExtra("title", "Watchlist");
+//                startActivity(intent);
+//            }
+//        });
+//        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+//        }
     }
 
     public void getRatingList() {
@@ -364,6 +322,32 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
                         ratingAdapter.notifyDataSetChanged();
                         textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
                         textView_Ratings_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                        Log.d("MainScreen0", String.valueOf(ratingMovieList.size()));
+
+                        if (!ratingMovieList.isEmpty()) {
+                            btn_Ratings_UserProfile.setVisibility(View.GONE);
+                            imgView_Ratings_UserProfile.setVisibility(View.GONE);
+                            textView_NoRatings_UserProfile.setVisibility(View.GONE);
+                            recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                            textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
+                            textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                            recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+                            textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //ToDo: chuyển sang SeeAllActivity cho Rating
+                                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                                    intent.putExtra("username", username);
+                                    intent.putExtra("token", token);
+                                    intent.putExtra("session_id", session_id);
+                                    intent.putExtra("type", "movies");
+                                    intent.putExtra("movieList", (Serializable) ratingMovieList);
+                                    intent.putExtra("title", "Rating");
+                                    startActivity(intent);
+                                }
+                            });
+                            textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                        }
                     });
                 }
             }
@@ -396,6 +380,33 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
                         watchListAdapter.notifyDataSetChanged();
                         textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
                         textView_Wishlist_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+                        Log.d("MainScreen0", String.valueOf(watchListMovieList.size()));
+
+                        if (!watchListMovieList.isEmpty()) {
+                            textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
+                            btn_Watchlist_UserProfile.setVisibility(View.GONE);
+                            imgView_Watchlist_UserProfile.setVisibility(View.GONE);
+                            textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
+                            recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+                            textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
+                            textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+                            recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+                            textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //ToDo: chuyển sang SeeAllActivity cho Watchlist
+                                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                                    intent.putExtra("username", username);
+                                    intent.putExtra("token", token);
+                                    intent.putExtra("session_id", session_id);
+                                    intent.putExtra("type", "movies");
+                                    intent.putExtra("movieList", (Serializable) watchListMovieList);
+                                    intent.putExtra("title", "Watchlist");
+                                    startActivity(intent);
+                                }
+                            });
+                            textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+                        }
                     });
                 }
             }
@@ -427,6 +438,31 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
                     runOnUiThread(() -> {
                         recentlyViewedAdapter.notifyDataSetChanged();
                         textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+                        Log.d("MainScreen0", String.valueOf(recentlyViewedMovieList.size()));
+
+                        if (!recentlyViewedMovieList.isEmpty()) {
+                            textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
+                            textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
+                            recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+                            textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
+                            textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+                            recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+                            textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
+                                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                                    intent.putExtra("username", username);
+                                    intent.putExtra("token", token);
+                                    intent.putExtra("session_id", session_id);
+                                    intent.putExtra("type", "movies");
+                                    intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
+                                    intent.putExtra("title", "Recently Viewed");
+                                    startActivity(intent);
+                                }
+                            });
+                            textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+                        }
                     });
                 }
             }
@@ -618,10 +654,11 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
 //        }
 //    }
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
+//    private retrofit2.Call<MovieResponse> moviesCall;
     private List<movies> topratedmovieslist = new ArrayList<movies>();
     private List<movies> moviesListInRatingList = new ArrayList<movies>();
 //    private Call<MovieResponse> moviesCall;
-//
+
 //    private void fetchtopratedmovies(){
 //        TMDBApi api = RetrofitClient.getApiService();
 //        moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
@@ -700,6 +737,7 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
 //            }
 //        });
 //    }
+
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

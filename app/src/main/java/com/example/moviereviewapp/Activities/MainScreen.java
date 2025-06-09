@@ -715,6 +715,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         intent.putExtra("username", username);
         intent.putExtra("token", token);
         intent.putExtra("session_id", session_id);
+        Log.d("username",  username);
+        Log.d("token",  token);
+        Log.d("session_id",  session_id);
         startActivity(intent);
     }
 
@@ -728,6 +731,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
             intent.putExtra("username", username);
             intent.putExtra("token", token);
             intent.putExtra("session_id", session_id);
+            Log.d("username",  username);
+            Log.d("token",  token);
+            Log.d("session_id",  session_id);
             startActivity(intent);
         } else if (movi.getType().equals("tv")) {
             Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
@@ -737,6 +743,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
             intent.putExtra("username", username);
             intent.putExtra("token", token);
             intent.putExtra("session_id", session_id);
+            Log.d("username",  username);
+            Log.d("token",  token);
+            Log.d("session_id",  session_id);
             startActivity(intent);
         }
     }
@@ -745,6 +754,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
     public void onPersonClick(Person person) {
         Intent intent = new Intent(this, PersonDetailActivity.class);
         intent.putExtra("personId", person.getPersonid());
+        Log.d("username",  username);
+        Log.d("token",  token);
+        Log.d("session_id",  session_id);
         startActivity(intent);
     }
 
@@ -757,6 +769,9 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         intent.putExtra("username", username);
         intent.putExtra("token", token);
         intent.putExtra("session_id", session_id);
+        Log.d("username",  username);
+        Log.d("token",  token);
+        Log.d("session_id",  session_id);
         startActivity(intent);
     }
 }

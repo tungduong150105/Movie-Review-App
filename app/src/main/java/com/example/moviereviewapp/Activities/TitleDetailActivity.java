@@ -97,32 +97,102 @@ public class TitleDetailActivity extends AppCompatActivity {
     String session_id;
     UserAPI userAPi;
 
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        binding = ActivityTitleDetailBinding.inflate(getLayoutInflater());
+//        setContentView(binding.getRoot());
+//        findViewById(R.id.back_TitleDetail_Btn).setOnClickListener(v -> finish());
+//        if (binding.mainYouTubePlayerView != null) {
+//            getLifecycle().addObserver(binding.mainYouTubePlayerView);
+//            setupMainYouTubePlayerView();
+//        } else {
+//            Log.e(TAG, "mainYouTubePlayerView not found in binding.");
+//        }
+//        if (binding.overlayYouTubePlayerView != null) {
+//            getLifecycle().addObserver(binding.overlayYouTubePlayerView);
+//            setupOverlayYouTubePlayerView();
+//        } else {
+//            Log.e(TAG, "overlayYouTubePlayerView not found in binding.");
+//        }
+//        setupRecyclerViews();
+//        if (!parseIntentExtras()) {
+//            showErrorAndFinish("Could not load details. Essential information missing.");
+//            return;
+//        }
+//        fetchItemDetails();
+//        setupClickListeners();
+//        setupSeeAll();
+//
+//        ImageView forumButton = findViewById(R.id.forumButton);
+//        forumButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(TitleDetailActivity.this, DiscussionForum.class);
+//            intent.putExtra("movie_id", itemId);
+//            intent.putExtra("movie_name", itemType);
+//            intent.putExtra("username", username);
+//            intent.putExtra("token", token);
+//            startActivity(intent);
+//        });
+//
+//        userAPi = new UserAPI();
+//
+//       Bundle extras = getIntent().getExtras();
+//       if (extras != null) {
+//           itemId = extras.getInt("itemId", -1);
+//           itemType = extras.getString("itemType");
+//           token = extras.getString("token");
+//           addRecent(itemType, String.valueOf(itemId), token);
+//       }
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityTitleDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userAPi = new UserAPI(); // 👉 Khởi tạo trước khi dùng
+
         findViewById(R.id.back_TitleDetail_Btn).setOnClickListener(v -> finish());
+
         if (binding.mainYouTubePlayerView != null) {
             getLifecycle().addObserver(binding.mainYouTubePlayerView);
             setupMainYouTubePlayerView();
-        } else {
-            Log.e(TAG, "mainYouTubePlayerView not found in binding.");
         }
+
         if (binding.overlayYouTubePlayerView != null) {
             getLifecycle().addObserver(binding.overlayYouTubePlayerView);
             setupOverlayYouTubePlayerView();
-        } else {
-            Log.e(TAG, "overlayYouTubePlayerView not found in binding.");
         }
+
         setupRecyclerViews();
-        if (!parseIntentExtras()) {
+        setupClickListeners();
+        setupSeeAll();
+
+        // 👉 Nhận và kiểm tra dữ liệu từ Intent
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            itemId = extras.getInt("itemId", -1);
+            itemType = extras.getString("itemType");
+            username = extras.getString("username");
+            token = extras.getString("token");
+            session_id = extras.getString("session_id");
+            Log.d("Detail", username + " " + token + " " + session_id);
+        } else {
+            showErrorAndFinish("Missing intent data");
+            return;
+        }
+
+        if (itemId == -1 || itemType == null || username == null || token == null || session_id == null) {
             showErrorAndFinish("Could not load details. Essential information missing.");
             return;
         }
+
+        Log.d(TAG, "Received Item ID: " + itemId + ", Type: " + itemType);
+
+        // 👉 userAPI đã được khởi tạo phía trên, giờ có thể dùng an toàn
+        addRecent(itemType, String.valueOf(itemId), token);
         fetchItemDetails();
-        setupClickListeners();
-        setupSeeAll();
 
         ImageView forumButton = findViewById(R.id.forumButton);
         forumButton.setOnClickListener(v -> {
@@ -133,17 +203,8 @@ public class TitleDetailActivity extends AppCompatActivity {
             intent.putExtra("token", token);
             startActivity(intent);
         });
-
-        userAPi = new UserAPI();
-
-       Bundle extras = getIntent().getExtras();
-       if (extras != null) {
-           itemId = extras.getInt("itemId", -1);
-           itemType = extras.getString("itemType");
-           token = extras.getString("token");
-           addRecent(itemType, String.valueOf(itemId), token);
-       }
     }
+
 
     private void setupSeeAll() {
     }
