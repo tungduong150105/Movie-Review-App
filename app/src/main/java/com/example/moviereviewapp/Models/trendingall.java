@@ -119,4 +119,12 @@ private String popularity;
 
         this.rating = Math.round(rating * 10.0) / 10.0;
     }
+
+    private boolean IsInWatchList = false;
+    public boolean getIsInWatchList() {
+        return IsInWatchList;
+    }
+    public void setIsInWatchList(boolean isInWatchList) {
+        IsInWatchList = isInWatchList;
+    }
 }

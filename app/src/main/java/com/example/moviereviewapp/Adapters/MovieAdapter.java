@@ -75,22 +75,44 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 }
             }
         });
-        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
 
+        //ToDo: Lấy trạng thái watchlist của phim từ cơ sở dữ liệu và gán cho biến isInWatchList
+
+        //Xử lý hiển thị phim đã thêm vào watchlist hay chưa
+        if (movie.getIsInWatchList()) {
+            holder.alphaa.setAlpha(1f);
+            holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+            holder.bookmark.setImageResource(R.drawable.black_tick);
+        } else {
+            holder.alphaa.setAlpha(0.6f);
+            holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+            holder.bookmark.setImageResource(R.drawable.fill_plus_icon);
+        }
+
+        //ToDo: Xử lý sự kiện click vào nút bookmark
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
-                if (isBookmarked) {
+                boolean isBookmarked = movie.getIsInWatchList();
+                if (!isBookmarked) {
+                    //Nếu chưa thì thêm vô watchlist
                     Log.d("Watchlist", movie.getMovieId() + "");
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.bookmark.setImageResource(R.drawable.black_tick);
+                    // TODO: Xử lý thêm phim vào watchlist trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
+                    movie.setIsInWatchlist(true);
+
                 } else {
+                    //Nếu đã có trong watchlist thì xóa khỏi watchlist
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.bookmark.setImageResource(R.drawable.fill_plus_icon);
+                    // TODO: Xử lý xóa phim khỏi watchlist trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
+                    movie.setIsInWatchlist(false);
+
                 }
             }
         });

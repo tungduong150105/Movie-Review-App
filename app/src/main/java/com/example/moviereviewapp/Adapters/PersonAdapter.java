@@ -69,16 +69,35 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             holder.frame.setVisibility(View.VISIBLE);
         }
         Glide.with(context).load(person.getProfileUrl()).into(holder.posterimg);
-        holder.frame.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
 
+        //ToDo: Lấy trạng thái yêu thích của diễn viên từ cơ sở dữ liệu và gán cho biến isFavorite
+
+        //Xử lý hiển thị diễn viên yêu thích
+        if (person.getIsFavorite()) {
+            holder.favourite.setImageResource(R.drawable.yellow_filled_heart);
+        } else {
+            holder.favourite.setImageResource(R.drawable.white_heart_icon);
+        }
+
+        //ToDo: Xử lý sự kiện click vào nút bookmark
+        holder.frame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
+                boolean isBookmarked = person.getIsFavorite();
                 if (isBookmarked) {
-                    holder.favourite.setImageResource(R.drawable.yellow_filled_heart);
-                } else {
+                    //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.favourite.setImageResource(R.drawable.white_heart_icon);
+                    // TODO: Xử lý xóa diễn viên khỏi danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    person.setIsFavorite(false);
+
+                } else {
+                    //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
+                    holder.favourite.setImageResource(R.drawable.yellow_filled_heart);
+                    // TODO: Xử lý thêm diễn viên vào danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    person.setIsFavorite(true);
+
                 }
             }
         });

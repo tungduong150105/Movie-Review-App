@@ -70,8 +70,10 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
         });
         Glide.with(context).load(move.getPosterurl()).into(holder.posterimg);
 
+        //ToDo: Lấy trạng thái watchlist của phim từ cơ sở dữ liệu và gán cho biến isInWatchList
+
         //Xử lý hiển thị phim đã thêm vào watchlist hay chưa
-        if (move.isInWacthlist()) {
+        if (move.getIsInWatchList()) {
             holder.alphaa.setAlpha(1f);
             holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
             holder.iconImage.setImageResource(R.drawable.black_tick);
@@ -81,25 +83,29 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
             holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
         }
 
+        //ToDo: Xử lý sự kiện click vào nút bookmark
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
-
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
+                boolean isBookmarked = move.getIsInWatchList();
                 if (isBookmarked) {
-                    //ToDo: Xử lý xóa phim khỏi watchlist
-                    move.setInWacthlist(true);
-                    holder.alphaa.setAlpha(1f);
-                    holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
-                    holder.iconImage.setImageResource(R.drawable.black_tick);
-                } else {
-                    //ToDo: Xử lý thêm phim vào watchlist
-                    move.setInWacthlist(false);
+                    //Nếu đã có trong watchlist thì xóa khỏi watchlist
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+                    // TODO: Xử lý xóa phim khỏi watchlist trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
+                    move.setIsInWatchlist(false);
+
+                } else {
+                    //Nếu chưa có trong watchlist thì thêm vào watchlist
+                    holder.alphaa.setAlpha(1f);
+                    holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+                    holder.iconImage.setImageResource(R.drawable.black_tick);
+                    // TODO: Xử lý thêm phim vào watchlist trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
+                    move.setIsInWatchlist(true);
+
                 }
             }
         });

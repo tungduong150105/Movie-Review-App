@@ -19,7 +19,7 @@ import com.example.moviereviewapp.R;
 
 import java.util.ArrayList;
 
-public class   Top_Box_Office_Adapter extends ArrayAdapter<movies> {
+public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
 
     public Top_Box_Office_Adapter(@NonNull Context context, ArrayList<movies> movie) {
         super(context, 0, movie);
@@ -55,18 +55,40 @@ public class   Top_Box_Office_Adapter extends ArrayAdapter<movies> {
             layoutParams.width = (int) (60 * density);
             layoutParams.height = (int) (60 * density);
             bookmark.setLayoutParams(layoutParams);
-            bookmark.setOnClickListener(new View.OnClickListener() {
-                boolean isBookmarked = false;
 
+            //ToDo: Lấy trạng thái yêu thích của diễn viên từ cơ sở dữ liệu và gán cho biến isInWatchList
+
+            //Xử lý hiển thị diễn viên yêu thích
+            if (movie.getIsInWatchList()) {
+                int px15 = (int) (15 * density);  // Convert 15dp to px
+                bookmark.setPadding(px15, px15, px15, px15);
+                bookmark.setImageResource(R.drawable.black_tick);
+                layoutParams = bookmark.getLayoutParams();
+                layoutParams.width = (int) (40 * density);
+                layoutParams.height = (int) (40 * density);
+                bookmark.setLayoutParams(layoutParams);
+                bookmark.setBackgroundResource(R.drawable.yellow_bookmark);
+            } else {
+                bookmark.setPadding(0, 0, 0, 0);
+                bookmark.setImageResource(R.drawable.bookmarkreal);
+                layoutParams = bookmark.getLayoutParams();
+                layoutParams.width = (int) (60 * density);
+                layoutParams.height = (int) (60 * density);
+                bookmark.setLayoutParams(layoutParams);
+                bookmark.setBackgroundResource(0);
+            }
+
+            //ToDo: Xử lý sự kiện click vào nút bookmark
+            bookmark.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    isBookmarked = !isBookmarked;
+                    boolean isBookmarked = movie.getIsInWatchList();
                     float density = getContext().getResources().getDisplayMetrics().density;
-
                     int px15 = (int) (15 * density);  // Convert 15dp to px
                     int px25 = (int) (25 * density);  // Convert 25dp to px
 
-                    if (isBookmarked) {
+                    if (!isBookmarked) {
+                        //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                         bookmark.setPadding(px15, px15, px15, px15);
                         bookmark.setImageResource(R.drawable.black_tick);
                         ViewGroup.LayoutParams layoutParams = bookmark.getLayoutParams();
@@ -74,7 +96,12 @@ public class   Top_Box_Office_Adapter extends ArrayAdapter<movies> {
                         layoutParams.height = (int) (40 * density);
                         bookmark.setLayoutParams(layoutParams);
                         bookmark.setBackgroundResource(R.drawable.yellow_bookmark);
+                        //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                        // TODO: cập nhật trạng thái yêu thích của movies trong cơ sở dữ liệu
+                        movie.setIsInWatchlist(true);
+
                     } else {
+                        //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                         bookmark.setPadding(0, 0, 0, 0);
                         bookmark.setImageResource(R.drawable.bookmarkreal);
                         ViewGroup.LayoutParams layoutParams = bookmark.getLayoutParams();
@@ -82,16 +109,14 @@ public class   Top_Box_Office_Adapter extends ArrayAdapter<movies> {
                         layoutParams.height = (int) (60 * density);
                         bookmark.setLayoutParams(layoutParams);
                         bookmark.setBackgroundResource(0);
+                        //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                        // TODO: cập nhật trạng thái yêu thích của movies trong cơ sở dữ liệu
+                        movie.setIsInWatchlist(false);
+
                     }
                 }
-
             });
-
-
-
         }
-
         return convertView;
     }
-
 }

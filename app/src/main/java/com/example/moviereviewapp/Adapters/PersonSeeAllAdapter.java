@@ -63,20 +63,34 @@ public class PersonSeeAllAdapter extends RecyclerView.Adapter<PersonSeeAllAdapte
             }
         });
 
-        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
+        //ToDo: Lấy trạng thái yêu thích của diễn viên từ cơ sở dữ liệu và gán cho biến isFavorite
 
+        //Xử lý hiển thị diễn viên yêu thích
+        if (movie.getIsFavorite()) {
+            holder.iconImage.setImageResource(R.drawable.yellow_filled_heart);
+        } else {
+            holder.iconImage.setImageResource(R.drawable.white_heart_icon);
+        }
+
+        //ToDo: Xử lý sự kiện click vào nút bookmark
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
-                if (isBookmarked) {
-
+                boolean isBookmarked = movie.getIsFavorite();
+                if (!isBookmarked) {
+                    //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                     holder.iconImage.setImageResource(R.drawable.yellow_filled_heart);
+                    // TODO: Xử lý xóa diễn viên khỏi danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    movie.setIsFavorite(true);
+
                 } else {
-
-
+                    //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.iconImage.setImageResource(R.drawable.white_heart_icon);
+                    // TODO: Xử lý thêm diễn viên vào danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    movie.setIsFavorite(false);
+
                 }
             }
         });

@@ -113,4 +113,14 @@ public class Person implements Serializable {
             return birthYear + " - " + deathYear;
         }
     }
+
+    private boolean isFavorite = false;
+
+    public boolean getIsFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
 }
