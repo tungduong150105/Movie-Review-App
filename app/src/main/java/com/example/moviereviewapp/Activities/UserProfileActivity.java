@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviereviewapp.Adapters.MovieItemAdapter;
+import com.example.moviereviewapp.Adapters.PersonAdapter;
+import com.example.moviereviewapp.Models.Person;
 import com.example.moviereviewapp.Models.TMDBAPI;
 import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
@@ -45,7 +47,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class UserProfileActivity extends AppCompatActivity implements MovieItemAdapter.OnItemClickListener {
+public class UserProfileActivity extends AppCompatActivity implements MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener  {
     TextView textView_Username_UserProfile;
     //textView_Username_UserProfile se hien thi ten nguoi dung, neu khong thi hien thi "Sign In"
     ImageView imageView_Logout_UserProfile;
@@ -90,11 +92,23 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
     RecyclerView recycleView_Watchlist_UserProfile;
     //ToDo: tuong tu Recently viewed
 
+    //Favorite actors
+    LinearLayout linearLayout_actor;
+    TextView textView_FavoriteActors_Number_UserProfile, textView_SeeAll_FavoriteActors_UserProfile, textView_NoFavoriteActors_UserProfile;
+    androidx.recyclerview.widget.RecyclerView recycleView_FavoriteActors_UserProfile;
+
     //List phim theo muc dich
     //Todo: sử dụng adapter và movie models tương tự mainscreen
     List<movies> recentlyViewedMovieList, ratingMovieList, watchListMovieList;
+    //Favorite actors list
+    List<Person> favoriteActorsList;
+
     //Adapter phim theo muc dich
     MovieItemAdapter recentlyViewedAdapter, ratingAdapter, watchListAdapter;
+
+    //Adapter cho actors
+    PersonAdapter favoriteActorsAdapter;
+
     String username;
     String token;
     UserAPI userAPI;
@@ -154,11 +168,17 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
         imgView_Watchlist_UserProfile = findViewById(R.id.imgView_Watchlist_UserProfile);
         btn_Watchlist_UserProfile = findViewById(R.id.btn_Watchlist_UserProfile);
         recycleView_Watchlist_UserProfile = findViewById(R.id.recycleView_Watchlist_UserProfile);
+        linearLayout_actor = findViewById(R.id.linearLayout_actor);
+        textView_FavoriteActors_Number_UserProfile = findViewById(R.id.textView_FavoriteActors_Number_UserProfile);
+        textView_SeeAll_FavoriteActors_UserProfile = findViewById(R.id.textView_SeeAll_FavoriteActors_UserProfile);
+        textView_NoFavoriteActors_UserProfile = findViewById(R.id.textView_NoFavoriteActors_UserProfile);
+        recycleView_FavoriteActors_UserProfile = findViewById(R.id.recycleView_FavoriteActors_UserProfile);
 
         // Khởi tạo danh sách rỗng
         recentlyViewedMovieList = new ArrayList<>();
         ratingMovieList = new ArrayList<>();
         watchListMovieList = new ArrayList<>();
+        favoriteActorsList = new ArrayList<>();
 
         //ToDo: Xử lý kiểm tra tình trạng đăng nhập
         if (userId == null) {
@@ -179,6 +199,7 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
             getRatingList();
             getWatchList();
             getRecentList();
+            getActorList();
         }
 
 
@@ -200,6 +221,7 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
         Log.d("MainScreen", String.valueOf(recentlyViewedMovieList.size()));
         Log.d("MainScreen", String.valueOf(ratingMovieList.size()));
         Log.d("MainScreen", String.valueOf(watchListMovieList.size()));
+        Log.d("MainScreen", String.valueOf(favoriteActorsList.size()));
 
         //ToDo: Cách hiển thị danh sách phim theo từng đề mục ở dưới
 
@@ -225,6 +247,12 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
         recycleView_Ratings_UserProfile.setLayoutManager(layoutManager);
         recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
         recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
+
+        //Xử lý danh sách diễn viên
+        favoriteActorsAdapter = new PersonAdapter((ArrayList<Person>) favoriteActorsList, UserProfileActivity.this);
+        recycleView_FavoriteActors_UserProfile.setAdapter(favoriteActorsAdapter);
+        recycleView_FavoriteActors_UserProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
 
 //        //ToDo: Xử lý khi Recently Viewed Movie có dữ liệu
 //        if (!recentlyViewedMovieList.isEmpty()) {
@@ -752,5 +780,48 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
         intent.putExtra("token", token);
         intent.putExtra("session_id", session_id);
         startActivity(intent);
+    }
+
+    @Override
+    public void onPersonClick(Person person) {
+        Intent intent = new Intent(this, PersonDetailActivity.class);
+        intent.putExtra("personId", person.getPersonid());
+        Log.d("username",  username);
+        Log.d("token",  token);
+        Log.d("session_id",  session_id);
+        startActivity(intent);
+    }
+
+    public void showActorList() {
+        if (!favoriteActorsList.isEmpty()) {
+            textView_NoFavoriteActors_UserProfile.setVisibility(View.GONE);
+
+            recycleView_FavoriteActors_UserProfile.setVisibility(View.VISIBLE);
+
+            textView_FavoriteActors_Number_UserProfile.setVisibility(View.VISIBLE);
+
+            textView_SeeAll_FavoriteActors_UserProfile.setVisibility(View.VISIBLE);
+
+            recycleView_FavoriteActors_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+
+            textView_SeeAll_FavoriteActors_UserProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //ToDo: chuyển sang SeeAllActivity cho Favorite Actors
+                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                    intent.putExtra("type", "person");
+                    intent.putExtra("title", "Born today");
+                    intent.putExtra("personList",  (Serializable) favoriteActorsList);
+                    if (favoriteActorsList != null) {
+                        startActivity(intent);
+                    }
+                }
+            });
+            textView_FavoriteActors_Number_UserProfile.setText(String.valueOf(favoriteActorsList.size()));
+        }
+    }
+
+    private void getActorList() {
+        //ToDo: lấy danh sách diễn viên yêu thích của user
     }
 }
