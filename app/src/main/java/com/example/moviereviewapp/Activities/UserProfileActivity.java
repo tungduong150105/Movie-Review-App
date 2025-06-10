@@ -139,8 +139,6 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
 
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String userId = sharedPreferences.getString("userId", "aa");
-//        fetchtopratedmovies();
-//        fetchMovies();
 
         //Khoi tao thuoc tinh
         linearLayout3 = findViewById(R.id.linearLayout3);
@@ -200,6 +198,7 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
             getWatchList();
             getRecentList();
             getActorList();
+
         }
 
 
@@ -375,6 +374,8 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
                                 }
                             });
                             textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                        } else {
+                            fetchMovies();
                         }
                     });
                 }
@@ -434,6 +435,8 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
                                 }
                             });
                             textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
+                        } else {
+                            fetchtopratedmovies();
                         }
                     });
                 }
@@ -682,89 +685,87 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
 //        }
 //    }
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
-//    private retrofit2.Call<MovieResponse> moviesCall;
+    private retrofit2.Call<MovieResponse> moviesCall;
     private List<movies> topratedmovieslist = new ArrayList<movies>();
     private List<movies> moviesListInRatingList = new ArrayList<movies>();
-//    private Call<MovieResponse> moviesCall;
 
-//    private void fetchtopratedmovies(){
-//        TMDBApi api = RetrofitClient.getApiService();
-//        moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
-//        moviesCall.enqueue(new Callback<MovieResponse>() {
-//            @Override
-//            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    topratedmovieslist.clear();
-//                    List<movies> results = response.body().getResults();
-//
-//                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
-//
-//                    topratedmovieslist.addAll(results);
-//
-////                    topratedadapter.notifyDataSetChanged();
-//
-//                    // Gọi chi tiết từng phim để lấy runtime
-//                    for (movies movie : results) {
-//                        int movieId = movie.getMovieId();
-//                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
-//                        detailCall.enqueue(new Callback<MovieDetail>() {
-//                            @Override
-//                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-//                                if (response.isSuccessful() && response.body() != null) {
-//                                    int runtime = response.body().getRuntime();
-//                                    movie.setLengthFromRuntime(runtime);
-//
-////                                    topratedadapter.notifyDataSetChanged();
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Call<MovieDetail> call, Throwable t) {
-//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-//                            }
-//                        });
-//                    }
-//
-//                } else {
-//                    showError("Failed to load movies: " + response.message());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<MovieResponse> call, Throwable t) {
-//                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
-//                showError("Lỗi: " + t.getMessage());
-//            }
-//        });
-//    }
-//
-//    private void fetchMovies() {
-//        TMDBApi api = RetrofitClient.getApiService();
-//        moviesCall = api.getTrendingMovies(TMDB_API_KEY);
-//
-//        moviesCall.enqueue(new Callback<MovieResponse>() {
-//            @Override
-//            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    moviesListInRatingList.clear();
-//                    List<movies> results = response.body().getResults();
-//                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
-//                    moviesListInRatingList.addAll(results);
+    private void fetchtopratedmovies(){
+        TMDBApi api = RetrofitClient.getApiService();
+        moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
+        moviesCall.enqueue(new retrofit2.Callback<MovieResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<MovieResponse> call, retrofit2.Response<MovieResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    topratedmovieslist.clear();
+                    List<movies> results = response.body().getResults();
 
-    /// /                    adapter.notifyDataSetChanged();
-//                } else {
-//                    showError("Failed to load movies: " + response.message());
-//                }
-//            }
-//
-//
-//            @Override
-//            public void onFailure(Call<MovieResponse> call, Throwable t) {
-//                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
-//                showError("Lỗi: " + t.getMessage());
-//            }
-//        });
-//    }
+                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
+
+                    topratedmovieslist.addAll(results);
+
+//                    topratedadapter.notifyDataSetChanged();
+
+                    // Gọi chi tiết từng phim để lấy runtime
+                    for (movies movie : results) {
+                        int movieId = movie.getMovieId();
+                        retrofit2.Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+                        detailCall.enqueue(new retrofit2.Callback<MovieDetail>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<MovieDetail> call, retrofit2.Response<MovieDetail> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    int runtime = response.body().getRuntime();
+                                    movie.setLengthFromRuntime(runtime);
+
+//                                    topratedadapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(retrofit2.Call<MovieDetail> call, Throwable t) {
+                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+                            }
+                        });
+                    }
+
+                } else {
+                    showError("Failed to load movies: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<MovieResponse> call, Throwable t) {
+                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
+                showError("Lỗi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchMovies() {
+        TMDBApi api = RetrofitClient.getApiService();
+        moviesCall = api.getTrendingMovies(TMDB_API_KEY);
+
+        moviesCall.enqueue(new retrofit2.Callback<MovieResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<MovieResponse> call, retrofit2.Response<MovieResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    moviesListInRatingList.clear();
+                    List<movies> results = response.body().getResults();
+                    Log.d("MOVIES", "Fetched " + results.size() + " movies.");
+                    moviesListInRatingList.addAll(results);
+//                    adapter.notifyDataSetChanged();
+                } else {
+                    showError("Failed to load movies: " + response.message());
+                }
+            }
+
+
+            @Override
+            public void onFailure(retrofit2.Call<MovieResponse> call, Throwable t) {
+                Log.e("API_ERROR", "Lỗi gọi API: " + t.getMessage(), t);
+                showError("Lỗi: " + t.getMessage());
+            }
+        });
+    }
 
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
