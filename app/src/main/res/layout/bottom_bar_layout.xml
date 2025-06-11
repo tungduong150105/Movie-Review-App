@@ -1,0 +1,44 @@
+<!-- res/layout/bottom_bar_layout.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomBar"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="8dp"
+    android:background="#AA111111">
+
+    <ImageView
+        android:id="@+id/ivHome"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:contentDescription="Home"
+        android:scaleType="centerInside"
+        android:src="@drawable/homeicon" />
+
+    <ImageView
+        android:id="@+id/ivSearch"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:contentDescription="Search"
+        android:src="@drawable/search_icon_large" />
+
+    <ImageView
+        android:id="@+id/ivPlay"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:contentDescription="Play"
+        android:src="@drawable/playicon" />
+
+    <ImageView
+        android:id="@+id/ivProfile"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:contentDescription="Profile"
+        android:src="@drawable/usericon" />
+</LinearLayout>

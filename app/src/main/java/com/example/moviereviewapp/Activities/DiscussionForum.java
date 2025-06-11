@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.moviereviewapp.Adapters.BaseActivity;
 import com.example.moviereviewapp.Adapters.DiscussAdapter;
 import com.example.moviereviewapp.Models.ChatMessage;
 import com.example.moviereviewapp.Models.UserAPI;
@@ -53,6 +54,7 @@ public class DiscussionForum extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_discussion_forum);
         int movie_id;
         String movie_name;

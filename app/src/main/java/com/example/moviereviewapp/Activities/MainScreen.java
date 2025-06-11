@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
+import com.example.moviereviewapp.Adapters.BaseActivity;
 import com.example.moviereviewapp.Adapters.MovieAdapter;
 import com.example.moviereviewapp.Adapters.MovieItemAdapter;
 import com.example.moviereviewapp.Adapters.PersonAdapter;
@@ -33,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItemClickListener, movietrendingadapter.OnItemClickListener, MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener, tvseriesadapter.OnItemClickListener {
+public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClickListener, movietrendingadapter.OnItemClickListener, MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener, tvseriesadapter.OnItemClickListener {
     private ActivityMainScreenBinding binding;
     private MovieAdapter adapter;
     private MovieItemAdapter itemadapter, topratedadapter;
@@ -67,8 +68,8 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
         super.onCreate(savedInstanceState);
         binding = ActivityMainScreenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setupBottomBar(this,"home");
 
-        setToolbar();
 
         setupRecyclerView();
         fetchMovies();
@@ -665,45 +666,7 @@ public class MainScreen extends AppCompatActivity implements MovieAdapter.OnItem
     }
 
 
-    private void setToolbar() {
-        binding.ivHome.setOnClickListener(v -> {
-            binding.ivHome.setImageResource(R.drawable.clicked_home_icon);
-            binding.ivSearch.setImageResource(R.drawable.search_icon);
-            binding.ivPlay.setImageResource(R.drawable.playicon);
-            binding.ivProfile.setImageResource(R.drawable.usericon);
-        });
 
-        binding.ivSearch.setOnClickListener(v -> {
-            binding.ivHome.setImageResource(R.drawable.homeicon);
-            binding.ivSearch.setImageResource(R.drawable.clicked_search_icon);
-            binding.ivPlay.setImageResource(R.drawable.playicon);
-            binding.ivProfile.setImageResource(R.drawable.usericon);
-        });
-
-        binding.ivPlay.setOnClickListener(v -> {
-            binding.ivHome.setImageResource(R.drawable.homeicon);
-            binding.ivSearch.setImageResource(R.drawable.search_icon);
-            binding.ivPlay.setImageResource(R.drawable.clicked_play_icon);
-            binding.ivProfile.setImageResource(R.drawable.usericon);
-        });
-
-        binding.ivProfile.setOnClickListener(v -> {
-            binding.ivHome.setImageResource(R.drawable.homeicon);
-            binding.ivSearch.setImageResource(R.drawable.search_icon);
-            binding.ivPlay.setImageResource(R.drawable.playicon);
-            binding.ivProfile.setImageResource(R.drawable.clicked_user_icon);
-        });
-
-        binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            int scrollY = binding.scrollView.getScrollY();
-            if (scrollY > lastScrollY) {
-                binding.bottomBar.setBackgroundColor(0xAA0F0F0F);
-            } else if (scrollY < lastScrollY) {
-                binding.bottomBar.setBackgroundColor(0xFF111111);
-            }
-            lastScrollY = scrollY;
-        });
-    }
     // Inside your MainScreen class
 
     @Override

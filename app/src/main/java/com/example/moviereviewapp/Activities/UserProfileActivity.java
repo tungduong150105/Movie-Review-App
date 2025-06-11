@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.moviereviewapp.Adapters.BaseActivity;
 import com.example.moviereviewapp.Adapters.MovieItemAdapter;
 import com.example.moviereviewapp.Adapters.PersonAdapter;
 import com.example.moviereviewapp.Models.Person;
@@ -47,7 +48,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class UserProfileActivity extends AppCompatActivity implements MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener  {
+public class UserProfileActivity extends BaseActivity implements MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener  {
     TextView textView_Username_UserProfile;
     //textView_Username_UserProfile se hien thi ten nguoi dung, neu khong thi hien thi "Sign In"
     ImageView imageView_Logout_UserProfile;
@@ -124,6 +125,7 @@ public class UserProfileActivity extends AppCompatActivity implements MovieItemA
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        setupBottomBar(this,"profile");
         userAPI = new UserAPI();
         tmdbAPI = new TMDBAPI();
 
