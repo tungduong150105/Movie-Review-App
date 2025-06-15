@@ -62,21 +62,42 @@ public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHo
             }
         });
         Glide.with(context).load(move.getPosterid()).into(holder.posterimg);
-        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
 
+        //ToDo: Lấy trạng thái yêu thích của diễn viên từ cơ sở dữ liệu và gán cho biến isFavorite
+
+        //Xử lý hiển thị tvseries yêu thích
+        if (move.getIsInWatchList()) {
+            holder.alphaa.setAlpha(1f);
+            holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+            holder.iconImage.setImageResource(R.drawable.black_tick);
+        } else {
+            holder.alphaa.setAlpha(0.6f);
+            holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+            holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+        }
+
+        //ToDo: Xử lý sự kiện click vào nút bookmark
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
-                if (isBookmarked) {
+                boolean isBookmarked = move.getIsInWatchList();
+                if (!isBookmarked) {
+                    //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.iconImage.setImageResource(R.drawable.black_tick);
+                    // TODO: Xử lý thêm diễn viên vào danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    move.setIsInWatchList(true);
+
                 } else {
+                    //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+                    // TODO: Xử lý xóa diễn viên khỏi danh sách yêu thích trong cơ sở dữ liệu dưới đây
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    move.setIsInWatchList(false);
                 }
             }
         });

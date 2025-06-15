@@ -60,23 +60,43 @@ public void onBindViewHolder(@NonNull MovieSeeAllAdapter.MovieViewHolder holder,
         }
     });
 
-    holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-        boolean isBookmarked = false;
+    //TODO: Lấy thông tin về trạng thái bookmark của phim và gán cho biến isInWatchList
 
+    //Xử lý hiển thị trạng thái bookmark
+    if (movie.getIsInWatchList()) {
+        holder.alphaa.setAlpha(1f);
+        holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+        holder.iconImage.setImageResource(R.drawable.black_tick);
+    }
+    else {
+        holder.alphaa.setAlpha(0.6f);
+        holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+        holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+    }
+
+    //TODO: Xử lý sự kiện click vào nút bookmark
+    holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            isBookmarked = !isBookmarked;
-
-            if (isBookmarked) {
+            boolean isBookmarked = movie.getIsInWatchList();
+            if (!isBookmarked) {
+                //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                 holder.alphaa.setAlpha(1f);
                 holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                 holder.iconImage.setImageResource(R.drawable.black_tick);
-                //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity dưới đây
+                //ToDo: cập nhật trạng thái bookmark trong cơ sở dữ liệu
+                movie.setIsInWatchList(true);
+
             } else {
+                //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                 holder.alphaa.setAlpha(0.6f);
                 holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                 holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
-                //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity dưới dây
+                //ToDo: cập nhật trạng thái bookmark trong cơ sở dữ liệu
+                movie.setIsInWatchList(false);
+
             }
         }
     });

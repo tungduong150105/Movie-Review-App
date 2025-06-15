@@ -612,49 +612,11 @@
 
         </LinearLayout>
     </ScrollView>
-    <LinearLayout
+    <include
         android:id="@+id/bottomBar"
+        layout="@layout/bottom_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="8dp"
-        android:background="#AA111111"> <!-- Màu đen mờ -->
-
-        <ImageView
-            android:id="@+id/ivHome"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:contentDescription="Home"
-            android:scaleType="centerInside"
-            android:src="@drawable/homeicon" />
-
-        <ImageView
-            android:id="@+id/ivSearch"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-
-            android:contentDescription="Search"
-            android:src="@drawable/search_icon" />
-
-        <ImageView
-            android:id="@+id/ivPlay"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:contentDescription="Play"
-            android:src="@drawable/playicon" />
-
-        <ImageView
-            android:id="@+id/ivProfile"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:contentDescription="Profile"
-            android:src="@drawable/usericon" />
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

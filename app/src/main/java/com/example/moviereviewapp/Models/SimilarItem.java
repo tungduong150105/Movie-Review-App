@@ -128,4 +128,12 @@ public class SimilarItem implements Serializable {
     public boolean isCrew() {
         return job != null && !job.isEmpty();
     }
+
+    private boolean isInWatchList = false;
+    public boolean getIsInWatchList() {
+        return isInWatchList;
+    }
+    public void setIsInWatchlist(boolean isInWatchList) {
+        this.isInWatchList = isInWatchList;
+    }
 }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.moviereviewapp.Adapters.BaseActivity;
 import com.example.moviereviewapp.Adapters.SearchMovieAdapter;
 import com.example.moviereviewapp.Models.SearchMovieModel;
 import com.example.moviereviewapp.R;
@@ -34,7 +35,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends BaseActivity {
     private Timer timer;
     private SearchMovieAdapter adapter;
     private final List<SearchMovieModel> searchResults = new ArrayList<>();
@@ -43,7 +44,7 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-
+        setupBottomBar(this,"search");
         EditText inputSearch = findViewById(R.id.inputSearch);
 
         TextView search = findViewById(R.id.textView);

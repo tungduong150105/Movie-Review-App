@@ -59,29 +59,46 @@ public class TrendingSeeallAdapter extends RecyclerView.Adapter<TrendingSeeallAd
             }
         });
 
-        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
+        //ToDo: Lấy trạng thái yêu thích của diễn viên từ cơ sở dữ liệu và gán cho biến isFavorite
 
+        //Xử lý hiển thị diễn viên yêu thích
+        if (movie.getIsInWatchList()) {
+            holder.alphaa.setAlpha(1f);
+            holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+            holder.iconImage.setImageResource(R.drawable.black_tick);
+        } else {
+            holder.alphaa.setAlpha(0.6f);
+            holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+            holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+        }
+
+        //ToDo: Xử lý sự kiện click vào nút bookmark
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
-                if (isBookmarked) {
+                boolean isBookmarked = movie.getIsInWatchList();
+                if (!isBookmarked) {
+                    //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.iconImage.setImageResource(R.drawable.black_tick);
                     //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    movie.setIsInWatchList(true);
+
                 } else {
+                    //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
                     //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                    // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
+                    movie.setIsInWatchList(false);
+
                 }
             }
         });
         String imageUrl = "https://image.tmdb.org/t/p/w500" + movie.getPosterid();
-
-
         Glide.with(context).load(imageUrl).into(holder.imgAvatar);
     }
 

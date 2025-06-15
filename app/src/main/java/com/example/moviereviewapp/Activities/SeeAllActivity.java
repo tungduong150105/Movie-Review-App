@@ -59,6 +59,9 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
     private String currentVideoId = null;
     private FrameLayout photoOverlayContainer;
     private ImageView overlayPhotoView;
+    String username;
+    String token;
+    String session_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +86,13 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         // Nhận dữ liệu từ Intent
         String title = getIntent().getStringExtra("title");
         String type = getIntent().getStringExtra("type");
+        session_id = getIntent().getStringExtra("session_id");
+        username = getIntent().getStringExtra("username");
+        token = getIntent().getStringExtra("token");
+
+        Log.d("SeeAllActivity0", "Received session_id: " + session_id);
+        Log.d("SeeAllActivity0", "Received username: " + username);
+        Log.d("SeeAllActivity0", "Received token: " + token);
 
         textView_Title_SeeAll.setText(title);
         if (type == null) {
@@ -225,8 +235,14 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
     public void onItemClick(movies movie){
         Log.d("See more ", "Clicked on movie: " + movie.getMoviename());
         Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("username", username);
+        intent.putExtra("token", token);
+        intent.putExtra("session_id", session_id);
         intent.putExtra("itemType", "movie");
         intent.putExtra("itemId", movie.getMovieId());
+        Log.d("MovieClick", "User '" + username + "' clicked on movie: " + movie.getMoviename() +
+                " (ID: " + movie.getMovieId() + "), session_id: " + session_id);
+
         startActivity(intent);
     }
     private void setupVideoOverlay() {
@@ -356,16 +372,19 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
     public void onItemClick(trendingall movi) {
         Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
         Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("username", username);
+        intent.putExtra("token", token);
+        intent.putExtra("session_id", session_id);
         intent.putExtra("itemType", "movie");
         intent.putExtra("itemId", movi.getId());
         startActivity(intent);
     }
     @Override
     public void onItemClick(Person person){
-
-
         Intent intent = new Intent(this, PersonDetailActivity.class);
-
+        intent.putExtra("username", username);
+        intent.putExtra("token", token);
+        intent.putExtra("session_id", session_id);
         intent.putExtra("personId", person.getPersonid());
         startActivity(intent);
     }
@@ -373,6 +392,9 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
     public void onItemClick(tvseries movi) {
         Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
         Intent intent = new Intent(this, TitleDetailActivity.class);
+        intent.putExtra("username", username);
+        intent.putExtra("token", token);
+        intent.putExtra("session_id", session_id);
         intent.putExtra("itemType", "tv");
         intent.putExtra("itemId", movi.getId());
         startActivity(intent);

@@ -5,18 +5,35 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class movies implements Serializable {
-    public movies(String moviename, long revenue,String trailertext, String posterurl, String backdropurl, double like, double rating, String releasedate) {
+
+
+    public movies(int movieId, String moviename, long revenue, String trailertext, String posterurl,
+                  String backdropurl, double like, double rating, String releasedate) {
+        this.movieId = movieId;
         this.moviename = moviename;
         this.trailertext = trailertext;
         this.posterurl = posterurl;
-        this.revenue=revenue;
+        this.revenue = revenue;
         this.backdropurl = backdropurl;
         this.like = like;
         this.rating = rating;
         this.releasedate = releasedate;
     }
 
+
+
     public movies() {}
+
+    //Biến kiểm tra phim đã thêm vào watchlist chưa
+    private boolean isInWatchList = false;
+
+    public boolean getIsInWatchList() {
+        return isInWatchList;
+    }
+
+    public void setIsInWatchlist(boolean isInWatchList) {
+        this.isInWatchList = isInWatchList;
+    }
 
     @SerializedName("id")
     private int movieId;
@@ -39,7 +56,7 @@ public class movies implements Serializable {
 
     private double like;
     private long revenue;
-    movies(String moviename,long revenue){
+    public movies(String moviename,long revenue){
         this.moviename=moviename;
         this.revenue=revenue;
     }

@@ -43,23 +43,42 @@ public class SeeAllSimilarItemAdapter extends RecyclerView.Adapter<SeeAllSimilar
         holder.length.setText(movie.getLength());
         holder.average.setText(movie.getVoteAverage()+"");
 
-        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
-            boolean isBookmarked = false;
+        //TODO: Lấy trạng thái của watchlist của phim trong cơ sở dữ liệu và gán cho biến isInWatchlist
 
+        //Xử lý trạng thái của nút "Bookmark"
+        if (movie.getIsInWatchList()) {
+            holder.alphaa.setAlpha(1f);
+            holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
+            holder.iconImage.setImageResource(R.drawable.black_tick);
+        } else {
+            holder.alphaa.setAlpha(0.6f);
+            holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
+            holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
+        }
+
+        //Xử lý sự kiện khi nút "Bookmark" được nhấn
+        holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBookmarked = !isBookmarked;
-
-                if (isBookmarked) {
+                boolean isBookmarked = movie.getIsInWatchList();
+                if (!isBookmarked) {
+                    //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                     holder.alphaa.setAlpha(1f);
                     holder.alphaa.setImageResource(R.drawable.yellow_bookmark);
                     holder.iconImage.setImageResource(R.drawable.black_tick);
                     //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                    //ToDo: cập nhật trạng thái yêu thích của phim trong cơ sở dữ liệu
+                    movie.setIsInWatchlist(true);
+
                 } else {
+                    //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.alphaa.setAlpha(0.6f);
                     holder.alphaa.setImageResource(R.drawable.black_small_bookmark);
                     holder.iconImage.setImageResource(R.drawable.fill_plus_icon);
                     //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                    //ToDo: cập nhật trạng thái yêu thích của phim trong cơ sở dữ liệu
+                    movie.setIsInWatchlist(false);
+
                 }
             }
         });

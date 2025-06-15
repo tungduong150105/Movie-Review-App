@@ -140,23 +140,42 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                 }
             });
 
-            frameBookmark.setOnClickListener(new View.OnClickListener() {
-                boolean isBookmarked = false;
+            //TODO: Lấy trạng thái của phim trong cơ sở dữ liệu và gán cho biến isInWatchList
 
+            //Xử lý hiển thị phim trong watchlist
+            if (item.getIsInWatchList()) {
+                alphaa.setAlpha(1f);
+                alphaa.setImageResource(R.drawable.yellow_bookmark);
+                iconImage.setImageResource(R.drawable.black_tick);
+            } else {
+                alphaa.setAlpha(0.6f);
+                alphaa.setImageResource(R.drawable.black_small_bookmark);
+                iconImage.setImageResource(R.drawable.fill_plus_icon);
+            }
+
+            //ToDo: Xử lý sự kiện click vào nút bookmark
+            frameBookmark.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    isBookmarked = !isBookmarked;
-
-                    if (isBookmarked) {
+                    boolean isBookmarked = item.getIsInWatchList();
+                    if (!isBookmarked) {
+                        //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                         alphaa.setAlpha(1f);
                         alphaa.setImageResource(R.drawable.yellow_bookmark);
                         iconImage.setImageResource(R.drawable.black_tick);
                         // ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
+                        // TODO: cập nhật trạng thái watchlist của movies trong cơ sở dữ liệu
+                        item.setIsInWatchlist(true);
+
                     } else {
+                        //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                         alphaa.setAlpha(0.6f);
                         alphaa.setImageResource(R.drawable.black_small_bookmark);
                         iconImage.setImageResource(R.drawable.fill_plus_icon);
                         // ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
+                        // TODO: cập nhật trạng thái watchlist của movies trong cơ sở dữ liệu
+                        item.setIsInWatchlist(false);
+
                     }
                 }
             });

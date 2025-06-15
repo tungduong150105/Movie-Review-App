@@ -73,4 +73,14 @@ public class tvseries implements Serializable {
     @SerializedName("first_air_date")
     private String date;
     private String eps;
+
+    private boolean isInWatchList = false;
+
+    public boolean getIsInWatchList() {
+        return isInWatchList;
+    }
+
+    public void setIsInWatchList(boolean inWatchList) {
+        isInWatchList = inWatchList;
+    }
 }
