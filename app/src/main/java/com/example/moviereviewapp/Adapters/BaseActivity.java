@@ -21,10 +21,28 @@ public class BaseActivity extends AppCompatActivity {
     protected LinearLayout bottomBar;
     protected ImageView ivHome, ivSearch, ivPlay, ivProfile;
     private int lastScrollY = 0;
+    
+    // Add protected variables for user data
+    protected String username;
+    protected String token;
+    protected String session_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Get user data from intent
+        if (getIntent() != null) {
+            username = getIntent().getStringExtra("username");
+            token = getIntent().getStringExtra("token");
+            session_id = getIntent().getStringExtra("session_id");
+        }
+    }
+
+    // Method to add user data to any intent
+    protected void addUserDataToIntent(Intent intent) {
+        if (username != null) intent.putExtra("username", username);
+        if (token != null) intent.putExtra("token", token);
+        if (session_id != null) intent.putExtra("session_id", session_id);
     }
 
     protected void setupBottomBar(Activity activity, String currentScreen) {
@@ -66,32 +84,35 @@ public class BaseActivity extends AppCompatActivity {
 
         ivHome.setOnClickListener(v -> {
             if (!currentScreen.equals("home")) {
-                activity.startActivity(new Intent(activity, MainScreen.class));
+                Intent intent = new Intent(activity, MainScreen.class);
+                addUserDataToIntent(intent);
+                activity.startActivity(intent);
                 activity.overridePendingTransition(0, 0);
             }
         });
 
         ivSearch.setOnClickListener(v -> {
             if (!currentScreen.equals("search")) {
-                activity.startActivity(new Intent(activity, SearchActivity.class));
+                Intent intent = new Intent(activity, SearchActivity.class);
+                addUserDataToIntent(intent);
+                activity.startActivity(intent);
                 activity.overridePendingTransition(0, 0);
             }
         });
 
         ivPlay.setOnClickListener(v -> {
             if (!currentScreen.equals("play")) {
-
                 activity.overridePendingTransition(0, 0);
             }
         });
 
         ivProfile.setOnClickListener(v -> {
             if (!currentScreen.equals("profile")) {
-                activity.startActivity(new Intent(activity, UserProfileActivity.class));
+                Intent intent = new Intent(activity, UserProfileActivity.class);
+                addUserDataToIntent(intent);
+                activity.startActivity(intent);
                 activity.overridePendingTransition(0, 0);
             }
         });
     }
-
-
 }

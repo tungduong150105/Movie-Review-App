@@ -13,21 +13,34 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadapter.ViewHolder> {
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
+public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadapter.ViewHolder> {
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
+    private OnRefreshListener onRefreshListener;
     private List<trendingall> movie;
     private Context context;
 
     // Khai báo listener
     private OnItemClickListener listener;
-
+    public String token;
+    UserAPI userAPI = new UserAPI();
     // Setter cho listener
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
@@ -39,12 +52,21 @@ public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadap
     }
 
     // Constructor
-    public movietrendingadapter(List<trendingall> movie) {
+    public movietrendingadapter(List<trendingall> movie, String token, OnRefreshListener onRefreshListener) {
         this.movie = movie != null ? movie : new ArrayList<>();
+        this.token = token;
+        this.onRefreshListener = onRefreshListener;
     }
-    public movietrendingadapter(List<trendingall> moviesList, movietrendingadapter.OnItemClickListener listener) {
+    public movietrendingadapter(List<trendingall> moviesList, movietrendingadapter.OnItemClickListener listener, String token) {
         this.movie = moviesList != null ? moviesList : new ArrayList<>();
+        this.token = token;
         this.listener = listener;
+    }
+    public movietrendingadapter(List<trendingall> moviesList, movietrendingadapter.OnItemClickListener listener, OnRefreshListener onRefreshListener, String token) {
+        this.movie = moviesList != null ? moviesList : new ArrayList<>();
+        this.token = token;
+        this.listener = listener;
+        this.onRefreshListener = onRefreshListener;
     }
     @NonNull
     @Override
@@ -93,6 +115,26 @@ public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadap
             @Override
             public void onClick(View v) {
                 boolean isBookmarked = move.getIsInWatchList();
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("_id", move.getId());
+                    json.put("type_name", move.getType());
+                    json.put("name", move.getName());
+                    json.put("img_url", move.getPosterid());
+                    json.put("release_day", move.getDate());
+                    json.put("rating", move.getRating());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                userAPI.call_api_auth(userAPI.get_UserAPI() + "/movieinfo/add", token, json.toString(), new Callback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    }
+                });
                 if (!isBookmarked) {
                     //Nếu chưa có trong watchlist thì thêm vào danh sách
                     holder.alphaa.setAlpha(1f);
@@ -101,7 +143,16 @@ public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadap
                     //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
                     //ToDo: cập nhật trạng thái yêu thích của phim trong cơ sở dữ liệu
                     move.setIsInWatchList(true);
+                    userAPI.call_api_auth(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
 
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            onRefreshListener.onRefresh();
+                        }
+                    });
                 } else {
                     //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.alphaa.setAlpha(0.6f);
@@ -110,7 +161,16 @@ public class movietrendingadapter extends RecyclerView.Adapter<movietrendingadap
                     //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
                     //ToDo: cập nhật trạng thái yêu thích của phim trong cơ sở dữ liệu
                     move.setIsInWatchList(false);
+                    userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/watchlist/delete", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
 
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            onRefreshListener.onRefresh();
+                        }
+                    });
                 }
             }
         });

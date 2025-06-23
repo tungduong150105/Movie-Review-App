@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
+        android:paddingTop="10dp"
         tools:layout_editor_absoluteX="206dp"
         tools:layout_editor_absoluteY="67dp">
 

@@ -1,14 +1,20 @@
 package com.example.moviereviewapp.Activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
@@ -18,9 +24,15 @@ import com.example.moviereviewapp.Models.Image;
 import com.example.moviereviewapp.Models.PersonImagesResponse;
 import com.example.moviereviewapp.Models.PhotoItem;
 import com.example.moviereviewapp.Models.SimilarItem;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 import com.example.moviereviewapp.databinding.ActivityPersonDetailBinding;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,12 +56,25 @@ public class PersonDetailActivity extends AppCompatActivity {
     private SimilarItemsAdapter filmographyAdapter;
     private PhotoAdapter photoAdapter;
     private List<Call<?>> apiCalls = new ArrayList<>();
+    UserAPI userAPI = new UserAPI();
+    String token;
+    String username;
+    final Boolean[] isFavorite = {false};
+    List<Integer> movie_in_watchlist = new ArrayList<>();
+    List<Integer> tv_in_watchlist = new ArrayList<>();
+    UserAPI userAPi = new UserAPI();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         binding = ActivityPersonDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         findViewById(R.id.back_PersonDetail_Btn).setOnClickListener(v -> finish());
         if (!parseIntentExtras()) {
             showErrorAndFinish("Could not load details. Essential information missing.");
@@ -59,40 +84,178 @@ public class PersonDetailActivity extends AppCompatActivity {
         setupRecyclerViews();
         fetchPersonDetails();
         setupClickListeners();
+
+        TextView addToFavorites = findViewById(R.id.addToFavoritesButton);
+
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("person_id", personId);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        userAPI.call_api_auth(userAPI.get_UserAPI() + "/person/is_in_favorite", token, json.toString(), new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    String jsonString = response.body().string();
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(jsonString);
+                        if (jsonObject.getString("message").equals("success")) {
+                            isFavorite[0] = true;
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                changeAddToFavorites(isFavorite, addToFavorites);
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+
+
+    private void setUpInWatchlist() {
+        movie_in_watchlist.clear();
+        tv_in_watchlist.clear();
+        userAPi.call_api_auth_get(userAPi.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray watchlist = jsonObject.getJSONArray("watchlist");
+                        for (int i = 0; i < watchlist.length(); i++) {
+                            if (watchlist.getJSONObject(i).getString("type_name").equals("movie")) {
+                                movie_in_watchlist.add(watchlist.getJSONObject(i).getInt("_id"));
+                            } else {
+                                tv_in_watchlist.add(watchlist.getJSONObject(i).getInt("_id"));
+                            }
+                        }
+                        List<SimilarItem> temp = filmographyAdapter.getItems();
+                        for (SimilarItem item : temp) {
+                            String type = item.getTitle() != null ? "movie" : "tv";
+                            if (type.equals("movie")) {
+                                if (movie_in_watchlist.contains(item.getId())) {
+                                    item.setIsInWatchlist(true);
+                                } else {
+                                    item.setIsInWatchlist(false);
+                                }
+                            } else {
+                                if (tv_in_watchlist.contains(item.getId())) {
+                                    item.setIsInWatchlist(true);
+                                } else {
+                                    item.setIsInWatchlist(false);
+                                }
+                            }
+                        }
+                        runOnUiThread(() -> {
+                            filmographyAdapter.updateData(temp);
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpInWatchlist();
     }
 
     private boolean parseIntentExtras() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             personId = extras.getString("personId");
+            token = extras.getString("token");
+            username = extras.getString("username");
             return personId != null;
         }
         return false;
     }
 
     private void setupRecyclerViews() {
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
         filmographyAdapter = new SimilarItemsAdapter(this, new ArrayList<>(), item -> {
             Intent intent = new Intent(PersonDetailActivity.this, TitleDetailActivity.class);
             intent.putExtra("itemId", item.getId());
             // Determine if it's a movie or TV show
             String itemType = item.getTitle() != null ? "movie" : "tv";
             intent.putExtra("itemType", itemType);
+            intent.putExtra("username", username);
+            intent.putExtra("token", token);
             startActivity(intent);
         }, true);
 
         binding.filmographyRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.filmographyRecyclerView.setAdapter(filmographyAdapter);
+        binding.filmographyRecyclerView.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
 
         photoAdapter = new PhotoAdapter(new ArrayList<>(), this::showPhotoOverlay);
         binding.photosRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.photosRecyclerView.setAdapter(photoAdapter);
     }
+    private void changeAddToFavorites(Boolean[] isFavorite, TextView addToFavorites) {
+        if (isFavorite[0]) {
+            addToFavorites.setText("Remove from favorites");
+            addToFavorites.setBackgroundColor(Color.parseColor("#10CF06"));
+        } else {
+            addToFavorites.setText("Add to favorites");
+            addToFavorites.setBackgroundColor(Color.parseColor("#FCB103"));
+        }
+    }
 
     private void setupClickListeners() {
         binding.addToFavoritesButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
+            JSONObject json = new JSONObject();
+            try {
+                json.put("person_id", personId);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            if (isFavorite[0]) {
+                userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/person/delete", token, json.toString(), new okhttp3.Callback() {
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                    }
+                });
+            } else {
+                userAPI.call_api_auth(userAPI.get_UserAPI() + "/person/add", token, json.toString(), new okhttp3.Callback() {
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+
+                    }
+                });
+            }
+            isFavorite[0] = !isFavorite[0];
+            changeAddToFavorites(isFavorite, binding.addToFavoritesButton);
         });
 
         binding.seeAllFilmographyTextView.setOnClickListener(v -> {
@@ -100,6 +263,8 @@ public class PersonDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(PersonDetailActivity.this, SeeAllActivity.class);
                 intent.putExtra("type", "similaritem");
                 intent.putExtra("title", "Filmography");
+                intent.putExtra("token", token);
+                intent.putExtra("username", username);
                 intent.putExtra("movieList", (Serializable) filmographyAdapter.getItems());
                 startActivity(intent);
             }
@@ -283,6 +448,7 @@ public class PersonDetailActivity extends AppCompatActivity {
     private void updateFilmography(List<SimilarItem> credits) {
         if (credits != null && !credits.isEmpty()) {
             filmographyAdapter.updateData(credits);
+            setUpInWatchlist();
             setViewVisibility(binding.filmographyRecyclerView, true);
             setViewVisibility(binding.knownForTextView, true);
             binding.filmographyTextView.setVisibility(View.VISIBLE);
@@ -369,14 +535,14 @@ public class PersonDetailActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        for (Call<?> call : apiCalls) {
-            if (call != null && !call.isCanceled()) {
-                call.cancel();
-            }
-        }
-        apiCalls.clear();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        for (Call<?> call : apiCalls) {
+//            if (call != null && !call.isCanceled()) {
+//                call.cancel();
+//            }
+//        }
+//        apiCalls.clear();
+//    }
 }

@@ -12,19 +12,34 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.Models.tvseries;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.List;
 
-public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHolder> {
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
+public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHolder> {
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
+    private OnRefreshListener onRefreshListener;
     List<tvseries> tv;
     Context context;
-    public tvseriesadapter(List<tvseries> tv) {
+    public String token;
+    UserAPI userAPI = new UserAPI();
+    public tvseriesadapter(List<tvseries> tv, String token, OnRefreshListener onRefreshListener) {
         this.tv = tv;
-
+        this.token = token;
+        this.onRefreshListener = onRefreshListener;
     }
 
     @NonNull
@@ -80,6 +95,26 @@ public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHo
         holder.frameBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("_id", move.getId());
+                    json.put("type_name", "tv");
+                    json.put("name", move.getName());
+                    json.put("img_url", move.getPosterid());
+                    json.put("release_day", move.getDate());
+                    json.put("rating", move.getRating());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                userAPI.call_api_auth(userAPI.get_UserAPI() + "/movieinfo/add", token, json.toString(), new Callback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    }
+                });
                 boolean isBookmarked = move.getIsInWatchList();
                 if (!isBookmarked) {
                     //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
@@ -89,7 +124,16 @@ public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHo
                     // TODO: Xử lý thêm diễn viên vào danh sách yêu thích trong cơ sở dữ liệu dưới đây
                     // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
                     move.setIsInWatchList(true);
+                    userAPI.call_api_auth(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
 
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            onRefreshListener.onRefresh();
+                        }
+                    });
                 } else {
                     //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                     holder.alphaa.setAlpha(0.6f);
@@ -98,6 +142,16 @@ public class tvseriesadapter extends RecyclerView.Adapter<tvseriesadapter.ViewHo
                     // TODO: Xử lý xóa diễn viên khỏi danh sách yêu thích trong cơ sở dữ liệu dưới đây
                     // TODO: cập nhật trạng thái yêu thích của diễn viên trong cơ sở dữ liệu
                     move.setIsInWatchList(false);
+                    userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/watchlist/delete", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            onRefreshListener.onRefresh();
+                        }
+                    });
                 }
             }
         });

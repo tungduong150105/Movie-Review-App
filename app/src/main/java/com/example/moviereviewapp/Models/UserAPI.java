@@ -14,8 +14,9 @@ public class UserAPI {
 //        return "https://06f9-113-161-73-175.ngrok-free.app";
 //    }
     public String get_UserAPI() {
-        return "https://9c3c-113-161-73-175.ngrok-free.app";
+//        return "https://9c3c-113-161-73-175.ngrok-free.app";
 //        return "http://10.0.2.2:3000";
+        return "https://7e55-14-169-36-254.ngrok-free.app";
     }
     OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -56,6 +57,16 @@ public class UserAPI {
         Request request = new Request.Builder()
                 .url(url)
                 .put(body)
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+    public void call_api_auth_del(String url, String token, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .delete(body)
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
         Call call = client.newCall(request);

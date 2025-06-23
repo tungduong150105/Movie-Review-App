@@ -1,19 +1,30 @@
 package com.example.moviereviewapp.Activities;
 
+import static java.lang.Integer.parseInt;
+
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
@@ -22,12 +33,10 @@ import com.example.moviereviewapp.Adapters.PhotoAdapter;
 import com.example.moviereviewapp.Adapters.SimilarItemsAdapter;
 import com.example.moviereviewapp.Adapters.UserReviewAdapter;
 import com.example.moviereviewapp.Adapters.VideoAdapter;
-import com.example.moviereviewapp.Models.AuthorDetails;
 import com.example.moviereviewapp.Models.Crew;
 import com.example.moviereviewapp.Models.Genre;
 import com.example.moviereviewapp.Models.Image;
 import com.example.moviereviewapp.Models.Keyword;
-import com.example.moviereviewapp.Activities.MovieDetail;
 import com.example.moviereviewapp.Models.MovieImages;
 import com.example.moviereviewapp.Models.MovieKeywordResponse;
 import com.example.moviereviewapp.Models.Person;
@@ -40,18 +49,17 @@ import com.example.moviereviewapp.Models.SimilarItemsResponse;
 import com.example.moviereviewapp.Models.SpokenLanguage;
 import com.example.moviereviewapp.Models.TvShowImages;
 import com.example.moviereviewapp.Models.TvShowKeywordResponse;
-import com.example.moviereviewapp.Activities.tvseriesdetail;
 import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.UserReview;
 import com.example.moviereviewapp.Models.VideoResponse;
 import com.example.moviereviewapp.Models.VideoResult;
-import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 import com.example.moviereviewapp.databinding.ActivityTitleDetailBinding;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,7 +78,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TitleDetailActivity extends AppCompatActivity {
+public class TitleDetailActivity extends AppCompatActivity{
     private static final String TAG = "TitleDetailActivity";
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
     private static final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -96,6 +104,11 @@ public class TitleDetailActivity extends AppCompatActivity {
     String token;
     String session_id;
     UserAPI userAPi;
+    List<Integer> movie_in_watchlist = new ArrayList<>();
+    List<Integer> tv_in_watchlist = new ArrayList<>();
+    List<Integer> person_in_favorite = new ArrayList<>();
+
+    String MOVIENAME;
 
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
@@ -146,30 +159,30 @@ public class TitleDetailActivity extends AppCompatActivity {
 //    }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        setUpRating(itemType, String.valueOf(itemId));
+        setUpInWatchlist();
+        setUpPersonFavorites();
+        try {
+            fetchReviews(itemId, itemType);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         binding = ActivityTitleDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         userAPi = new UserAPI(); // 👉 Khởi tạo trước khi dùng
-
-        findViewById(R.id.back_TitleDetail_Btn).setOnClickListener(v -> finish());
-
-        if (binding.mainYouTubePlayerView != null) {
-            getLifecycle().addObserver(binding.mainYouTubePlayerView);
-            setupMainYouTubePlayerView();
-        }
-
-        if (binding.overlayYouTubePlayerView != null) {
-            getLifecycle().addObserver(binding.overlayYouTubePlayerView);
-            setupOverlayYouTubePlayerView();
-        }
-
-        setupRecyclerViews();
-        setupClickListeners();
-        setupSeeAll();
-
-        // 👉 Nhận và kiểm tra dữ liệu từ Intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             itemId = extras.getInt("itemId", -1);
@@ -182,26 +195,231 @@ public class TitleDetailActivity extends AppCompatActivity {
             showErrorAndFinish("Missing intent data");
             return;
         }
+        findViewById(R.id.back_TitleDetail_Btn).setOnClickListener(v -> {
+            finish();
+        });
+
+        if (binding.mainYouTubePlayerView != null) {
+            getLifecycle().addObserver(binding.mainYouTubePlayerView);
+            setupMainYouTubePlayerView();
+        }
+
+        if (binding.overlayYouTubePlayerView != null) {
+            getLifecycle().addObserver(binding.overlayYouTubePlayerView);
+            setupOverlayYouTubePlayerView();
+        }
+
+
+        setupRecyclerViews();
+        setupClickListeners();
+        setupSeeAll();
 
 
 
         Log.d(TAG, "Received Item ID: " + itemId + ", Type: " + itemType);
 
-        // 👉 userAPI đã được khởi tạo phía trên, giờ có thể dùng an toàn
         addRecent(itemType, String.valueOf(itemId), token);
+        setUpRating(itemType, String.valueOf(itemId));
         fetchItemDetails();
 
         ImageView forumButton = findViewById(R.id.forumButton);
         forumButton.setOnClickListener(v -> {
             Intent intent = new Intent(TitleDetailActivity.this, DiscussionForum.class);
             intent.putExtra("movie_id", itemId);
-            intent.putExtra("movie_name", itemType);
+            intent.putExtra("movie_name", MOVIENAME);
             intent.putExtra("username", username);
             intent.putExtra("token", token);
             startActivity(intent);
         });
+
+        TextView addReviewTextView = findViewById(R.id.addReviewTextView);
+        addReviewTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(TitleDetailActivity.this, CommentActivity.class);
+            intent.putExtra("itemId", itemId);
+            intent.putExtra("itemType", itemType);
+            intent.putExtra("token", token);
+            intent.putExtra("username", username);
+            startActivity(intent);
+        });
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("_id", itemId);
+            json.put("type_name", itemType);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final Boolean[] loading = {false};
+        Button addToWatchlist = findViewById(R.id.addToWatchlistButton);
+        final boolean[] isInWatchlist = {false};
+        userAPi.call_api_auth(userAPi.get_UserAPI() + "/watchlist/is_in_watchlist", token, json.toString(), new okhttp3.Callback() {
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (jsonObject.getString("message").equals("Success")) {
+                            isInWatchlist[0] = true;
+                        }
+                        loading[0] = true;
+                        changeWatchlist(isInWatchlist, addToWatchlist);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+            }
+        });
+
+        addToWatchlist.setOnClickListener(v -> {
+            if (isInWatchlist[0]) {
+                userAPi.call_api_auth_del(userAPi.get_UserAPI() + "/watchlist/delete", token, json.toString(), new okhttp3.Callback() {
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                        if (response.code() == 200) {
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                    }
+                });
+            } else {
+                userAPi.call_api_auth(userAPi.get_UserAPI() + "/watchlist/add", token, json.toString(), new okhttp3.Callback() {
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                        if (response.code() == 201) {
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                    }
+                });
+            }
+            ;
+
+            isInWatchlist[0] = !isInWatchlist[0];
+            changeWatchlist(isInWatchlist, addToWatchlist);
+        });
     }
 
+    private void changeWatchlist(boolean[] isInWatchlist, Button addToWatchlist) {
+        if (isInWatchlist[0]) {
+            addToWatchlist.setText("Added to Watchlist");
+            addToWatchlist.setBackgroundColor(Color.parseColor("#10CF06"));
+        } else {
+            addToWatchlist.setText("Add to Watchlist");
+            addToWatchlist.setBackgroundColor(Color.parseColor("#FCB103"));
+        }
+    }
+
+    private void setUpRating(String itemType, String movie_id) {
+        userAPi.call_api_auth_get(userAPi.get_UserAPI() + "/rating/get?type_name=" + itemType + "&_id=" + movie_id, token, new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONObject rating = jsonObject.getJSONObject("rating");
+                        int Rate = rating.getInt("rating");
+                        TextView rateThisText = findViewById(R.id.rateThisText);
+                        ImageView raterThisStarIcon = findViewById(R.id.rateThisStarIcon);
+                        runOnUiThread(() -> {
+                            rateThisText.setText(Rate + "/10");
+                            rateThisText.setTextColor(Color.parseColor("#FFFFFF"));
+                            raterThisStarIcon.setImageDrawable(getResources().getDrawable(R.drawable.blue_star));
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    private void setUpInWatchlist() {
+        movie_in_watchlist.clear();
+        tv_in_watchlist.clear();
+        userAPi.call_api_auth_get(userAPi.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray watchlist = jsonObject.getJSONArray("watchlist");
+                        for (int i = 0; i < watchlist.length(); i++) {
+                            if (watchlist.getJSONObject(i).getString("type_name").equals("movie")) {
+                                movie_in_watchlist.add(watchlist.getJSONObject(i).getInt("_id"));
+                            } else {
+                                tv_in_watchlist.add(watchlist.getJSONObject(i).getInt("_id"));
+                            }
+                        }
+                        if (ITEM_TYPE_MOVIE.equals(itemType)) {
+                            fetchSimilarItems(itemId, ITEM_TYPE_MOVIE);
+                        } else if (ITEM_TYPE_TV.equals(itemType)) {
+                            fetchSimilarItems(itemId, ITEM_TYPE_TV);
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    private void setUpPersonFavorites() {
+        person_in_favorite.clear();
+        userAPi.call_api_auth_get(userAPi.get_UserAPI() + "/person/get", token, new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray favorite = jsonObject.getJSONArray("person");
+                        for (int i = 0; i < favorite.length(); i++) {
+                            person_in_favorite.add(favorite.getJSONObject(i).getInt("person_id"));
+                        }
+                        List<Person> personList = castAdapter.getPersonList();
+                        for (Person p : personList) {
+                            if (person_in_favorite.contains(p.getPersonid())) {
+                                p.setIsFavorite(true);
+                            } else {
+                                p.setIsFavorite(false);
+                            }
+                        }
+                        runOnUiThread(() -> {
+                            castAdapter.setPersonList(personList);
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
 
     private void setupSeeAll() {
     }
@@ -242,6 +460,31 @@ public class TitleDetailActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
+    }
+
+    private void addMovieInfo(String type_name, String _id, String Token, String name, String image_url, String release_date, String rating) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("type_name", type_name);
+            jsonObject.put("_id", _id);
+            jsonObject.put("name", name);
+            jsonObject.put("img_url", image_url);
+            jsonObject.put("release_day", release_date);
+            jsonObject.put("rating", rating);
+            userAPi.call_api_auth(userAPi.get_UserAPI() + "/movieinfo/add", Token, jsonObject.toString(), new okhttp3.Callback() {
+                @Override
+                public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                }
+
+                @Override
+                public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                }
+            });
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setupRecyclerViews() {
@@ -250,8 +493,9 @@ public class TitleDetailActivity extends AppCompatActivity {
             castAdapter = new PersonAdapter(new ArrayList<>(), person -> {
                 Intent intent = new Intent(TitleDetailActivity.this, PersonDetailActivity.class);
                 intent.putExtra("personId", person.getPersonid());
+                intent.putExtra("token", token);
                 startActivity(intent);
-            });
+            }, token);
             binding.topCastRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             binding.topCastRecyclerView.setAdapter(castAdapter);
             binding.topCastRecyclerView.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
@@ -275,7 +519,7 @@ public class TitleDetailActivity extends AppCompatActivity {
             Log.w(TAG, "Videos RecyclerView or its title TextView is null in binding.");
         }
         if (binding.moreLikeThisRecyclerView != null && binding.moreLikeThisTextView != null) {
-            similarItemsAdapter = new SimilarItemsAdapter(this, new ArrayList<>(), this::onSimilarItemClicked);
+            similarItemsAdapter = new SimilarItemsAdapter(this, new ArrayList<>(), this::onSimilarItemClicked, false, this::onRefresh, token);
             binding.moreLikeThisRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             binding.moreLikeThisRecyclerView.setAdapter(similarItemsAdapter);
             binding.moreLikeThisRecyclerView.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
@@ -416,16 +660,15 @@ public class TitleDetailActivity extends AppCompatActivity {
     }
 
     private void fetchItemDetails() {
+        setUpInWatchlist();
         if (ITEM_TYPE_MOVIE.equals(itemType)) {
             fetchMovieDetail(itemId);
             fetchVideos(itemId, ITEM_TYPE_MOVIE);
-            fetchSimilarItems(itemId, ITEM_TYPE_MOVIE);
             fetchMovieImages(itemId);
             fetchMovieKeywords(itemId);
         } else if (ITEM_TYPE_TV.equals(itemType)) {
             fetchTvSeriesDetail(itemId);
             fetchVideos(itemId, ITEM_TYPE_TV);
-            fetchSimilarItems(itemId, ITEM_TYPE_TV);
             fetchTvShowImages(itemId);
             fetchTvShowKeywords(itemId);
         } else {
@@ -444,9 +687,15 @@ public class TitleDetailActivity extends AppCompatActivity {
                 apiCalls.remove(call);
                 if (response.isSuccessful() && response.body() != null) {
                     MovieDetail movie = response.body();
+                    MOVIENAME = movie.getTitle();
                     currentMovieItem = movie;
                     Log.d(TAG, "Fetched Movie Detail: " + response.body().getTitle());
-                    updateUiWithMovieDetails(response.body());
+                    try {
+                        updateUiWithMovieDetails(response.body());
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    addMovieInfo(itemType, String.valueOf(itemId), token, movie.getTitle(), movie.getPosterPath(), movie.getReleaseDate(), String.valueOf(movie.getRating()));
                 } else {
                     Log.e(TAG, "Failed to fetch movie detail: " + response.code());
                     showError("Failed to load movie details.");
@@ -471,6 +720,9 @@ public class TitleDetailActivity extends AppCompatActivity {
             public void onResponse(Call<PersonDetail> call, Response<PersonDetail> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     PersonDetail detail = response.body();
+                    if (person_in_favorite.contains(detail.getId())) {
+                        basicPerson.setIsFavorite(true);
+                    }
                     basicPerson.setBirthdate(detail.getBirthday());
                     basicPerson.setDeathday(detail.getDeathday());
                 }
@@ -495,7 +747,11 @@ public class TitleDetailActivity extends AppCompatActivity {
                     Log.d(TAG, "Fetched TV Show Detail: " + response.body().getName());
                     tvseriesdetail tvShow = response.body();
                     currentTvItem = tvShow;
-                    updateUiWithTvShowDetails(response.body());
+                    try {
+                        updateUiWithTvShowDetails(response.body());
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     Log.e(TAG, "Failed to fetch TV show detail: " + response.code());
                     showError("Failed to load TV show details.");
@@ -627,7 +883,7 @@ public class TitleDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUiWithMovieDetails(MovieDetail movie) {
+    private void updateUiWithMovieDetails(MovieDetail movie) throws JSONException {
         binding.textViewTitleTitleDetail.setText(movie.getTitle());
         binding.titleTextView.setText(movie.getTitle());
 
@@ -657,9 +913,10 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.seeAllCastTextView.setOnClickListener(V -> {
             Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
 
+            intent.putExtra("username", username);
             intent.putExtra("type", "person");
             intent.putExtra("title", "Cast");
-
+            intent.putExtra("token", token);
             intent.putExtra("personList", (Serializable) movie.getCast());
             if (movie.getCast() != null) {
                 startActivity(intent);
@@ -679,7 +936,42 @@ public class TitleDetailActivity extends AppCompatActivity {
         fetchReviews(movie.getId(), ITEM_TYPE_MOVIE);
     }
 
-    private void updateUiWithTvShowDetails(tvseriesdetail tvShow) {
+    private void fetchReviewsLocal(String movieId) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("type_name", "movie");
+        json.put("_id", movieId);
+        userAPi.call_api_auth(userAPi.get_UserAPI() + "/comment/get", token, json.toString(), new okhttp3.Callback() {
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray jsonArray = jsonObject.getJSONArray("comments");
+                        for (int i = jsonArray.length() - 1; i >= 0; --i) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String username = item.getString("username");
+                            String body = item.getString("body");
+                            String rating = item.getString("rating");
+                            String date = item.getString("date");
+                            userReviews.add(new UserReview("10", username, parseInt(rating), "", body, date));
+                        }
+                        runOnUiThread(() -> {
+                            reviewsAdapter.notifyDataSetChanged();
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    private void updateUiWithTvShowDetails(tvseriesdetail tvShow) throws JSONException {
         binding.textViewTitleTitleDetail.setText(tvShow.getName());
         binding.titleTextView.setText(tvShow.getName());
 
@@ -729,8 +1021,10 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.seeAllCastTextView.setOnClickListener(V -> {
             Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
 
+            intent.putExtra("username", username);
             intent.putExtra("type", "person");
             intent.putExtra("title", "Cast");
+            intent.putExtra("token", token);
 
             intent.putExtra("personList", (Serializable) tvShow.getCast());
             if (tvShow.getCast() != null) {
@@ -803,6 +1097,7 @@ public class TitleDetailActivity extends AppCompatActivity {
 
     private void updateCast(@Nullable List<Person> cast) {
         castAdapter.setPersonList(cast != null ? cast : new ArrayList<>());
+        setUpPersonFavorites();
         setViewVisibility(binding.topCastRecyclerView, cast != null && !cast.isEmpty());
     }
 
@@ -1118,6 +1413,20 @@ public class TitleDetailActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<SimilarItemsResponse> cbCall, @NonNull Response<SimilarItemsResponse> response) {
                 apiCalls.remove(cbCall);
                 if (response.isSuccessful() && response.body() != null) {
+                    for (SimilarItem similarItem : response.body().getResults()) {
+                        if (currentItemType.equals(ITEM_TYPE_MOVIE)) {
+                            similarItem.setType("movie");
+                        } else {
+                            similarItem.setType("tv");
+                        }
+                        if (currentItemType.equals(ITEM_TYPE_MOVIE) && movie_in_watchlist.contains(similarItem.getId())) {
+                            similarItem.setIsInWatchlist(true);
+                        } else if (currentItemType.equals(ITEM_TYPE_TV) && tv_in_watchlist.contains(similarItem.getId())) {
+                            similarItem.setIsInWatchlist(true);
+                        } else {
+                            similarItem.setIsInWatchlist(false);
+                        }
+                    }
                     updateSimilarItemsUI(response.body().getResults());
                 } else {
                     Log.e(TAG, "Failed to fetch similar items: " + response.code());
@@ -1173,8 +1482,10 @@ public class TitleDetailActivity extends AppCompatActivity {
         binding.tvSeeAllMoreLikeThis.setOnClickListener(V -> {
             Intent intent = new Intent(TitleDetailActivity.this, SeeAllActivity.class);
 
+            intent.putExtra("username", username);
             intent.putExtra("type", "similaritem");
             intent.putExtra("title", "More like this");
+            intent.putExtra("token", token);
 
             intent.putExtra("movieList", (Serializable) items);
             if (items != null) {
@@ -1188,10 +1499,17 @@ public class TitleDetailActivity extends AppCompatActivity {
         Intent intent = new Intent(TitleDetailActivity.this, TitleDetailActivity.class);
         intent.putExtra("itemId", item.getId());
         intent.putExtra("itemType", this.itemType);
+        intent.putExtra("token", token);
         startActivity(intent);
     }
 
-    private void fetchReviews(int id, String type) {
+    private void onRefresh() {
+        setUpInWatchlist();
+    }
+
+    List<UserReview> userReviews = new ArrayList<>();
+
+    private void fetchReviews(int id, String type) throws JSONException {
         TMDBApi api = RetrofitClient.getApiService();
         Call<ReviewsResponse> call;
 
@@ -1205,6 +1523,10 @@ public class TitleDetailActivity extends AppCompatActivity {
             return;
         }
 
+        userReviews.clear();
+
+        fetchReviewsLocal(String.valueOf(id));
+
         apiCalls.add(call);
         call.enqueue(new Callback<ReviewsResponse>() {
             @Override
@@ -1214,7 +1536,6 @@ public class TitleDetailActivity extends AppCompatActivity {
                     // Extract the review results from the response
                     ReviewsResponse reviewsResponse = response.body();
                     List<ReviewResult> reviewResults = reviewsResponse.getResults();
-                    List<UserReview> userReviews = new ArrayList<>();
 
                     for (ReviewResult result : reviewResults) {
                         if (result.getContent() != null && !result.getContent().isEmpty()) {
@@ -1359,18 +1680,18 @@ public class TitleDetailActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (youtubePlayerView != null) {
-            youtubePlayerView.release();
-        }
-        for (Call<?> call : apiCalls) {
-            if (call != null && !call.isCanceled()) {
-                call.cancel();
-            }
-        }
-        apiCalls.clear();
-        Log.d(TAG, "onDestroy: API calls cancelled and cleared, YouTube player released.");
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (youtubePlayerView != null) {
+//            youtubePlayerView.release();
+//        }
+//        for (Call<?> call : apiCalls) {
+//            if (call != null && !call.isCanceled()) {
+//                call.cancel();
+//            }
+//        }
+//        apiCalls.clear();
+//        Log.d(TAG, "onDestroy: API calls cancelled and cleared, YouTube player released.");
+//    }
 }

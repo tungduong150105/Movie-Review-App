@@ -83,4 +83,8 @@ public class tvseries implements Serializable {
     public void setIsInWatchList(boolean inWatchList) {
         isInWatchList = inWatchList;
     }
+
+    public void setinwatchlist(boolean b) {
+        this.isInWatchList = b;
+    }
 }

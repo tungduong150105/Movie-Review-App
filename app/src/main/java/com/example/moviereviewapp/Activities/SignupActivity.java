@@ -116,34 +116,20 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 if (response.code() == 201) {
-                    final String[] session_id = {""};
-                    tmdbAPI.get_api(tmdbAPI.get_url_new_session(), new Callback() {
-                        @Override
-                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                            Log.e("LoginActivity", "Failed to login", e);
-                            runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Have problem when login, try again", Toast.LENGTH_SHORT).show());
-                        }
-
-                        @Override
-                        public void onResponse(@NonNull Call call, @NonNull Response response) {
-                            Log.d("LoginActivity", response.code() + "");
-                            if (response.code() == 200) {
-                                try {
-                                    assert response.body() != null;
-                                    JSONObject jsonObject = new JSONObject(response.body().string());
-                                    session_id[0] = jsonObject.getString("guest_session_id");
-                                    Log.d("LoginActivity", session_id[0] + "ff");
-                                    if (!session_id[0].isEmpty()) {
-                                        Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                                        intent.putExtra("session_id", session_id[0]);
-                                        startActivity(intent);
-                                    }
-                                } catch (JSONException | IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        }
-                    });
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response.body().string());
+                        String token = jsonObject.getString("token");
+                        Intent intent = new Intent(SignupActivity.this, MainScreen.class);
+                        intent.putExtra("token", token);
+                        intent.putExtra("username", username);
+                        intent.putExtra("session_id", "");
+                        startActivity(intent);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Failed to signup, please signup again", Toast.LENGTH_SHORT).show());
                 }
