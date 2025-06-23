@@ -14,15 +14,26 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
-    public Top_Box_Office_Adapter(@NonNull Context context, ArrayList<movies> movie) {
+public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
+    UserAPI userAPI = new UserAPI();
+    String token;
+    public Top_Box_Office_Adapter(@NonNull Context context, ArrayList<movies> movie, String token) {
         super(context, 0, movie);
+        this.token = token;
     }
 
     @Override
@@ -86,7 +97,13 @@ public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
                     float density = getContext().getResources().getDisplayMetrics().density;
                     int px15 = (int) (15 * density);  // Convert 15dp to px
                     int px25 = (int) (25 * density);  // Convert 25dp to px
-
+                    JSONObject json = new JSONObject();
+                    try {
+                        json.put("_id", movie.getMovieId());
+                        json.put("type_name", "movie");
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                     if (!isBookmarked) {
                         //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                         bookmark.setPadding(px15, px15, px15, px15);
@@ -99,7 +116,15 @@ public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
                         //ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
                         // TODO: cập nhật trạng thái yêu thích của movies trong cơ sở dữ liệu
                         movie.setIsInWatchlist(true);
+                        userAPI.call_api_auth(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            }
 
+                            @Override
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            }
+                        });
                     } else {
                         //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                         bookmark.setPadding(0, 0, 0, 0);
@@ -112,7 +137,15 @@ public class  Top_Box_Office_Adapter extends ArrayAdapter<movies> {
                         //ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
                         // TODO: cập nhật trạng thái yêu thích của movies trong cơ sở dữ liệu
                         movie.setIsInWatchlist(false);
+                        userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            }
 
+                            @Override
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            }
+                        });
                     }
                 }
             });

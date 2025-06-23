@@ -136,4 +136,12 @@ public class SimilarItem implements Serializable {
     public void setIsInWatchlist(boolean isInWatchList) {
         this.isInWatchList = isInWatchList;
     }
+    String type;
+
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
 }

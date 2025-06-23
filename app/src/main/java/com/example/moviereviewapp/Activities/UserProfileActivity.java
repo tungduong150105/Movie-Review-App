@@ -1,5 +1,8 @@
 package com.example.moviereviewapp.Activities;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 import android.content.Intent;
@@ -14,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,12 +24,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moviereviewapp.Adapters.BaseActivity;
-import com.example.moviereviewapp.Adapters.MovieItemAdapter;
 import com.example.moviereviewapp.Adapters.PersonAdapter;
+import com.example.moviereviewapp.Adapters.movietrendingadapter;
 import com.example.moviereviewapp.Models.Person;
 import com.example.moviereviewapp.Models.TMDBAPI;
 import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
+import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
 import org.json.JSONArray;
@@ -44,11 +47,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class UserProfileActivity extends BaseActivity implements MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener  {
+public class UserProfileActivity extends BaseActivity implements movietrendingadapter.OnItemClickListener, movietrendingadapter.OnRefreshListener, PersonAdapter.OnPersonClickListener, PersonAdapter.OnRefreshListener {
     TextView textView_Username_UserProfile;
     //textView_Username_UserProfile se hien thi ten nguoi dung, neu khong thi hien thi "Sign In"
     ImageView imageView_Logout_UserProfile;
@@ -100,12 +104,14 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
 
     //List phim theo muc dich
     //Todo: sử dụng adapter và movie models tương tự mainscreen
-    List<movies> recentlyViewedMovieList, ratingMovieList, watchListMovieList;
+    List<trendingall> recentlyViewedMovieList = new ArrayList<>();
+    List<trendingall> ratingMovieList = new ArrayList<>();
+    List<trendingall> watchListMovieList = new ArrayList<>();
     //Favorite actors list
-    List<Person> favoriteActorsList;
+    List<Person> favoriteActorsList = new ArrayList<>();
 
     //Adapter phim theo muc dich
-    MovieItemAdapter recentlyViewedAdapter, ratingAdapter, watchListAdapter;
+    movietrendingadapter recentlyViewedAdapter, ratingAdapter, watchListAdapter;
 
     //Adapter cho actors
     PersonAdapter favoriteActorsAdapter;
@@ -115,6 +121,8 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
     UserAPI userAPI;
     TMDBAPI tmdbAPI;
     String session_id;
+    List<Integer> movie_in_watchlist = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,7 +133,7 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        setupBottomBar(this,"profile");
+        setupBottomBar(this, "profile");
         userAPI = new UserAPI();
         tmdbAPI = new TMDBAPI();
 
@@ -160,6 +168,7 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         textView_NoRatings_UserProfile = findViewById(R.id.textView_NoRatings_UserProfile);
         imgView_Ratings_UserProfile = findViewById(R.id.imgView_Ratings_UserProfile);
         btn_Ratings_UserProfile = findViewById(R.id.btn_Ratings_UserProfile);
+//        btn_Ratings_UserProfile.setVisibility(View.GONE);
         recycleView_Ratings_UserProfile = findViewById(R.id.recycleView_Ratings_UserProfile);
         textView_Watchlist_Number_UserProfile = findViewById(R.id.textView_Watchlist_Number_UserProfile);
         textView_SeeAll_Watchlist_UserProfile = findViewById(R.id.textView_SeeAll_Watchlist_UserProfile);
@@ -167,6 +176,7 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         textView_Watchlist_Cap_UserProfile = findViewById(R.id.textView_Watchlist_Cap_UserProfile);
         imgView_Watchlist_UserProfile = findViewById(R.id.imgView_Watchlist_UserProfile);
         btn_Watchlist_UserProfile = findViewById(R.id.btn_Watchlist_UserProfile);
+//        btn_Watchlist_UserProfile.setVisibility(View.GONE);
         recycleView_Watchlist_UserProfile = findViewById(R.id.recycleView_Watchlist_UserProfile);
         linearLayout_actor = findViewById(R.id.linearLayout_actor);
         textView_FavoriteActors_Number_UserProfile = findViewById(R.id.textView_FavoriteActors_Number_UserProfile);
@@ -174,16 +184,8 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         textView_NoFavoriteActors_UserProfile = findViewById(R.id.textView_NoFavoriteActors_UserProfile);
         recycleView_FavoriteActors_UserProfile = findViewById(R.id.recycleView_FavoriteActors_UserProfile);
 
-        // Khởi tạo danh sách rỗng
-        recentlyViewedMovieList = new ArrayList<>();
-        ratingMovieList = new ArrayList<>();
-        watchListMovieList = new ArrayList<>();
-        favoriteActorsList = new ArrayList<>();
-
-        //ToDo: Xử lý kiểm tra tình trạng đăng nhập
         if (userId == null) {
         } else {
-            // Nếu đã đăng nhập, tiếp tục với các thao tác khác
             imageView_Logout_UserProfile.setVisibility(View.VISIBLE);
             textView_Username_UserProfile.setText(username);
             btn_SignIn_SignUp_UserProfile.setVisibility(View.GONE);//Ẩn nút đăng nhập
@@ -196,44 +198,55 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
             textView_Wishlist_UserProfile.setText(String.valueOf(watchListMovieList.size()));//Hiển thị số lượng phim trong Wishlist
             Log.d("MainScreen1", String.valueOf(watchListMovieList.size()));
 
-            getRatingList();
-            getWatchList();
-            getRecentList();
-            getActorList();
 
+            getActorList();
+            movie_in_watchlist = new ArrayList<>();
+            userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+                @Override
+                public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                    if (response.code() == 200) {
+                        assert response.body() != null;
+                        String json_string = response.body().string();
+                        try {
+                            JSONObject json_object = new JSONObject(json_string);
+                            JSONArray json_array = json_object.getJSONArray("watchlist");
+                            for (int i = 0; i < json_array.length(); ++i) {
+                                movie_in_watchlist.add(parseInt(json_array.getJSONObject(i).getString("_id")));
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    getRatingList();
+                    getWatchList();
+                    getRecentList();
+                }
+            });
         }
 
-
-
-        //Su kien dang xuat cho nut log out
         imageView_Logout_UserProfile.setOnClickListener(v -> {
             Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
             startActivity(intent);
             //ToDo: Xử lý logout
         });
 
-        //ToDo: Chuyển sang LoginActivity khi nhấn nút Sign In
         btn_SignIn_SignUp_UserProfile.setOnClickListener(v -> {
             Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
-
-        Log.d("MainScreen", String.valueOf(recentlyViewedMovieList.size()));
-        Log.d("MainScreen", String.valueOf(ratingMovieList.size()));
-        Log.d("MainScreen", String.valueOf(watchListMovieList.size()));
-        Log.d("MainScreen", String.valueOf(favoriteActorsList.size()));
-
-        //ToDo: Cách hiển thị danh sách phim theo từng đề mục ở dưới
-
-//        //ToDo: XỬ LÝ CÁC DANH SÁCH PHIM TỪ ĐÂY
-//        //ToDo: Su dung viewholder_movie cho cac muc hien thi phim trong user profile (tuong ung voi adapter)
-        recentlyViewedAdapter = new MovieItemAdapter(recentlyViewedMovieList);
-        ratingAdapter = new MovieItemAdapter(ratingMovieList);
-        watchListAdapter = new MovieItemAdapter(watchListMovieList);
-        recentlyViewedAdapter.setOnItemClickListener(this);
-        ratingAdapter.setOnItemClickListener(this);
-        watchListAdapter.setOnItemClickListener(this);
+        recentlyViewedAdapter = new movietrendingadapter(recentlyViewedMovieList, this, this, token);
+        ratingAdapter = new movietrendingadapter(ratingMovieList, this, this, token);
+        watchListAdapter = new movietrendingadapter(watchListMovieList, this, this, token);
+//        recentlyViewedAdapter.setOnItemClickListener(this);
+//        ratingAdapter.setOnItemClickListener(this);
+//        watchListAdapter.setOnItemClickListener(this);
 
         recycleView_Ratings_UserProfile.setAdapter(ratingAdapter);
         recycleView_RecentlyViewed_UserProfile.setAdapter(recentlyViewedAdapter);
@@ -249,80 +262,43 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         recycleView_RecentlyViewed_UserProfile.setLayoutManager(layoutManager2);
         recycleView_Watchlist_UserProfile.setLayoutManager(layoutManager3);
 
-        //Xử lý danh sách diễn viên
-        favoriteActorsAdapter = new PersonAdapter((ArrayList<Person>) favoriteActorsList, UserProfileActivity.this);
+        favoriteActorsAdapter = new PersonAdapter((ArrayList<Person>) favoriteActorsList, UserProfileActivity.this, token, this);
         recycleView_FavoriteActors_UserProfile.setAdapter(favoriteActorsAdapter);
         recycleView_FavoriteActors_UserProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        getActorList();
+        movie_in_watchlist = new ArrayList<>();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
 
-//        //ToDo: Xử lý khi Recently Viewed Movie có dữ liệu
-//        if (!recentlyViewedMovieList.isEmpty()) {
-//            textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
-//            textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
-//            recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-//            textView_RecentlyViewed_Number_UserProfile.setVisibility(View.VISIBLE);
-//            textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
-//            recycleView_RecentlyViewed_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//            textView_SeeAll_RecentlyViewed_UserProfile.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    //ToDo: chuyển sang SeeAllActivity cho Recently Viewed
-//                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                    intent.putExtra("type", "movies");
-//                    intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
-//                    intent.putExtra("title", "Recently Viewed");
-//                    startActivity(intent);
-//                }
-//            });
-//            textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
-//        }
-//
-//        //ToDo: Xử lý khi Rating Movie có dữ liệu
-//        if (!ratingMovieList.isEmpty()) {
-//        btn_Ratings_UserProfile.setVisibility(View.GONE);
-//        imgView_Ratings_UserProfile.setVisibility(View.GONE);
-//        textView_NoRatings_UserProfile.setVisibility(View.GONE);
-//        recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
-//        textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
-//        textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
-//        recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//        textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //ToDo: chuyển sang SeeAllActivity cho Rating
-//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                intent.putExtra("type", "movies");
-//                intent.putExtra("movieList", (Serializable) ratingMovieList);
-//                intent.putExtra("title", "Rating");
-//                startActivity(intent);
-//            }
-//        });
-//        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
-//        }
-//
-//        //ToDo: Xử lý khi Watchlist Movie có dữ liệu
-//        if (!watchListMovieList.isEmpty()) {
-//        textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
-//        btn_Watchlist_UserProfile.setVisibility(View.GONE);
-//        imgView_Watchlist_UserProfile.setVisibility(View.GONE);
-//        textView_NoWatchlist_UserProfile.setVisibility(View.GONE);
-//        recycleView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-//        textView_Watchlist_Number_UserProfile.setVisibility(View.VISIBLE);
-//        textView_SeeAll_Watchlist_UserProfile.setVisibility(View.VISIBLE);
-//        recycleView_Watchlist_UserProfile.addItemDecoration(new SpacingItemDecoration(spacingInPixels));
-//        textView_SeeAll_Watchlist_UserProfile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //ToDo: chuyển sang SeeAllActivity cho Watchlist
-//                Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-//                intent.putExtra("type", "movies");
-//                intent.putExtra("movieList", (Serializable) watchListMovieList);
-//                intent.putExtra("title", "Watchlist");
-//                startActivity(intent);
-//            }
-//        });
-//        textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
-//        }
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("watchlist");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            movie_in_watchlist.add(parseInt(json_array.getJSONObject(i).getString("_id")));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                getRatingList();
+                getWatchList();
+                getRecentList();
+            }
+        });
     }
 
     public void getRatingList() {
@@ -335,50 +311,72 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.code() == 200) {
+                    Integer old = ratingMovieList.size();
+                    ratingMovieList.clear();
                     try {
                         JSONObject json = new JSONObject(response.body().string());
                         JSONArray jsonArray = json.getJSONArray("rating");
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = jsonArray.length() - 1; i >= 0; --i) {
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            ratingMovieList.add(getData(type_name, _id));
+                            JSONObject detail = item.getJSONObject("detail");
+                            String name = detail.getString("name");
+                            String img_url = detail.getString("img_url");
+                            String release_date = detail.getString("release_day");
+                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
+                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
+                            if (movie_in_watchlist.contains(parseInt(_id))) {
+                                movie.setInWatchlist(true);
+                                movie.setRating(parseDouble(rating));
+                            }
+                            ratingMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                     runOnUiThread(() -> {
-                        ratingAdapter.notifyDataSetChanged();
-                        textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
-                        textView_Ratings_UserProfile.setText(String.valueOf(ratingMovieList.size()));
-                        Log.d("MainScreen0", String.valueOf(ratingMovieList.size()));
-
-                        if (!ratingMovieList.isEmpty()) {
-                            btn_Ratings_UserProfile.setVisibility(View.GONE);
-                            imgView_Ratings_UserProfile.setVisibility(View.GONE);
-                            textView_NoRatings_UserProfile.setVisibility(View.GONE);
-                            recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
-                            textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
-                            textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
-                            recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
-                            textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //ToDo: chuyển sang SeeAllActivity cho Rating
-                                    Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
-                                    intent.putExtra("username", username);
-                                    intent.putExtra("token", token);
-                                    intent.putExtra("session_id", session_id);
-                                    intent.putExtra("type", "movies");
-                                    intent.putExtra("movieList", (Serializable) ratingMovieList);
-                                    intent.putExtra("title", "Rating");
-                                    startActivity(intent);
-                                }
-                            });
+                        runOnUiThread(() -> {
+                            ratingAdapter.notifyDataSetChanged();
                             textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
-                        } else {
-                            fetchMovies();
-                        }
+                            textView_Ratings_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                            Log.d("MainScreen0", String.valueOf(ratingMovieList.size()));
+
+                            if (old == 0 && !ratingMovieList.isEmpty()) {
+                                btn_Ratings_UserProfile.setVisibility(View.GONE);
+                                imgView_Ratings_UserProfile.setVisibility(View.GONE);
+                                textView_NoRatings_UserProfile.setVisibility(View.GONE);
+                                recycleView_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                                textView_Ratings_Number_UserProfile.setVisibility(View.VISIBLE);
+                                textView_SeeAll_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                                recycleView_Ratings_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
+                                textView_SeeAll_Ratings_UserProfile.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
+                                        intent.putExtra("username", username);
+                                        intent.putExtra("token", token);
+                                        intent.putExtra("session_id", session_id);
+                                        intent.putExtra("type", "trending");
+                                        intent.putExtra("trendingList", (Serializable) ratingMovieList);
+                                        intent.putExtra("title", "Rating");
+                                        startActivity(intent);
+                                    }
+                                });
+                                textView_Ratings_Number_UserProfile.setText(String.valueOf(ratingMovieList.size()));
+                            } else if (ratingMovieList.isEmpty()) {
+                                btn_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                                imgView_Ratings_UserProfile.setVisibility(View.VISIBLE);
+                                textView_NoRatings_UserProfile.setVisibility(View.VISIBLE);
+                                recycleView_Ratings_UserProfile.setVisibility(View.GONE);
+                                textView_Ratings_Number_UserProfile.setVisibility(View.GONE);
+                                textView_SeeAll_Ratings_UserProfile.setVisibility(View.GONE);
+                                while (recycleView_Ratings_UserProfile.getItemDecorationCount() > 0) {
+                                    recycleView_Ratings_UserProfile.removeItemDecorationAt(0);
+                                }
+                                fetchMovies();
+                            }
+                        });
                     });
                 }
             }
@@ -395,14 +393,26 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.code() == 200) {
+                    Integer old = watchListMovieList.size();
+                    watchListMovieList.clear();
                     try {
                         JSONObject json = new JSONObject(response.body().string());
                         JSONArray jsonArray = json.getJSONArray("watchlist");
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = jsonArray.length() - 1; i >= 0; --i) {
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            watchListMovieList.add(getData(type_name, _id));
+                            JSONObject detail = item.getJSONObject("detail");
+                            String name = detail.getString("name");
+                            String img_url = detail.getString("img_url");
+                            String release_date = detail.getString("release_day");
+                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
+                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
+                            if (movie_in_watchlist.contains(parseInt(_id))) {
+                                movie.setInWatchlist(true);
+                                movie.setRating(parseDouble(rating));
+                            }
+                            watchListMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -413,7 +423,7 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
                         textView_Wishlist_UserProfile.setText(String.valueOf(watchListMovieList.size()));
                         Log.d("MainScreen0", String.valueOf(watchListMovieList.size()));
 
-                        if (!watchListMovieList.isEmpty()) {
+                        if (old == 0 && !watchListMovieList.isEmpty()) {
                             textView_Watchlist_Cap_UserProfile.setVisibility(View.GONE);
                             btn_Watchlist_UserProfile.setVisibility(View.GONE);
                             imgView_Watchlist_UserProfile.setVisibility(View.GONE);
@@ -430,14 +440,24 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
                                     intent.putExtra("username", username);
                                     intent.putExtra("token", token);
                                     intent.putExtra("session_id", session_id);
-                                    intent.putExtra("type", "movies");
-                                    intent.putExtra("movieList", (Serializable) watchListMovieList);
+                                    intent.putExtra("type", "trending");
+                                    intent.putExtra("trendingList", (Serializable) watchListMovieList);
                                     intent.putExtra("title", "Watchlist");
                                     startActivity(intent);
                                 }
                             });
                             textView_Watchlist_Number_UserProfile.setText(String.valueOf(watchListMovieList.size()));
-                        } else {
+                        } else if (watchListMovieList.isEmpty()) {
+                            textView_Watchlist_Cap_UserProfile.setVisibility(View.VISIBLE);
+                            btn_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+                            imgView_Watchlist_UserProfile.setVisibility(View.VISIBLE);
+                            textView_NoWatchlist_UserProfile.setVisibility(View.VISIBLE);
+                            recycleView_Watchlist_UserProfile.setVisibility(View.GONE);
+                            textView_Watchlist_Number_UserProfile.setVisibility(View.GONE);
+                            textView_SeeAll_Watchlist_UserProfile.setVisibility(View.GONE);
+                            while (recycleView_Watchlist_UserProfile.getItemDecorationCount() > 0) {
+                                recycleView_Watchlist_UserProfile.removeItemDecorationAt(0);
+                            }
                             fetchtopratedmovies();
                         }
                     });
@@ -456,14 +476,26 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.code() == 200) {
+                    Integer old = recentlyViewedMovieList.size();
+                    recentlyViewedMovieList.clear();
                     try {
                         JSONObject json = new JSONObject(response.body().string());
                         JSONArray jsonArray = json.getJSONArray("recent");
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = jsonArray.length() - 1; i >= 0; --i) {
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            recentlyViewedMovieList.add(getData(type_name, _id));
+                            JSONObject detail = item.getJSONObject("detail");
+                            String name = detail.getString("name");
+                            String release_date = detail.getString("release_day");
+                            String img_url = detail.getString("img_url");
+                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
+                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
+                            if (movie_in_watchlist.contains(parseInt(_id))) {
+                                movie.setInWatchlist(true);
+                                movie.setRating(parseDouble(rating));
+                            }
+                            recentlyViewedMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -473,7 +505,7 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
                         textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
                         Log.d("MainScreen0", String.valueOf(recentlyViewedMovieList.size()));
 
-                        if (!recentlyViewedMovieList.isEmpty()) {
+                        if (old == 0 && !recentlyViewedMovieList.isEmpty()) {
                             textView_NoRecentlyViewed_UserProfile.setVisibility(View.GONE);
                             textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.GONE);
                             recycleView_RecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
@@ -488,13 +520,22 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
                                     intent.putExtra("username", username);
                                     intent.putExtra("token", token);
                                     intent.putExtra("session_id", session_id);
-                                    intent.putExtra("type", "movies");
-                                    intent.putExtra("movieList", (Serializable) recentlyViewedMovieList);
+                                    intent.putExtra("type", "trending");
+                                    intent.putExtra("trendingList", (Serializable) recentlyViewedMovieList);
                                     intent.putExtra("title", "Recently Viewed");
                                     startActivity(intent);
                                 }
                             });
                             textView_RecentlyViewed_Number_UserProfile.setText(String.valueOf(recentlyViewedMovieList.size()));
+                        } else if (recentlyViewedMovieList.isEmpty()) {
+                            textView_NoRecentlyViewed_UserProfile.setVisibility(View.VISIBLE);
+                            textView_RecentlyViewed_Cap_UserProfile.setVisibility(View.VISIBLE);
+                            recycleView_RecentlyViewed_UserProfile.setVisibility(View.GONE);
+                            textView_RecentlyViewed_Number_UserProfile.setVisibility(View.GONE);
+                            textView_SeeAll_RecentlyViewed_UserProfile.setVisibility(View.GONE);
+                            while (recycleView_RecentlyViewed_UserProfile.getItemDecorationCount() > 0) {
+                                recycleView_RecentlyViewed_UserProfile.removeItemDecorationAt(0);
+                            }
                         }
                     });
                 }
@@ -511,6 +552,8 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         //ToDo: Xử lý nút trong Ratings khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
         intent.putExtra("type", "movies");
+        intent.putExtra("token", token);
+        intent.putExtra("username", username);
         intent.putExtra("movieList", (Serializable) moviesListInRatingList);
         intent.putExtra("title", "Fan favorites");
         startActivity(intent);
@@ -520,6 +563,8 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         //ToDo: Xử lý nút trong Wishlist khi chưa có phim
         Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
         intent.putExtra("type", "movies");
+        intent.putExtra("token", token);
+        intent.putExtra("username", username);
         intent.putExtra("movieList", (Serializable) topratedmovieslist);
         intent.putExtra("title", "Top rated movies");
         startActivity(intent);
@@ -573,125 +618,12 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
         return movie.get();
     }
 
-    //    private void setupMovieSection(
-//            List<movies> movieList,
-//            RecyclerView recyclerView,
-//            TextView textViewNumber,
-//            TextView textViewSeeAll,
-//            ImageView imageView,
-//            TextView textViewNoData,
-//            TextView textViewCap,
-//            TextView textViewTitle,
-//            MovieItemAdapter adapterTarget,
-//            boolean isVisible,
-//            int sectionType // 1: RecentlyViewed, 2: Ratings, 3: Wishlist
-//    ) {
-//        runOnUiThread(() -> {
-//            // Cập nhật danh sách tương ứng
-//            switch (sectionType) {
-//                case 1:
-//                    recentlyViewedMovieList = movieList;
-//                    recentlyViewedAdapter = new MovieItemAdapter(movieList);
-//                    recyclerView.setAdapter(recentlyViewedAdapter);
-//                    break;
-//                case 2:
-//                    ratingMovieList = movieList;
-//                    ratingAdapter = new MovieItemAdapter(movieList);
-//                    recyclerView.setAdapter(ratingAdapter);
-//                    break;
-//                case 3:
-//                    watchListMovieList = movieList;
-//                    watchListAdapter = new MovieItemAdapter(movieList);
-//                    recyclerView.setAdapter(watchListAdapter);
-//                    break;
-//            }
-//
-//            recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-//            textViewNumber.setText(String.valueOf(movieList.size()));
-//
-//            if (movieList.size() > 0) {
-//                textViewNoData.setVisibility(View.GONE);
-//                if (textViewTitle != null) textViewTitle.setVisibility(View.VISIBLE);
-//                recyclerView.setVisibility(View.VISIBLE);
-//            } else {
-//                textViewNoData.setVisibility(View.VISIBLE);
-//                if (textViewTitle != null) textViewTitle.setVisibility(View.GONE);
-//                recyclerView.setVisibility(View.GONE);
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void onResponse(Call call, Response response) throws IOException {
-//        if (response.isSuccessful()) {
-//            String responseData = response.body().string();
-//
-//            Gson gson = new Gson();
-//            Type listType = new TypeToken<ArrayList<movies>>() {}.getType();
-//            List<movies> movieList = gson.fromJson(responseData, listType);
-//
-//            setupMovieSection(
-//                    movieList,
-//                    recycleView_RecentlyViewed_UserProfile,
-//                    textView_RecentlyViewed_Number_UserProfile,
-//                    textView_NoRecentlyViewed_UserProfile,
-//                    textView_RecentlyViewed_Cap_UserProfile,
-//                    null,
-//                    true,
-//                    1
-//            );
-//        }
-//    }
-//
-//    @Override
-//    public void onResponse(Call call, Response response) throws IOException {
-//        if (response.isSuccessful()) {
-//            String responseData = response.body().string();
-//
-//            Gson gson = new Gson();
-//            Type listType = new TypeToken<ArrayList<movies>>() {}.getType();
-//            List<movies> movieList = gson.fromJson(responseData, listType);
-//
-//            setupMovieSection(
-//                    movieList,
-//                    recycleView_Ratings_UserProfile,
-//                    textView_Ratings_Number_UserProfile,
-//                    textView_NoRatings_UserProfile,
-//                    null, // Không cần caption riêng cho Ratings
-//                    null,
-//                    true,
-//                    2
-//            );
-//        }
-//    }
-//
-//    @Override
-//    public void onResponse(Call call, Response response) throws IOException {
-//        if (response.isSuccessful()) {
-//            String responseData = response.body().string();
-//
-//            Gson gson = new Gson();
-//            Type listType = new TypeToken<ArrayList<movies>>() {}.getType();
-//            List<movies> movieList = gson.fromJson(responseData, listType);
-//
-//            setupMovieSection(
-//                    movieList,
-//                    recycleView_Watchlist_UserProfile,
-//                    textView_Watchlist_Number_UserProfile,
-//                    textView_NoWatchlist_UserProfile,
-//                    textView_Watchlist_Cap_UserProfile,
-//                    null,
-//                    true,
-//                    3
-//            );
-//        }
-//    }
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
     private retrofit2.Call<MovieResponse> moviesCall;
     private List<movies> topratedmovieslist = new ArrayList<movies>();
     private List<movies> moviesListInRatingList = new ArrayList<movies>();
 
-    private void fetchtopratedmovies(){
+    private void fetchtopratedmovies() {
         TMDBApi api = RetrofitClient.getApiService();
         moviesCall = api.getTopRatedMovies(TMDB_API_KEY);
         moviesCall.enqueue(new retrofit2.Callback<MovieResponse>() {
@@ -774,11 +706,10 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
     }
 
     @Override
-    public void onItemClick(movies movie) {
-        Log.d("ClickedMovie", "Name: " + movie.getMoviename() + ", ID: " + movie.getMovieId());
+    public void onItemClick(trendingall movie) {
         Intent intent = new Intent(this, TitleDetailActivity.class);
-        intent.putExtra("itemType", "movie");
-        intent.putExtra("itemId", movie.getMovieId());
+        intent.putExtra("itemType", movie.getType());
+        intent.putExtra("itemId", movie.getId());
         intent.putExtra("username", username);
         intent.putExtra("token", token);
         intent.putExtra("session_id", session_id);
@@ -789,42 +720,139 @@ public class UserProfileActivity extends BaseActivity implements MovieItemAdapte
     public void onPersonClick(Person person) {
         Intent intent = new Intent(this, PersonDetailActivity.class);
         intent.putExtra("personId", person.getPersonid());
-        Log.d("username",  username);
-        Log.d("token",  token);
-        Log.d("session_id",  session_id);
+        intent.putExtra("token", token);
         startActivity(intent);
     }
 
-    public void showActorList() {
-        if (!favoriteActorsList.isEmpty()) {
+    public void showActorList(Integer old) {
+        if (old == 0 && !favoriteActorsList.isEmpty()) {
             textView_NoFavoriteActors_UserProfile.setVisibility(View.GONE);
-
             recycleView_FavoriteActors_UserProfile.setVisibility(View.VISIBLE);
-
             textView_FavoriteActors_Number_UserProfile.setVisibility(View.VISIBLE);
-
             textView_SeeAll_FavoriteActors_UserProfile.setVisibility(View.VISIBLE);
-
             recycleView_FavoriteActors_UserProfile.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelSize(R.dimen.item_spacing)));
-
             textView_SeeAll_FavoriteActors_UserProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //ToDo: chuyển sang SeeAllActivity cho Favorite Actors
                     Intent intent = new Intent(UserProfileActivity.this, SeeAllActivity.class);
                     intent.putExtra("type", "person");
                     intent.putExtra("title", "Born today");
-                    intent.putExtra("personList",  (Serializable) favoriteActorsList);
+                    intent.putExtra("token", token);
+                    intent.putExtra("personList", (Serializable) favoriteActorsList);
                     if (favoriteActorsList != null) {
                         startActivity(intent);
                     }
                 }
             });
             textView_FavoriteActors_Number_UserProfile.setText(String.valueOf(favoriteActorsList.size()));
+        } else if (favoriteActorsList.isEmpty()) {
+            textView_NoFavoriteActors_UserProfile.setVisibility(View.VISIBLE);
+            recycleView_FavoriteActors_UserProfile.setVisibility(View.GONE);
+            textView_FavoriteActors_Number_UserProfile.setVisibility(View.GONE);
+            textView_SeeAll_FavoriteActors_UserProfile.setVisibility(View.GONE);
         }
     }
 
+    Person getDataPerson(String person_id) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://api.themoviedb.org/3/person/" + person_id + "?language=en-US")
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWQwZTRiNjNlMWVmNWVkNmE2NzhjZDI3OWEwMDg4NCIsIm5iZiI6MTc0MzA0MjA2MC45NTcsInN1YiI6IjY3ZTRiNjBjNDIxZWI4YzMzMWJhMmQ1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JsgAgcRx5Sib0D4SvfmnuwUEMWPV6hPv2winrt86vk0")
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        if (response.code() == 200) {
+            assert response.body() != null;
+            String json = response.body().string();
+            JSONObject jsonObject = new JSONObject(json);
+            String name = jsonObject.getString("name");
+            String birthday = jsonObject.getString("birthday") == "null" ? null : jsonObject.getString("birthday");
+            String deathday = jsonObject.getString("deathday") == "null" ? null : jsonObject.getString("deathday");
+            String profile_path = jsonObject.getString("profile_path");
+            Boolean isGone = deathday != null;
+            Boolean adult = parseBoolean(jsonObject.getString("adult"));
+            Double popularity = parseDouble(jsonObject.getString("popularity"));
+            Integer gender = parseInt(jsonObject.getString("gender") == "null" ? "3" : jsonObject.getString("gender"));
+            String personid = jsonObject.getString("id");
+            Person person = new Person(name, 0, deathday, isGone, adult, profile_path, popularity, gender, personid, birthday);
+            person.setIsFavorite(true);
+            return person;
+        }
+        return null;
+    }
+
     private void getActorList() {
-        //ToDo: lấy danh sách diễn viên yêu thích của user
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/person/get", token, new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.code() == 200) {
+                    Integer old = favoriteActorsList.size();
+                    favoriteActorsList.clear();
+                    try {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray jsonArray = json.getJSONArray("person");
+                        for (int i = jsonArray.length() - 1; i >= 0; --i) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String _id = item.getString("person_id");
+                            Person person = getDataPerson(_id);
+                            favoriteActorsList.add(person);
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    runOnUiThread(() -> {
+                        favoriteActorsAdapter.notifyDataSetChanged();
+                        showActorList(old);
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onRefresh() {
+        getActorList();
+        movie_in_watchlist = new ArrayList<>();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("watchlist");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            movie_in_watchlist.add(parseInt(json_array.getJSONObject(i).getString("_id")));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                getRatingList();
+                getWatchList();
+                getRecentList();
+            }
+        });
+    }
+
+    @Override
+    public void onRefreshPerson() {
+        getActorList();
     }
 }

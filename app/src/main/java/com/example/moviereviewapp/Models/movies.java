@@ -21,7 +21,6 @@ public class movies implements Serializable {
     }
 
 
-
     public movies() {}
 
     //Biến kiểm tra phim đã thêm vào watchlist chưa
@@ -130,5 +129,9 @@ public class movies implements Serializable {
     public void setRating(double rating) {
 
         this.rating = Math.round(rating * 10.0) / 10.0;
+    }
+
+    public void setInWatchlist(boolean b) {
+        this.isInWatchList = b;
     }
 }

@@ -1,14 +1,22 @@
 package com.example.moviereviewapp.Activities;
 
+import static java.lang.Integer.parseInt;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
@@ -20,12 +28,18 @@ import com.example.moviereviewapp.Adapters.Top_Box_Office_Adapter;
 import com.example.moviereviewapp.Adapters.movietrendingadapter;
 import com.example.moviereviewapp.Adapters.tvseriesadapter;
 import com.example.moviereviewapp.Models.Person;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.Models.tvseries;
 import com.example.moviereviewapp.R;
 import com.example.moviereviewapp.databinding.ActivityMainScreenBinding;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +48,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClickListener, movietrendingadapter.OnItemClickListener, MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener, tvseriesadapter.OnItemClickListener {
+public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClickListener, MovieAdapter.OnRefreshListener, MovieItemAdapter.OnRefreshListener, movietrendingadapter.OnItemClickListener, movietrendingadapter.OnRefreshListener, MovieItemAdapter.OnItemClickListener, PersonAdapter.OnPersonClickListener, PersonAdapter.OnRefreshListener, tvseriesadapter.OnRefreshListener, tvseriesadapter.OnItemClickListener {
     private ActivityMainScreenBinding binding;
     private MovieAdapter adapter;
     private MovieItemAdapter itemadapter, topratedadapter;
@@ -62,41 +76,21 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     String username;
     String token;
     String session_id;
-
+    UserAPI userAPI = new UserAPI();
+    List<String> person_in_like = new ArrayList<>();
+    List<Integer> movie_in_watchlist = new ArrayList<>();
+    List<Integer> tv_in_watchlist = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         binding = ActivityMainScreenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setupBottomBar(this,"home");
-
-
-        setupRecyclerView();
-        fetchMovies();
-
-        comingrecyclerview();
-        fetchupcmingmovies();
-
-        topratedrecyclerview();
-        fetchtopratedmovies();
-
-        trendingrecyclerview();
-        fetchtrendingmovies();
-
-        personrecyclerview();
-        fetchAllPersons();
-
-        topboxofficeadapter();
-        fetchtopboxoffice();
-
-        tvseriesrecyclerview();
-        fetchontheair();
-
-        topratedTvseriesRecyclerview();
-        fetchtopratedtvseries();
-
-        initSeeAll();
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         Bundle extra = getIntent().getExtras();
         if (extra != null) {
             username = extra.getString("username");
@@ -108,6 +102,17 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             assert username != null;
         }
 
+        setupBottomBar(this, "home");
+        setupRecyclerView();
+        comingrecyclerview();
+        topratedrecyclerview();
+        trendingrecyclerview();
+        personrecyclerview();
+//        topboxofficeadapter();
+        tvseriesrecyclerview();
+        topratedTvseriesRecyclerview();
+        initSeeAll();
+
         EditText search = findViewById(R.id.searchTxt);
         search.setOnClickListener(v -> {
             Intent intent = new Intent(MainScreen.this, SearchActivity.class);
@@ -115,6 +120,155 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("token", token);
             intent.putExtra("session_id", session_id);
             startActivity(intent);
+        });
+
+        movie_in_watchlist.clear();
+        tv_in_watchlist.clear();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("watchlist");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            JSONObject item = json_array.getJSONObject(i);
+                            String _id = item.getString("_id");
+                            String type_name = item.getString("type_name");
+                            if (type_name.equals("movie")) {
+                                movie_in_watchlist.add(Integer.parseInt(_id));
+                            } else {
+                                tv_in_watchlist.add(Integer.parseInt(_id));
+                            }
+                        }
+                        fetchMovies();
+                        fetchupcmingmovies();
+                        fetchtopratedmovies();
+                        fetchtrendingmovies();
+                        fetchontheair();
+                        fetchtopratedtvseries();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/person/get", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("person");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            person_in_like.add(json_array.getJSONObject(i).getString("person_id"));
+                        }
+                        fetchAllPersons();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+
+    private void initPersonFavorite() {
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        movie_in_watchlist.clear();
+        tv_in_watchlist.clear();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("watchlist");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            JSONObject item = json_array.getJSONObject(i);
+                            String _id = item.getString("_id");
+                            String type_name = item.getString("type_name");
+                            if (type_name.equals("movie")) {
+                                movie_in_watchlist.add(Integer.parseInt(_id));
+                            } else {
+                                tv_in_watchlist.add(Integer.parseInt(_id));
+                            }
+                        }
+                        fetchMovies();
+                        fetchupcmingmovies();
+                        fetchtopratedmovies();
+                        fetchtrendingmovies();
+                        fetchontheair();
+                        fetchtopratedtvseries();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+            }
+        });
+
+        person_in_like.clear();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/person/get", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("person");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            person_in_like.add(json_array.getJSONObject(i).getString("person_id"));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                for (Person v : person) {
+                    if (person_in_like.contains(v.getPersonid())) {
+                        v.setIsFavorite(true);
+                    } else {
+                        v.setIsFavorite(false);
+                    }
+                }
+
+                runOnUiThread(() -> {
+                    personadapter.notifyDataSetChanged();
+                });
+            }
         });
     }
 
@@ -124,6 +278,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "tvseries");
             intent.putExtra("title", "Top rated Tv Series");
             intent.putExtra("tvseriesList", toprated);
+            intent.putExtra("token", token);
+            intent.putExtra("username", username);
             if (toprated != null) {
                 startActivity(intent);
             }
@@ -134,6 +290,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "movies");
             intent.putExtra("title", "Coming soon");
             intent.putExtra("movieList", upcominglist);
+            intent.putExtra("token", token);
+            intent.putExtra("username", username);
             if (upcominglist != null) {
                 startActivity(intent);
             }
@@ -144,6 +302,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "movies");
             intent.putExtra("title", "Top rated movies just for you!");
             intent.putExtra("movieList", topratedmovieslist);
+            intent.putExtra("token", token);
+            intent.putExtra("username", username);
             if (topratedmovieslist != null) {
                 startActivity(intent);
             }
@@ -154,6 +314,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "tvseries");
             intent.putExtra("title", "Airing today");
             intent.putExtra("tvseriesList", ontheair);
+            intent.putExtra("token", token);
             if (ontheair != null) {
                 startActivity(intent);
             }
@@ -164,6 +325,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "person");
             intent.putExtra("title", "Born today");
             intent.putExtra("personList", person);
+            intent.putExtra("token", token);
             if (person != null) {
                 startActivity(intent);
             }
@@ -174,6 +336,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             intent.putExtra("type", "trending");
             intent.putExtra("title", "Fan Favorites");
             intent.putExtra("trendingList", trendinglist);
+            intent.putExtra("token", token);
             if (trendinglist != null) {
                 startActivity(intent);
             }
@@ -181,7 +344,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void topratedTvseriesRecyclerview() {
-        topratedtvseriesAdapter = new tvseriesadapter(toprated);
+        topratedtvseriesAdapter = new tvseriesadapter(toprated, token, this);
         topratedtvseriesAdapter.setOnItemClickListener(this);
         binding.topratedrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.topratedrecyclerview.setAdapter(topratedtvseriesAdapter);
@@ -203,25 +366,30 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
 
                     for (tvseries movie : results) {
                         int movieId = movie.getId();
-                        Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
-                        detailCall.enqueue(new Callback<tvseriesdetail>() {
-                            @Override
-                            public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    int epsnumber = response.body().getnumberofepsidose();
-                                    movie.setepsnumber(epsnumber);
-                                    toprated.add(movie);
-                                    Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
-                                    topratedtvseriesAdapter.notifyDataSetChanged();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<tvseriesdetail> call, Throwable t) {
-                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                            }
-                        });
+//                        Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
+//                        detailCall.enqueue(new Callback<tvseriesdetail>() {
+//                            @Override
+//                            public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
+//                                if (response.isSuccessful() && response.body() != null) {
+//                                    int epsnumber = response.body().getnumberofepsidose();
+//                                    movie.setepsnumber(epsnumber);
+//                                    toprated.add(movie);
+                                    if (tv_in_watchlist.contains(movie.getId())) {
+                                        movie.setinwatchlist(true);
+                                    }
+//                                    Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
+//                                    topratedtvseriesAdapter.notifyDataSetChanged();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<tvseriesdetail> call, Throwable t) {
+//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                            }
+//                        });
                     }
+                    toprated.addAll(results);
+                    topratedtvseriesAdapter.notifyDataSetChanged();
                 } else {
                     showError("Failed to load movies: " + response.message());
                 }
@@ -234,7 +402,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void tvseriesrecyclerview() {
-        tvserieontheairsadapter = new tvseriesadapter(ontheair);
+        tvserieontheairsadapter = new tvseriesadapter(ontheair, token, this);
         tvserieontheairsadapter.setOnItemClickListener(this);
         binding.ontheairrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.ontheairrecyclerview.setAdapter(tvserieontheairsadapter);
@@ -246,6 +414,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
         TMDBApi api = RetrofitClient.getApiService();
         ontheairCall = api.getTvSeriesontheair("75d6190f47f7d58c6d0511ca393d2f7d", 1);
         ontheairCall.enqueue(new Callback<tvseriesresponse>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<tvseriesresponse> call, @NonNull Response<tvseriesresponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -254,29 +423,33 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
 
                     Log.d("TVSERIES", "Fetched " + results.size() + " series.");
 
-                    ontheair.addAll(results);
-
-                    tvserieontheairsadapter.notifyDataSetChanged();
                     for (tvseries movie : results) {
                         int movieId = movie.getId();
-                        Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
-                        detailCall.enqueue(new Callback<tvseriesdetail>() {
-                            @Override
-                            public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    int epsnumber = response.body().getnumberofepsidose();
-                                    movie.setepsnumber(epsnumber);
-                                    Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
-                                    tvserieontheairsadapter.notifyDataSetChanged();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<tvseriesdetail> call, Throwable t) {
-                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                            }
-                        });
+//                        Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
+//                        detailCall.enqueue(new Callback<tvseriesdetail>() {
+//                            @Override
+//                            public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
+//                                if (response.isSuccessful() && response.body() != null) {
+//                                    int epsnumber = response.body().getnumberofepsidose();
+//                                    movie.setepsnumber(epsnumber);
+                                    if (tv_in_watchlist.contains(movie.getId())) {
+                                        movie.setinwatchlist(true);
+                                        Log.d("ontheair", movie.getName() + "gg");
+                                    }
+//                                    Log.d("OntheAir", "Fetching number of epsidoses: " + movie.getName() + " (ID: " + movie.getId() + ")");
+//                                    tvserieontheairsadapter.notifyDataSetChanged();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<tvseriesdetail> call, Throwable t) {
+//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                            }
+//                        });
                     }
+
+                    ontheair.addAll(results);
+                    tvserieontheairsadapter.notifyDataSetChanged();
                 } else {
                     showError("Failed to load movies: " + response.message());
                 }
@@ -310,6 +483,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                             fetchMovieRevenue(api, movie);
                             topboxofficelist.add(movie);
                         }
+
+                        topBoxOfficeAdapter.notifyDataSetChanged();
                     } else {
                         Log.e("TopBoxOffice", "Failed to load movies: " + response.code() + " - " + response.message());
                         showError("Failed to load movies: " + response.message());
@@ -349,10 +524,10 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
 
-    private void topboxofficeadapter() {
-        topBoxOfficeAdapter = new Top_Box_Office_Adapter(this, topboxofficelist);
-        binding.topboxofficelistview.setAdapter(topBoxOfficeAdapter);
-    }
+//    private void topboxofficeadapter() {
+//        topBoxOfficeAdapter = new Top_Box_Office_Adapter(this, topboxofficelist, token);
+//        binding.topboxofficelistview.setAdapter(topBoxOfficeAdapter);
+//    }
 
     private void fetchAllPersons() {
         currentPage = 1;
@@ -369,8 +544,13 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                     List<Person> results = response.body().getPersons();
 
                     for (Person p : results) {
+                        if (person_in_like.contains(p.getPersonid())) {
+                            p.setIsFavorite(true);
+                        }
                         fetchPersonDetail(p); // Lấy thêm birthdate, deathday
                     }
+
+                    personadapter.notifyDataSetChanged();
                 } else {
                     showError("Lỗi tải trang " + page + ": " + response.message());
                 }
@@ -385,7 +565,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void personrecyclerview() {
-        personadapter = new PersonAdapter(person, this);
+        personadapter = new PersonAdapter(person, this, token, this);
         binding.personrecycleview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.personrecycleview.setAdapter(personadapter);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
@@ -443,41 +623,50 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                     for (trendingall movie : trendinglist) {
                         int movieId = movie.getId();
                         if (movie.getType().equals("movie")) {
-                            Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
-                            detailCall.enqueue(new Callback<MovieDetail>() {
-                                @Override
-                                public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-                                    if (response.isSuccessful() && response.body() != null) {
-                                        int runtime = response.body().getRuntime();
-                                        movie.setLengthFromRuntime(runtime);
-                                        trendingadapter.notifyDataSetChanged();
-                                    }
-                                }
+                            if (movie_in_watchlist.contains(movieId)) {
+                                movie.setInWatchlist(true);
+                            }
+//                            Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+//                            detailCall.enqueue(new Callback<MovieDetail>() {
+//                                @Override
+//                                public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+//                                    if (response.isSuccessful() && response.body() != null) {
+//                                        int runtime = response.body().getRuntime();
 
-                                @Override
-                                public void onFailure(Call<MovieDetail> call, Throwable t) {
-                                    Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                                }
-                            });
+//                                        movie.setLengthFromRuntime(runtime);
+//                                        trendingadapter.notifyDataSetChanged();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Call<MovieDetail> call, Throwable t) {
+//                                    Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                                }
+//                            });
                         } else if (movie.getType().equals("tv")) {
-                            Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
-                            detailCall.enqueue(new Callback<tvseriesdetail>() {
-                                @Override
-                                public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
-                                    if (response.isSuccessful() && response.body() != null) {
-                                        int epsnumber = response.body().getnumberofepsidose();
-                                        movie.setLength(epsnumber + " eps");
-                                        trendingadapter.notifyDataSetChanged();
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<tvseriesdetail> call, Throwable t) {
-                                    Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                                }
-                            });
+                            if (tv_in_watchlist.contains(movieId)) {
+                                movie.setInWatchlist(true);
+                            }
+//                            Call<tvseriesdetail> detailCall = api.getTvSeriesDetail(movieId, TMDB_API_KEY);
+//                            detailCall.enqueue(new Callback<tvseriesdetail>() {
+//                                @Override
+//                                public void onResponse(Call<tvseriesdetail> call, Response<tvseriesdetail> response) {
+//                                    if (response.isSuccessful() && response.body() != null) {
+//                                        int epsnumber = response.body().getnumberofepsidose();
+//                                        movie.setLength(epsnumber + " eps");
+//                                        trendingadapter.notifyDataSetChanged();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Call<tvseriesdetail> call, Throwable t) {
+//                                    Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                                }
+//                            });
                         }
                     }
+
+                    trendingadapter.notifyDataSetChanged();
                 } else {
                     showError("Failed to load movies: " + response.message());
                 }
@@ -492,7 +681,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void trendingrecyclerview() {
-        trendingadapter = new movietrendingadapter(trendinglist);
+        trendingadapter = new movietrendingadapter(trendinglist, token, this);
         binding.trendingrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         trendingadapter.setOnItemClickListener(this);
         binding.trendingrecyclerview.setAdapter(trendingadapter);
@@ -518,26 +707,31 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                     // Gọi chi tiết từng phim để lấy runtime
                     for (movies movie : results) {
                         int movieId = movie.getMovieId();
-                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
-                        detailCall.enqueue(new Callback<MovieDetail>() {
-                            @Override
-                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    int runtime = response.body().getRuntime();
-                                    movie.setLengthFromRuntime(runtime);
-                                    topratedadapter.notifyDataSetChanged();
-                                }
-                            }
+                        if (movie_in_watchlist.contains(movieId)) {
+                            movie.setInWatchlist(true);
+                        }
+//                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+//                        detailCall.enqueue(new Callback<MovieDetail>() {
+//                            @Override
+//                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+//                                if (response.isSuccessful() && response.body() != null) {
+//                                    int runtime = response.body().getRuntime();
+//                                    movie.setLengthFromRuntime(runtime);
 
-                            @Override
-                            public void onFailure(Call<MovieDetail> call, Throwable t) {
-                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                            }
-                        });
+//                                    topratedadapter.notifyDataSetChanged();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<MovieDetail> call, Throwable t) {
+//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                            }
+//                        });
                     }
-
-                } else {
-                    showError("Failed to load movies: " + response.message());
+                    topratedadapter.notifyDataSetChanged();
+//
+//                } else {
+//                    showError("Failed to load movies: " + response.message());
                 }
             }
 
@@ -550,7 +744,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void topratedrecyclerview() {
-        topratedadapter = new MovieItemAdapter(topratedmovieslist);
+        topratedadapter = new MovieItemAdapter(topratedmovieslist, token, this);
         binding.topickrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         topratedadapter.setOnItemClickListener(this);
         binding.topickrecyclerview.setAdapter(topratedadapter);
@@ -560,7 +754,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
 
     private void setupRecyclerView() {
         try {
-            adapter = new MovieAdapter(moviesList, this);
+            adapter = new MovieAdapter(moviesList, token, this, this);
             binding.toplistmovie.setAdapter(adapter);
             binding.toplistmovie.setOffscreenPageLimit(1);
         } catch (Exception e) {
@@ -570,7 +764,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     }
 
     private void comingrecyclerview() {
-        itemadapter = new MovieItemAdapter(upcominglist);
+        itemadapter = new MovieItemAdapter(upcominglist, token, this);
         binding.comingsoonrecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         itemadapter.setOnItemClickListener(this);
         binding.comingsoonrecyclerview.setAdapter(itemadapter);
@@ -588,6 +782,12 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                 if (response.isSuccessful() && response.body() != null) {
                     moviesList.clear();
                     List<movies> results = response.body().getResults();
+                    for (movies movie : results) {
+                        int movieId = movie.getMovieId();
+                        if (movie_in_watchlist.contains(movieId)) {
+                            movie.setInWatchlist(true);
+                        }
+                    }
                     Log.d("MOVIES", "Fetched " + results.size() + " movies.");
                     moviesList.addAll(results);
                     adapter.notifyDataSetChanged();
@@ -622,27 +822,33 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
                     // Gọi chi tiết từng phim để lấy runtime
                     for (movies movie : results) {
                         int movieId = movie.getMovieId();
-                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
-                        detailCall.enqueue(new Callback<MovieDetail>() {
-                            @Override
-                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
-                                if (response.isSuccessful() && response.body() != null) {
-                                    int runtime = response.body().getRuntime();
-                                    movie.setLengthFromRuntime(runtime);
-                                    itemadapter.notifyDataSetChanged();
-                                }
-                            }
+                        if (movie_in_watchlist.contains(movieId)) {
+                            movie.setInWatchlist(true);
+                        }
+//                        Call<MovieDetail> detailCall = api.getMovieDetail(movieId, TMDB_API_KEY);
+//                        detailCall.enqueue(new Callback<MovieDetail>() {
+//                            @Override
+//                            public void onResponse(Call<MovieDetail> call, Response<MovieDetail> response) {
+//                                if (response.isSuccessful() && response.body() != null) {
+//                                    int runtime = response.body().getRuntime();
+//                                    movie.setLengthFromRuntime(runtime);
 
-                            @Override
-                            public void onFailure(Call<MovieDetail> call, Throwable t) {
-                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
-                            }
-                        });
+//                                    itemadapter.notifyDataSetChanged();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<MovieDetail> call, Throwable t) {
+//                                Log.e("DETAIL_ERROR", "Lỗi khi lấy runtime cho movieId: " + movieId, t);
+//                            }
+//                        });
                     }
 
-                } else {
-                    showError("Failed to load movies: " + response.message());
+//                } else {
+//                    showError("Failed to load movies: " + response.message());
                 }
+
+                itemadapter.notifyDataSetChanged();
             }
 
             @Override
@@ -657,17 +863,16 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onDestroy() {
-        if (moviesCall != null) {
-            moviesCall.cancel();
-        }
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        if (moviesCall != null) {
+//            moviesCall.cancel();
+//        }
+//        super.onDestroy();
+//    }
 
 
-
-    // Inside your MainScreen class
+// Inside your MainScreen class
 
     @Override
     public void onItemClick(movies movie) {
@@ -675,12 +880,7 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
         Intent intent = new Intent(this, TitleDetailActivity.class);
         intent.putExtra("itemType", "movie");
         intent.putExtra("itemId", movie.getMovieId());
-        intent.putExtra("username", username);
-        intent.putExtra("token", token);
-        intent.putExtra("session_id", session_id);
-        Log.d("username",  username);
-        Log.d("token",  token);
-        Log.d("session_id",  session_id);
+        addUserDataToIntent(intent);
         startActivity(intent);
     }
 
@@ -691,24 +891,14 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
             Intent intent = new Intent(this, TitleDetailActivity.class);
             intent.putExtra("itemType", "movie");
             intent.putExtra("itemId", movi.getId());
-            intent.putExtra("username", username);
-            intent.putExtra("token", token);
-            intent.putExtra("session_id", session_id);
-            Log.d("username",  username);
-            Log.d("token",  token);
-            Log.d("session_id",  session_id);
+            addUserDataToIntent(intent);
             startActivity(intent);
         } else if (movi.getType().equals("tv")) {
             Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
             Intent intent = new Intent(this, TitleDetailActivity.class);
             intent.putExtra("itemType", "tv");
             intent.putExtra("itemId", movi.getId());
-            intent.putExtra("username", username);
-            intent.putExtra("token", token);
-            intent.putExtra("session_id", session_id);
-            Log.d("username",  username);
-            Log.d("token",  token);
-            Log.d("session_id",  session_id);
+            addUserDataToIntent(intent);
             startActivity(intent);
         }
     }
@@ -717,9 +907,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     public void onPersonClick(Person person) {
         Intent intent = new Intent(this, PersonDetailActivity.class);
         intent.putExtra("personId", person.getPersonid());
-        Log.d("username",  username);
-        Log.d("token",  token);
-        Log.d("session_id",  session_id);
+        intent.putExtra("token", token);
+        addUserDataToIntent(intent);
         startActivity(intent);
     }
 
@@ -729,12 +918,86 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
         Intent intent = new Intent(this, TitleDetailActivity.class);
         intent.putExtra("itemType", "tv");
         intent.putExtra("itemId", movi.getId());
-        intent.putExtra("username", username);
-        intent.putExtra("token", token);
-        intent.putExtra("session_id", session_id);
-        Log.d("username",  username);
-        Log.d("token",  token);
-        Log.d("session_id",  session_id);
+        addUserDataToIntent(intent);
         startActivity(intent);
+    }
+
+    public void addUserDataToIntent(Intent intent) {
+        if (username != null) intent.putExtra("username", username);
+        if (token != null) intent.putExtra("token", token);
+        if (session_id != null) intent.putExtra("session_id", session_id);
+        if (username != null) Log.d("username", username);
+        if (token != null) Log.d("token", token);
+        if (session_id != null) Log.d("session_id", session_id);
+    }
+
+    @Override
+    public void onRefresh() {
+        movie_in_watchlist.clear();
+        tv_in_watchlist.clear();
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("watchlist");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            JSONObject item = json_array.getJSONObject(i);
+                            String _id = item.getString("_id");
+                            String type_name = item.getString("type_name");
+                            if (type_name.equals("movie")) {
+                                movie_in_watchlist.add(Integer.parseInt(_id));
+                            } else {
+                                tv_in_watchlist.add(Integer.parseInt(_id));
+                            }
+                        }
+                        fetchMovies();
+                        fetchupcmingmovies();
+                        fetchtopratedmovies();
+                        fetchtrendingmovies();
+                        fetchontheair();
+                        fetchtopratedtvseries();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRefreshPerson() {
+        userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/person/get", token, new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    String json_string = response.body().string();
+                    try {
+                        JSONObject json_object = new JSONObject(json_string);
+                        JSONArray json_array = json_object.getJSONArray("person");
+                        for (int i = 0; i < json_array.length(); ++i) {
+                            person_in_like.add(json_array.getJSONObject(i).getString("person_id"));
+                        }
+                        fetchAllPersons();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
     }
 }

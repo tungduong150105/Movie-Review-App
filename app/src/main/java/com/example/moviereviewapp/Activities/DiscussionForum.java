@@ -8,8 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,8 +58,13 @@ public class DiscussionForum extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_discussion_forum);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         int movie_id;
         String movie_name;
         String username = "";
@@ -243,7 +252,7 @@ public class DiscussionForum extends AppCompatActivity {
 
     private void connect() {
         Request request = new Request.Builder()
-                .url("https://9c3c-113-161-73-175.ngrok-free.app/cable")
+                .url("https://7e55-14-169-36-254.ngrok-free.app/cable")
 //                .url("ws://10.0.2.2:3000/cable")
                 .addHeader("Authorization", "Bearer " + token)
                 .build();

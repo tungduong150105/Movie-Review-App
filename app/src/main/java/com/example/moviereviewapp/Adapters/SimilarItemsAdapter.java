@@ -13,10 +13,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.SimilarItem;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapter.SimilarViewHolder> {
     private List<SimilarItem> items;
@@ -29,11 +38,25 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
         void onItemClick(SimilarItem item);
     }
 
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
+    private OnRefreshListener onRefreshListener;
+    String token;
+
     public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener, boolean isPersonDetailContext) {
         this.context = context;
         this.items = items;
         this.listener = listener;
         this.isPersonDetailContext = isPersonDetailContext;
+    }
+    public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener, boolean isPersonDetailContext, OnRefreshListener onRefreshListener, String token) {
+        this.context = context;
+        this.items = items;
+        this.listener = listener;
+        this.isPersonDetailContext = isPersonDetailContext;
+        this.onRefreshListener = onRefreshListener;
+        this.token = token;
     }
 
     public SimilarItemsAdapter(Context context, List<SimilarItem> items, OnItemClickListener listener) {
@@ -153,11 +176,33 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                 iconImage.setImageResource(R.drawable.fill_plus_icon);
             }
 
+            UserAPI userAPI = new UserAPI();
+
             //ToDo: Xử lý sự kiện click vào nút bookmark
             frameBookmark.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     boolean isBookmarked = item.getIsInWatchList();
+                    JSONObject json = new JSONObject();
+                    try {
+                        json.put("_id", item.getId());
+                        json.put("type_name", item.getTitle() != null ? "movie" : "tv");
+                        json.put("name", item.getOriginalTitle());
+                        json.put("img_url", item.getPosterPath());
+                        json.put("release_day", item.getReleaseDate());
+                        json.put("rating", item.getVoteAverage());
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    userAPI.call_api_auth(userAPI.get_UserAPI() + "/movieinfo/add", token, json.toString(), new Callback() {
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
+                    });
                     if (!isBookmarked) {
                         //Nếu chưa có trong danh sách yêu thích thì thêm vào danh sách
                         alphaa.setAlpha(1f);
@@ -166,7 +211,18 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                         // ToDo: Xử lý hành động khi nút "Bookmark" được nhấn trong SeeAll Activity
                         // TODO: cập nhật trạng thái watchlist của movies trong cơ sở dữ liệu
                         item.setIsInWatchlist(true);
+                        userAPI.call_api_auth(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            }
 
+                            @Override
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                if (onRefreshListener != null) {
+                                    onRefreshListener.onRefresh();
+                                }
+                            }
+                        });
                     } else {
                         //Nếu đã có trong danh sách yêu thích thì xóa khỏi danh sách
                         alphaa.setAlpha(0.6f);
@@ -175,7 +231,18 @@ public class SimilarItemsAdapter extends RecyclerView.Adapter<SimilarItemsAdapte
                         // ToDo: Xử lý hành động khi nút "Bookmark" bị bỏ chọn trong SeeAll Activity
                         // TODO: cập nhật trạng thái watchlist của movies trong cơ sở dữ liệu
                         item.setIsInWatchlist(false);
+                        userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/watchlist/delete", token, json.toString(), new Callback() {
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            }
 
+                            @Override
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                if (onRefreshListener != null) {
+                                    onRefreshListener.onRefresh();
+                                }
+                            }
+                        });
                     }
                 }
             });

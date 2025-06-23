@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Adapters.MovieSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.MovieSeeAllRatingAdapter;
+import com.example.moviereviewapp.Adapters.PersonAdapter;
 import com.example.moviereviewapp.Adapters.PersonSeeAllAdapter;
 import com.example.moviereviewapp.Adapters.PhotoGridAdapter;
 import com.example.moviereviewapp.Adapters.ReviewSeeAllAdapter;
@@ -34,6 +35,7 @@ import com.example.moviereviewapp.Adapters.TrendingSeeallAdapter;
 import com.example.moviereviewapp.Adapters.VideoSeeAllAdapter;
 import com.example.moviereviewapp.Models.PhotoItem;
 import com.example.moviereviewapp.Models.SimilarItem;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.UserReview;
 import com.example.moviereviewapp.Models.VideoResult;
 import com.example.moviereviewapp.Models.movies;
@@ -46,11 +48,15 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdapter.OnItemClickListener,MovieSeeAllRatingAdapter.OnItemClickListener,TVSeriesSeeAllAdapter.OnItemClickListener,TrendingSeeallAdapter.OnItemClickListener,PersonSeeAllAdapter.OnItemClickListener {
-
     ImageView back_SeeAll_Btn;
     TextView textView_Title_SeeAll;
     private FrameLayout videoOverlayContainer;
@@ -59,9 +65,25 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
     private String currentVideoId = null;
     private FrameLayout photoOverlayContainer;
     private ImageView overlayPhotoView;
+    String title;
+    String type;
     String username;
     String token;
     String session_id;
+
+    List<Person> personList = new ArrayList<Person>();
+    PersonSeeAllAdapter personAdapter;
+
+    List<movies> movieList = new ArrayList<movies>();
+    MovieSeeAllAdapter movieAdapter;
+    MovieSeeAllRatingAdapter ratingAdapter;
+
+    List<tvseries> seriesList = new ArrayList<tvseries>();
+    TVSeriesSeeAllAdapter seriesAdapter;
+
+    List<trendingall> trendingList = new ArrayList<trendingall>();
+    TrendingSeeallAdapter trendingAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +106,8 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         RecyclerView recyclerView = findViewById(R.id.recycleView_Movie_SeeAll);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         // Nhận dữ liệu từ Intent
-        String title = getIntent().getStringExtra("title");
-        String type = getIntent().getStringExtra("type");
+        title = getIntent().getStringExtra("title");
+        type = getIntent().getStringExtra("type");
         session_id = getIntent().getStringExtra("session_id");
         username = getIntent().getStringExtra("username");
         token = getIntent().getStringExtra("token");
@@ -101,56 +123,56 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         }
         switch (type) {
             case "movies":
-                List<movies> movieList = (List<movies>) getIntent().getSerializableExtra("movieList");
+                movieList = (List<movies>) getIntent().getSerializableExtra("movieList");
                 if (movieList == null) {
                     movieList = new ArrayList<>();
                     Toast.makeText(this, "No movies found", Toast.LENGTH_SHORT).show();
                 }
 
                 if (title != null && title.equals("Recently Viewed")) {
-                    MovieSeeAllAdapter movieAdapter = new MovieSeeAllAdapter(this, movieList);
+                    movieAdapter = new MovieSeeAllAdapter(this, movieList, token);
                     movieAdapter.setOnItemClickListener(this);
                     recyclerView.setAdapter(movieAdapter);
                 } else {
-                    MovieSeeAllRatingAdapter ratingAdapter = new MovieSeeAllRatingAdapter(this, movieList);
+                    ratingAdapter = new MovieSeeAllRatingAdapter(this, movieList, token);
                     ratingAdapter.setOnItemClickListener(this);
                     recyclerView.setAdapter(ratingAdapter);
                 }
                 break;
 
             case "tvseries":
-                List<tvseries> seriesList = (List<tvseries>) getIntent().getSerializableExtra("tvseriesList");
+                seriesList = (List<tvseries>) getIntent().getSerializableExtra("tvseriesList");
                 if (seriesList == null) {
                     seriesList = new ArrayList<>();
                     Toast.makeText(this, "No TV series found", Toast.LENGTH_SHORT).show();
                 }
 
-                TVSeriesSeeAllAdapter seriesAdapter = new TVSeriesSeeAllAdapter(this, seriesList);
+                seriesAdapter = new TVSeriesSeeAllAdapter(this, seriesList, token);
                 seriesAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(seriesAdapter);
                 break;
 
 
             case "trending":
-                List<trendingall> trendingList = (List<trendingall>) getIntent().getSerializableExtra("trendingList");
+                trendingList = (List<trendingall>) getIntent().getSerializableExtra("trendingList");
                 if (trendingList == null) {
                     trendingList = new ArrayList<>();
                     Toast.makeText(this, "No movies found", Toast.LENGTH_SHORT).show();
                 }
 
-                TrendingSeeallAdapter trendingAdapter = new TrendingSeeallAdapter(this, trendingList);
+                trendingAdapter = new TrendingSeeallAdapter(this, trendingList, token);
                 trendingAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(trendingAdapter);
                 break;
 
             case "person":
-                ArrayList<Person> personList = (ArrayList<Person>) getIntent().getSerializableExtra("personList");
+                personList = (ArrayList<Person>) getIntent().getSerializableExtra("personList");
                 if (personList == null) {
                     personList = new ArrayList<>();
                     Toast.makeText(this, "No persons found", Toast.LENGTH_SHORT).show();
                 }
 
-                PersonSeeAllAdapter personAdapter = new PersonSeeAllAdapter(this, personList);
+                personAdapter = new PersonSeeAllAdapter(this, personList, token);
                 personAdapter.setOnItemClickListener(this);
                 recyclerView.setAdapter(personAdapter);
                 break;
@@ -163,7 +185,7 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
                     Toast.makeText(this, "No persons found", Toast.LENGTH_SHORT).show();
                 }
 
-                SeeAllSimilarItemAdapter SeeAllSimilarItemAdapter = new SeeAllSimilarItemAdapter(this, similarList);
+                SeeAllSimilarItemAdapter SeeAllSimilarItemAdapter = new SeeAllSimilarItemAdapter(this, similarList, token);
 
                 recyclerView.setAdapter(SeeAllSimilarItemAdapter);
                 break;
@@ -361,13 +383,13 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (youtubePlayerView != null) {
-            youtubePlayerView.release();
-        }
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (youtubePlayerView != null) {
+//            youtubePlayerView.release();
+//        }
+//    }
     @Override
     public void onItemClick(trendingall movi) {
         Log.d("onItemClick", "Clicked movie ID: " + movi.getId());
@@ -398,5 +420,129 @@ public class SeeAllActivity extends AppCompatActivity implements MovieSeeAllAdap
         intent.putExtra("itemType", "tv");
         intent.putExtra("itemId", movi.getId());
         startActivity(intent);
+    }
+    UserAPI userAPI = new UserAPI();
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (!type.equals("person")) {
+            List<Integer> movie_in_watchlist = new ArrayList<>();
+            List<Integer> tv_in_watchlist = new ArrayList<>();
+            userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/watchlist/list", token, new okhttp3.Callback() {
+                @Override
+                public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                    if (response.code() == 200) {
+                        assert response.body() != null;
+                        String json_string = response.body().string();
+                        try {
+                            JSONObject json_object = new JSONObject(json_string);
+                            JSONArray json_array = json_object.getJSONArray("watchlist");
+                            for (int i = 0; i < json_array.length(); ++i) {
+                                JSONObject item = json_array.getJSONObject(i);
+                                String _id = item.getString("_id");
+                                String type_name = item.getString("type_name");
+                                if (type_name.equals("movie")) {
+                                    movie_in_watchlist.add(Integer.parseInt(_id));
+                                } else {
+                                    tv_in_watchlist.add(Integer.parseInt(_id));
+                                }
+                            }
+
+                            if (type.equals("movies")) {
+                                for (movies m : movieList) {
+                                    if (movie_in_watchlist.contains(m.getMovieId())) {
+                                        m.setInWatchlist(true);
+                                    } else {
+                                        m.setInWatchlist(false);
+                                    }
+                                }
+                            }
+
+                            if (type.equals("tvseries")) {
+                                for (tvseries m : seriesList) {
+                                    if (tv_in_watchlist.contains(m.getId())) {
+                                        m.setinwatchlist(true);
+                                    } else {
+                                        m.setinwatchlist(false);
+                                    }
+                                }
+                            }
+
+                            if (type.equals("trending")) {
+                                for (trendingall m : trendingList) {
+                                    if (m.getType().equals("movie") && movie_in_watchlist.contains(m.getId())) {
+                                        m.setInWatchlist(true);
+                                    } else if (m.getType().equals("tv") && tv_in_watchlist.contains(m.getId())) {
+                                        m.setInWatchlist(true);
+                                    } else {
+                                        m.setInWatchlist(false);
+                                    }
+                                }
+                            }
+
+                            runOnUiThread(() -> {
+                                if (type.equals("movies")) {
+                                    if (title != null && title.equals("Recently Viewed")) {
+                                        movieAdapter.notifyDataSetChanged();
+                                    } else {
+                                        ratingAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                                if (type.equals("tvseries")) {
+                                    seriesAdapter.notifyDataSetChanged();
+                                }
+                                if (type.equals("trending")) {
+                                    trendingAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            });
+        } else {
+            List<String> person_in_like = new ArrayList<>();
+            userAPI.call_api_auth_get(userAPI.get_UserAPI() + "/person/get", token, new okhttp3.Callback() {
+                @Override
+                public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                    if (response.code() == 200) {
+                        assert response.body() != null;
+                        String json_string = response.body().string();
+                        try {
+                            JSONObject json_object = new JSONObject(json_string);
+                            JSONArray json_array = json_object.getJSONArray("person");
+                            for (int i = 0; i < json_array.length(); ++i) {
+                                person_in_like.add(json_array.getJSONObject(i).getString("person_id"));
+                            }
+
+                            for (Person p : personList) {
+                                if (person_in_like.contains(p.getPersonid())) {
+                                    p.setIsFavorite(true);
+                                } else {
+                                    p.setIsFavorite(false);
+                                }
+                            }
+
+                            runOnUiThread(() -> {
+                                personAdapter.notifyDataSetChanged();
+                            });
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            });
+        }
     }
 }

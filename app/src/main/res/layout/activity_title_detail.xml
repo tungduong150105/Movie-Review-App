@@ -34,6 +34,7 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.131"
             app:layout_constraintStart_toEndOf="@id/back_TitleDetail_Btn"
@@ -49,7 +50,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back_arrow" />
+            app:srcCompat="@drawable/message_ic" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView

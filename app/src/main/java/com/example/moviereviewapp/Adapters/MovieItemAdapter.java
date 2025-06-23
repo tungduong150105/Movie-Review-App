@@ -1,6 +1,7 @@
 package com.example.moviereviewapp.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,22 +13,42 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.moviereviewapp.Models.UserAPI;
 import com.example.moviereviewapp.Models.movies;
 import com.example.moviereviewapp.Models.trendingall;
 import com.example.moviereviewapp.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 
 public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.ViewHolder> {
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
     private  List<movies> movie;
     Context context;
+    private OnRefreshListener refreshListener;
+    UserAPI userAPI = new UserAPI();
+    public String token;
 
-    public MovieItemAdapter(List<movies> movie) {
+    public MovieItemAdapter(List<movies> movie, String token) {
         this.movie = movie;
+        this.token = token;
+        this.refreshListener = refreshListener;
+    }
+    public MovieItemAdapter(List<movies> movie, String token, OnRefreshListener refreshListener) {
+        this.movie = movie;
+        this.token = token;
+        this.refreshListener = refreshListener;
     }
     private MovieItemAdapter.OnItemClickListener listener;
 
@@ -88,6 +109,26 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
             @Override
             public void onClick(View v) {
                 boolean isBookmarked = move.getIsInWatchList();
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("_id", move.getMovieId());
+                    json.put("type_name", "movie");
+                    json.put("name", move.getMoviename());
+                    json.put("img_url", move.getPosterurl());
+                    json.put("release_day", move.getReleasedate());
+                    json.put("rating", move.getRating());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                userAPI.call_api_auth(userAPI.get_UserAPI() + "/movieinfo/add", token, json.toString(), new Callback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    }
+                });
                 if (isBookmarked) {
                     //Nếu đã có trong watchlist thì xóa khỏi watchlist
                     holder.alphaa.setAlpha(0.6f);
@@ -96,7 +137,16 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
                     // TODO: Xử lý xóa phim khỏi watchlist trong cơ sở dữ liệu dưới đây
                     // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
                     move.setIsInWatchlist(false);
+                    userAPI.call_api_auth_del(userAPI.get_UserAPI() + "/watchlist/delete", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
 
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            refreshListener.onRefresh();
+                        }
+                    });
                 } else {
                     //Nếu chưa có trong watchlist thì thêm vào watchlist
                     holder.alphaa.setAlpha(1f);
@@ -105,7 +155,16 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
                     // TODO: Xử lý thêm phim vào watchlist trong cơ sở dữ liệu dưới đây
                     // TODO: cập nhật trạng thái watchlist của phim trong cơ sở dữ liệu
                     move.setIsInWatchlist(true);
+                    userAPI.call_api_auth(userAPI.get_UserAPI() + "/watchlist/add", token, json.toString(), new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        }
 
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            refreshListener.onRefresh();
+                        }
+                    });
                 }
             }
         });

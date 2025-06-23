@@ -127,4 +127,8 @@ private String popularity;
     public void setIsInWatchList(boolean isInWatchList) {
         IsInWatchList = isInWatchList;
     }
+
+    public void setInWatchlist(boolean b) {
+        this.IsInWatchList = b;
+    }
 }

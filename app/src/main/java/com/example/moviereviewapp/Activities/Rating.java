@@ -1,6 +1,7 @@
 package com.example.moviereviewapp.Activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -9,8 +10,12 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.moviereviewapp.Models.TMDBAPI;
@@ -44,14 +49,21 @@ public class Rating extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_rating);
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         api = new TMDBAPI();
         userAPI = new UserAPI();
         title = findViewById(R.id.title);
         img = findViewById(R.id.img);
         TextView textBack = findViewById(R.id.textBack);
-        textBack.setOnClickListener(v -> finish());
+        textBack.setOnClickListener(v -> {
+            finish();
+        });
         ratingBar = findViewById(R.id.ratingBar);
         TextView ratingTxt = findViewById(R.id.ratingTxt);
         ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> ratingTxt.setText("Rating: " + rating));
