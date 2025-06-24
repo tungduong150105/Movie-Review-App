@@ -72,6 +72,7 @@
         <Button
             android:id="@+id/rateButton"
             android:layout_width="match_parent"
+            android:backgroundTint="@color/yellow_btn"
             android:layout_height="wrap_content"
             android:text="Rate" />
     </LinearLayout>
