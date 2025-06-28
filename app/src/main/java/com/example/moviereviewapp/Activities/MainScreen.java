@@ -3,9 +3,11 @@ package com.example.moviereviewapp.Activities;
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -80,6 +82,8 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
     List<String> person_in_like = new ArrayList<>();
     List<Integer> movie_in_watchlist = new ArrayList<>();
     List<Integer> tv_in_watchlist = new ArrayList<>();
+    Integer done = 0;
+    ProgressDialog progress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +112,6 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
         topratedrecyclerview();
         trendingrecyclerview();
         personrecyclerview();
-//        topboxofficeadapter();
         tvseriesrecyclerview();
         topratedTvseriesRecyclerview();
         initSeeAll();
@@ -729,7 +732,6 @@ public class MainScreen extends BaseActivity implements MovieAdapter.OnItemClick
 //                        });
                     }
                     topratedadapter.notifyDataSetChanged();
-//
 //                } else {
 //                    showError("Failed to load movies: " + response.message());
                 }

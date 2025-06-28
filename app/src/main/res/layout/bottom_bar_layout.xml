@@ -27,14 +27,6 @@
         android:src="@drawable/search_icon_large" />
 
     <ImageView
-        android:id="@+id/ivPlay"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        android:layout_weight="1"
-        android:contentDescription="Play"
-        android:src="@drawable/playicon" />
-
-    <ImageView
         android:id="@+id/ivProfile"
         android:layout_width="0dp"
         android:layout_height="30dp"

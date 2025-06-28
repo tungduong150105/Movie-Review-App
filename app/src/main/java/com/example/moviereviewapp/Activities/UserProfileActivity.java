@@ -3,6 +3,7 @@ package com.example.moviereviewapp.Activities;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static java.lang.Integer.valueOf;
 import static java.lang.Long.parseLong;
 
 import android.content.Intent;
@@ -320,17 +321,20 @@ public class UserProfileActivity extends BaseActivity implements movietrendingad
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            JSONObject detail = item.getJSONObject("detail");
-                            String name = detail.getString("name");
-                            String img_url = detail.getString("img_url");
-                            String release_date = detail.getString("release_day");
-                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
-                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
-                            if (movie_in_watchlist.contains(parseInt(_id))) {
-                                movie.setInWatchlist(true);
+                            if (!item.getString("detail").equals("null")) {
+                                JSONObject detail = item.getJSONObject("detail");
+                                String name = detail.getString("name");
+                                String img_url = detail.getString("img_url");
+                                String release_date = detail.getString("release_day");
+                                Log.d("ProfileScreen", detail.getString("rating"));
+                                String rating = detail.getString("rating").equals("null") ? "0" : detail.getString("rating");
+                                trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
                                 movie.setRating(parseDouble(rating));
+                                if (movie_in_watchlist.contains(parseInt(_id))) {
+                                    movie.setInWatchlist(true);
+                                }
+                                ratingMovieList.add(movie);
                             }
-                            ratingMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -402,17 +406,20 @@ public class UserProfileActivity extends BaseActivity implements movietrendingad
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            JSONObject detail = item.getJSONObject("detail");
-                            String name = detail.getString("name");
-                            String img_url = detail.getString("img_url");
-                            String release_date = detail.getString("release_day");
-                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
-                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
-                            if (movie_in_watchlist.contains(parseInt(_id))) {
-                                movie.setInWatchlist(true);
+                            if (!item.getString("detail").equals("null")) {
+                                JSONObject detail = item.getJSONObject("detail");
+                                String name = detail.getString("name");
+                                String img_url = detail.getString("img_url");
+                                String release_date = detail.getString("release_day");
+                                Log.d("ProfileScreen", detail.getString("rating"));
+                                String rating = detail.getString("rating").equals("null") ? "0" : detail.getString("rating");
+                                trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
                                 movie.setRating(parseDouble(rating));
+                                if (movie_in_watchlist.contains(parseInt(_id))) {
+                                    movie.setInWatchlist(true);
+                                }
+                                watchListMovieList.add(movie);
                             }
-                            watchListMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -485,17 +492,20 @@ public class UserProfileActivity extends BaseActivity implements movietrendingad
                             JSONObject item = jsonArray.getJSONObject(i);
                             String type_name = item.getString("type_name");
                             String _id = item.getString("_id");
-                            JSONObject detail = item.getJSONObject("detail");
-                            String name = detail.getString("name");
-                            String release_date = detail.getString("release_day");
-                            String img_url = detail.getString("img_url");
-                            String rating = detail.getString("rating") == "null" ? "0" : detail.getString("rating");
-                            trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
-                            if (movie_in_watchlist.contains(parseInt(_id))) {
-                                movie.setInWatchlist(true);
+                            if (!item.getString("detail").equals("null")) {
+                                JSONObject detail = item.getJSONObject("detail");
+                                String name = detail.getString("name");
+                                String release_date = detail.getString("release_day");
+                                String img_url = detail.getString("img_url");
+                                Log.d("ProfileScreen", detail.getString("rating").equals("null") ? "0" : detail.getString("rating"));
+                                String rating = detail.getString("rating").equals("null") ? "0" : detail.getString("rating");
+                                trendingall movie = new trendingall(name, release_date, type_name, name, "", img_url, "", "", parseInt(_id), "", "");
                                 movie.setRating(parseDouble(rating));
+                                if (movie_in_watchlist.contains(parseInt(_id))) {
+                                    movie.setInWatchlist(true);
+                                }
+                                recentlyViewedMovieList.add(movie);
                             }
-                            recentlyViewedMovieList.add(movie);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -570,53 +580,53 @@ public class UserProfileActivity extends BaseActivity implements movietrendingad
         startActivity(intent);
     }
 
-    private movies getData(String type_name, String _id) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url("https://api.themoviedb.org/3/" + (type_name.equals("movie") ? "movie" : "tv") + "/" + _id + "?api_key=fed0e4b63e1ef5ed6a678cd279a00884")
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWQwZTRiNjNlMWVmNWVkNmE2NzhjZDI3OWEwMDg4NCIsIm5iZiI6MTc0MzA0MjA2MC45NTcsInN1YiI6IjY3ZTRiNjBjNDIxZWI4YzMzMWJhMmQ1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JsgAgcRx5Sib0D4SvfmnuwUEMWPV6hPv2winrt86vk0")
-                .build();
-
-        AtomicReference<movies> movie = new AtomicReference<>(new movies());
-        Response response = client.newCall(request).execute();
-        if (response.code() == 200) {
-            assert response.body() != null;
-            String jsonString = response.body().string();
-            try {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                int id;
-                String Title;
-                String Url_img;
-                long Revenue;
-                String Backdrop_path;
-                double Like;
-                double Rating;
-                String Release_date;
-                if (type_name.equals("movie")) {
-                    Title = jsonObject.getString("original_title");
-                } else {
-                    Title = jsonObject.getString("original_name");
-                }
-                id = jsonObject.getInt("id");
-                Url_img = jsonObject.getString("poster_path");
-                Revenue = jsonObject.optLong("revenue", 0);
-                Backdrop_path = jsonObject.optString("backdrop_path", "");
-                Rating = jsonObject.getDouble("vote_average");
-                Release_date = jsonObject.optString("release_date", "");
-                movie.set(new movies(id, Title, Revenue, "", Url_img, Backdrop_path, 0.0, Rating, Release_date));
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return movie.get();
-    }
+//    private trendingall getData(String type_name, String _id) throws IOException, JSONException {
+//        OkHttpClient client = new OkHttpClient.Builder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//
+//        Request request = new Request.Builder()
+//                .url("https://api.themoviedb.org/3/" + (type_name.equals("movie") ? "movie" : "tv") + "/" + _id + "?api_key=fed0e4b63e1ef5ed6a678cd279a00884")
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWQwZTRiNjNlMWVmNWVkNmE2NzhjZDI3OWEwMDg4NCIsIm5iZiI6MTc0MzA0MjA2MC45NTcsInN1YiI6IjY3ZTRiNjBjNDIxZWI4YzMzMWJhMmQ1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JsgAgcRx5Sib0D4SvfmnuwUEMWPV6hPv2winrt86vk0")
+//                .build();
+//
+//        trendingall movie = null;
+//        Response response = client.newCall(request).execute();
+//        if (response.code() == 200) {
+//            assert response.body() != null;
+//            String jsonString = response.body().string();
+//            try {
+//                JSONObject jsonObject = new JSONObject(jsonString);
+//                int id;
+//                String Title;
+//                String Url_img;
+//                long Revenue;
+//                String Backdrop_path;
+//                double Like;
+//                double Rating;
+//                String Release_date;
+//                if (type_name.equals("movie")) {
+//                    Title = jsonObject.getString("original_title");
+//                } else {
+//                    Title = jsonObject.getString("original_name");
+//                }
+//                id = jsonObject.getInt("id");
+//                Url_img = jsonObject.getString("poster_path");
+//                Revenue = jsonObject.optLong("revenue", 0);
+//                Backdrop_path = jsonObject.optString("backdrop_path", "");
+//                Rating = jsonObject.getDouble("vote_average");
+//                Release_date = jsonObject.optString("release_date", "");
+//                movie = new trendingall(Title, Release_date, type_name, "", "", Url_img, Backdrop_path, "",  valueOf(id), "", ""));
+//            } catch (JSONException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        return movie;
+//    }
 
     private static final String TMDB_API_KEY = "75d6190f47f7d58c6d0511ca393d2f7d";
     private retrofit2.Call<MovieResponse> moviesCall;

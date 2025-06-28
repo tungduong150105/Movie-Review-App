@@ -48,7 +48,6 @@ public class BaseActivity extends AppCompatActivity {
     protected void setupBottomBar(Activity activity, String currentScreen) {
         ivHome = activity.findViewById(R.id.ivHome);
         ivSearch = activity.findViewById(R.id.ivSearch);
-        ivPlay = activity.findViewById(R.id.ivPlay);
         ivProfile = activity.findViewById(R.id.ivProfile);
         bottomBar = activity.findViewById(R.id.bottomBar);
 
@@ -59,9 +58,6 @@ public class BaseActivity extends AppCompatActivity {
                 break;
             case "search":
                 ivSearch.setImageResource(R.drawable.clicked_search_icon);
-                break;
-            case "play":
-                ivPlay.setImageResource(R.drawable.clicked_play_icon);
                 break;
             case "profile":
                 ivProfile.setImageResource(R.drawable.clicked_user_icon);
@@ -96,12 +92,6 @@ public class BaseActivity extends AppCompatActivity {
                 Intent intent = new Intent(activity, SearchActivity.class);
                 addUserDataToIntent(intent);
                 activity.startActivity(intent);
-                activity.overridePendingTransition(0, 0);
-            }
-        });
-
-        ivPlay.setOnClickListener(v -> {
-            if (!currentScreen.equals("play")) {
                 activity.overridePendingTransition(0, 0);
             }
         });

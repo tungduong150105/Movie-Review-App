@@ -107,6 +107,7 @@ public class Rating extends AppCompatActivity {
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) {
                             runOnUiThread(() -> Toast.makeText(Rating.this, "Rating added", Toast.LENGTH_SHORT).show());
+                            finish();
                         }
                     });
                 } else {
@@ -120,6 +121,7 @@ public class Rating extends AppCompatActivity {
                         public void onResponse(@NonNull Call call, @NonNull Response response) {
                             if (response.code() == 200) {
                                 runOnUiThread(() -> Toast.makeText(Rating.this, "Rating updated", Toast.LENGTH_SHORT).show());
+                                finish();
                             }
                         }
                     });

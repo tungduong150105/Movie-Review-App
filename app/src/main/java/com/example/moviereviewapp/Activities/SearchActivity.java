@@ -151,11 +151,13 @@ public class SearchActivity extends BaseActivity {
                         for (int i = json_array.length() - 1; i >= 0; --i) {
                             JSONObject jsonObject = json_array.getJSONObject(i);
                             String _id = jsonObject.getString("_id");
-                            JSONObject detail = jsonObject.getJSONObject("detail");
-                            String url_img = detail.getString("img_url");
-                            String title = detail.getString("name");
-                            String release_date = detail.getString("release_day");
-                            values.add(new SearchMovieModel(_id, url_img, title, release_date));
+                            if (!jsonObject.getString("detail").equals("null")) {
+                                JSONObject detail = jsonObject.getJSONObject("detail");
+                                String url_img = detail.getString("img_url");
+                                String title = detail.getString("name");
+                                String release_date = detail.getString("release_day");
+                                values.add(new SearchMovieModel(_id, url_img, title, release_date));
+                            }
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
