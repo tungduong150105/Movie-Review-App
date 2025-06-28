@@ -158,18 +158,18 @@ public class TitleDetailActivity extends AppCompatActivity{
 //       }
 //    }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        setUpRating(itemType, String.valueOf(itemId));
-        setUpInWatchlist();
-        setUpPersonFavorites();
-        try {
-            fetchReviews(itemId, itemType);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    protected void onRestart() {
+//        super.onRestart();
+//        setUpRating(itemType, String.valueOf(itemId));
+//        setUpInWatchlist();
+//        setUpPersonFavorites();
+//        try {
+//            fetchReviews(itemId, itemType);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +182,7 @@ public class TitleDetailActivity extends AppCompatActivity{
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        userAPi = new UserAPI(); // 👉 Khởi tạo trước khi dùng
+        userAPi = new UserAPI();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             itemId = extras.getInt("itemId", -1);
@@ -199,28 +199,30 @@ public class TitleDetailActivity extends AppCompatActivity{
             finish();
         });
 
+
         if (binding.mainYouTubePlayerView != null) {
             getLifecycle().addObserver(binding.mainYouTubePlayerView);
             setupMainYouTubePlayerView();
+        } else {
+            Log.e(TAG, "mainYouTubePlayerView not found in binding.");
         }
 
         if (binding.overlayYouTubePlayerView != null) {
             getLifecycle().addObserver(binding.overlayYouTubePlayerView);
             setupOverlayYouTubePlayerView();
+        } else {
+            Log.e(TAG, "overlayYouTubePlayerView not found in binding.");
         }
-
 
         setupRecyclerViews();
         setupClickListeners();
         setupSeeAll();
 
-
-
         Log.d(TAG, "Received Item ID: " + itemId + ", Type: " + itemType);
 
+        fetchItemDetails();
         addRecent(itemType, String.valueOf(itemId), token);
         setUpRating(itemType, String.valueOf(itemId));
-        fetchItemDetails();
 
         ImageView forumButton = findViewById(R.id.forumButton);
         forumButton.setOnClickListener(v -> {
@@ -249,6 +251,7 @@ public class TitleDetailActivity extends AppCompatActivity{
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
 
         final Boolean[] loading = {false};
         Button addToWatchlist = findViewById(R.id.addToWatchlistButton);
@@ -304,7 +307,6 @@ public class TitleDetailActivity extends AppCompatActivity{
                     }
                 });
             }
-            ;
 
             isInWatchlist[0] = !isInWatchlist[0];
             changeWatchlist(isInWatchlist, addToWatchlist);
@@ -619,6 +621,7 @@ public class TitleDetailActivity extends AppCompatActivity{
     }
 
     private void playMainTrailerVideo(String videoId) {
+        Log.d("VideoID", videoId);
         if (activeMainPlayer != null && videoId != null && !videoId.isEmpty()) {
             Log.d(TAG, "Playing main trailer: " + videoId);
             if (activeOverlayPlayer != null && binding.overlayPlayerContainer.getVisibility() == View.VISIBLE) {
@@ -752,6 +755,7 @@ public class TitleDetailActivity extends AppCompatActivity{
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
+                    addMovieInfo(itemType, String.valueOf(itemId), token, tvShow.getName(), tvShow.getPosterPath(), tvShow.getFirstAirDate(), String.valueOf(tvShow.getRating()));
                 } else {
                     Log.e(TAG, "Failed to fetch TV show detail: " + response.code());
                     showError("Failed to load TV show details.");
@@ -1680,18 +1684,18 @@ public class TitleDetailActivity extends AppCompatActivity{
         finish();
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        if (youtubePlayerView != null) {
-//            youtubePlayerView.release();
-//        }
-//        for (Call<?> call : apiCalls) {
-//            if (call != null && !call.isCanceled()) {
-//                call.cancel();
-//            }
-//        }
-//        apiCalls.clear();
-//        Log.d(TAG, "onDestroy: API calls cancelled and cleared, YouTube player released.");
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (youtubePlayerView != null) {
+            youtubePlayerView.release();
+        }
+        for (Call<?> call : apiCalls) {
+            if (call != null && !call.isCanceled()) {
+                call.cancel();
+            }
+        }
+        apiCalls.clear();
+        Log.d(TAG, "onDestroy: API calls cancelled and cleared, YouTube player released.");
+    }
 }

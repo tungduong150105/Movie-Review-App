@@ -68,7 +68,7 @@ public class Changing_Password_Activity extends AppCompatActivity {
             try {
                 body.put("token", token);
                 body.put("password", newPassword);
-                userAPI.call_api(userAPI.get_UserAPI() + "user/update_password", body.toString(), new Callback() {
+                userAPI.call_api(userAPI.get_UserAPI() + "/user/update_password", body.toString(), new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         runOnUiThread(() -> Toast.makeText(Changing_Password_Activity.this, "Something went wrong, please try again", Toast.LENGTH_SHORT).show());

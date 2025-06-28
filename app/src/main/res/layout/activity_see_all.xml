@@ -53,21 +53,8 @@
         app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomLayout"/>
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/bottomLayout"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:background="@color/black_control"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-    </LinearLayout>
     <FrameLayout
         android:id="@+id/videoOverlayContainer"
         android:layout_width="match_parent"

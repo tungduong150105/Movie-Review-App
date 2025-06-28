@@ -98,6 +98,7 @@ public class CommentActivity extends AppCompatActivity {
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     runOnUiThread(() -> {
                         Toast.makeText(CommentActivity.this, "Comment added successfully", Toast.LENGTH_SHORT).show();
+                        finish();
                     });
                 }
 

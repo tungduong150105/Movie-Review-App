@@ -3,6 +3,7 @@ package com.example.moviereviewapp.Activities;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -60,11 +61,6 @@ public class DiscussionForum extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_discussion_forum);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
         int movie_id;
         String movie_name;
         String username = "";
@@ -116,6 +112,21 @@ public class DiscussionForum extends AppCompatActivity {
         );
 
         inputMessage = findViewById(R.id.inputMessage);
+
+        // Handle keyboard send action
+        inputMessage.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                String message = inputMessage.getText().toString();
+                if (!message.isEmpty()) {
+                    sendMessage(String.valueOf(movie_id), message);
+                    inputMessage.setText("");
+                    inputMessage.clearFocus();
+                    adapter.setData(chatMessageList);
+                }
+                return true;
+            }
+            return false;
+        });
 
         ImageView send = findViewById(R.id.send);
         send.setOnClickListener(v -> {
