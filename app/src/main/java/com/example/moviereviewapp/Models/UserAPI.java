@@ -33,6 +33,15 @@ public class UserAPI {
         Call call = client.newCall(request);
         call.enqueue(callback);
     }
+    public void call_api_patch(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(json, mediaType);
+        Request request = new Request.Builder()
+                .url(url)
+                .patch(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
     public void call_api_auth(String url, String token, String json, Callback callback) {
         RequestBody body = RequestBody.create(json, mediaType);
         Request request = new Request.Builder()

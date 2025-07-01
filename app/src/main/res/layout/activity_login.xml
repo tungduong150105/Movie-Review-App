@@ -80,7 +80,7 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/edittext_container"
             android:ems="10"
-            android:hint="IMDb password"
+            android:hint="CineGaze password"
             android:inputType="textPassword"
             android:paddingStart="8dp"
             android:textColor="@color/white"
@@ -127,7 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
-                android:text="New to IMDb?"
+                android:text="New to CineGaze?"
                 android:textColor="@color/white_signup"
                 android:textSize="12sp" />
 
@@ -146,7 +146,7 @@
             android:background="@drawable/signin_btn_background"
             android:backgroundTint="@null"
             android:onClick="onClick_CreateAccount_LogIn"
-            android:text="Create a new IMDb account"
+            android:text="Create a new CineGaze account"
             android:textAllCaps="false"
             android:textColor="@color/white" />
 

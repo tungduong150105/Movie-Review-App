@@ -158,18 +158,18 @@ public class TitleDetailActivity extends AppCompatActivity{
 //       }
 //    }
 
-//    @Override
-//    protected void onRestart() {
-//        super.onRestart();
-//        setUpRating(itemType, String.valueOf(itemId));
-//        setUpInWatchlist();
-//        setUpPersonFavorites();
-//        try {
-//            fetchReviews(itemId, itemType);
-//        } catch (JSONException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        setUpRating(itemType, String.valueOf(itemId));
+        setUpInWatchlist();
+        setUpPersonFavorites();
+        try {
+            fetchReviews(itemId, itemType);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -747,6 +747,7 @@ public class TitleDetailActivity extends AppCompatActivity{
             public void onResponse(@NonNull Call<tvseriesdetail> call, @NonNull Response<tvseriesdetail> response) {
                 apiCalls.remove(call);
                 if (response.isSuccessful() && response.body() != null) {
+                    MOVIENAME = response.body().getName();
                     Log.d(TAG, "Fetched TV Show Detail: " + response.body().getName());
                     tvseriesdetail tvShow = response.body();
                     currentTvItem = tvShow;

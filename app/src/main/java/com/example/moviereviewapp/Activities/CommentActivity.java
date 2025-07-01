@@ -141,7 +141,11 @@ public class CommentActivity extends AppCompatActivity {
                     Title = jsonObject.getString("original_name");
                 }
                 Url_img = jsonObject.getString("poster_path");
-                release_date = jsonObject.getString("release_date");
+                if (type_name.equals("movie")) {
+                    release_date = jsonObject.getString("release_date");
+                } else {
+                    release_date = jsonObject.getString("first_air_date");
+                }
                 return new Movie(Title, Url_img, release_date);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
